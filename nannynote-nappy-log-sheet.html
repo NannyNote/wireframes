@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NannyNote — Nappy Log Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest:#2D5A3D; --sage:#8AAB8E; --sage-light:#C8DECA;
+    --cream:#F7F3EC; --cream-dark:#EDE7DC; --cream-bg:#F0EDE5;
+    --gold:#C9A84C; --coral:#E8735A; --sky:#6AABCF;
+    --mint:#5DB89A; --mint-light:rgba(93,184,154,0.12); --mint-mid:rgba(93,184,154,0.25);
+    --txt:#1a1a1a; --mid:#555; --light:#aaa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#dedad2;font-family:'DM Sans',sans-serif;min-height:100vh;padding:52px 24px 80px}
+
+  .page-header{text-align:center;margin-bottom:16px}
+  .page-header h1{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:500;color:var(--forest)}
+  .page-header p{color:#888;font-size:0.78rem;margin-top:8px;font-weight:300}
+
+  .lrow{display:flex;justify-content:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+  .lbl{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;padding:5px 14px;border-radius:20px}
+  .l1{background:rgba(93,184,154,0.12);color:#2a7a5a;border:1px solid rgba(93,184,154,0.28)}
+  .l2{background:rgba(45,90,61,0.08);color:var(--forest);border:1px solid rgba(45,90,61,0.2)}
+  .l3{background:rgba(232,115,90,0.1);color:#b03a20;border:1px solid rgba(232,115,90,0.25)}
+  .l4{background:rgba(201,168,76,0.12);color:#8a6a10;border:1px solid rgba(201,168,76,0.28)}
+
+  .phones{display:flex;justify-content:center;gap:24px;align-items:flex-start;flex-wrap:wrap}
+  .pw{display:flex;flex-direction:column;align-items:center}
+
+  /* PHONE */
+  .phone{width:308px;background:#0e0e0e;border-radius:50px;padding:11px;box-shadow:0 0 0 1px #1c1c1c,0 0 0 2px #0a0a0a,0 50px 100px rgba(0,0,0,0.38),0 20px 40px rgba(0,0,0,0.2);position:relative;flex-shrink:0}
+  .phone::before{content:'';position:absolute;left:-3px;top:98px;width:3px;height:26px;background:#181818;border-radius:2px 0 0 2px;box-shadow:0 38px 0 #181818,0 74px 0 #181818}
+  .phone::after{content:'';position:absolute;right:-3px;top:132px;width:3px;height:56px;background:#181818;border-radius:0 2px 2px 0}
+  .ps{background:var(--cream-bg);border-radius:40px;overflow:hidden;height:660px;display:flex;flex-direction:column;position:relative}
+  .di{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:88px;height:26px;background:#0e0e0e;border-radius:14px;z-index:20}
+
+  /* STATUS */
+  .status{height:44px;background:var(--forest);display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;flex-shrink:0;position:relative;z-index:10}
+  .st-time{font-size:0.68rem;font-weight:600;color:var(--cream)}
+  .st-icons{display:flex;align-items:center;gap:4px}
+  .sig{display:flex;gap:1.5px;align-items:flex-end}
+  .sig span{display:block;width:2.5px;background:var(--cream);border-radius:1px}
+  .sig span:nth-child(1){height:3px}.sig span:nth-child(2){height:5px}.sig span:nth-child(3){height:7px}.sig span:nth-child(4){height:9px;opacity:.3}
+  .batt{width:16px;height:8px;border:1.5px solid rgba(255,255,255,0.45);border-radius:2.5px;padding:1.5px;position:relative}
+  .batt::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:2px;height:5px;background:rgba(255,255,255,0.35);border-radius:0 1px 1px 0}
+  .bf{width:60%;height:100%;background:var(--cream);border-radius:1px}
+
+  /* HEADER */
+  .ah{background:var(--forest);padding:2px 18px 14px;flex-shrink:0}
+  .ah-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .app-name{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:600;color:var(--cream);line-height:1}
+  .nanny-av{width:28px;height:28px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:0.54rem;font-weight:700;color:var(--forest);border:2px solid rgba(255,255,255,0.2)}
+  .ctabs{display:flex;gap:6px;margin-bottom:10px}
+  .ctab{padding:3px 12px;border-radius:20px;font-size:0.64rem;font-weight:500}
+  .ctab.on{background:var(--cream);color:var(--forest)}
+  .ctab.off{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.14)}
+  .date-nav{display:flex;align-items:center}
+  .dn-arr{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.65);font-size:0.8rem;flex-shrink:0}
+  .dn-mid{flex:1;padding:0 10px}
+  .dn-lbl{font-size:0.5rem;color:var(--sage-light);text-transform:uppercase;letter-spacing:0.1em;font-weight:500;margin-bottom:2px}
+  .dn-date{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:500;color:var(--cream);line-height:1.1}
+
+  /* BODY */
+  .screen-body{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--cream-bg);position:relative}
+  .behind{flex:1;padding:10px 14px 0;opacity:0.16;pointer-events:none;display:flex;flex-direction:column;gap:6px}
+  .bg-lbl{font-size:0.47rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--light);margin-bottom:5px}
+  .bg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .bg-btn{background:white;border-radius:12px;border:1px solid var(--cream-dark);height:52px}
+  .bg-card{background:white;border-radius:10px;border:1px solid var(--cream-dark);height:36px;margin-bottom:5px}
+  .dim{position:absolute;inset:0;background:rgba(20,38,27,0.42);border-radius:0 0 40px 40px;z-index:10}
+
+  /* ===== SHEET ===== */
+  .sheet{
+    position:absolute;bottom:0;left:0;right:0;
+    background:white;
+    border-radius:20px 20px 0 0;
+    z-index:20;
+    box-shadow:0 -4px 24px rgba(0,0,0,0.12);
+    display:flex;flex-direction:column;
+  }
+  .hdl{width:36px;height:4px;background:var(--cream-dark);border-radius:2px;margin:12px auto 0;flex-shrink:0}
+
+  /* Sheet header */
+  .shd{padding:11px 18px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--cream-dark);flex-shrink:0}
+  .shdr{display:flex;align-items:center;gap:8px}
+  .shdot{width:9px;height:9px;border-radius:50%;background:var(--mint);flex-shrink:0}
+  .shtitle{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--txt);line-height:1}
+  .shtime{font-size:0.58rem;color:var(--light);font-weight:300;background:var(--cream);padding:3px 9px;border-radius:20px;border:1px solid var(--cream-dark)}
+
+  /* Fields */
+  .sfields{padding:14px 18px;display:flex;flex-direction:column;gap:14px;flex:1}
+  .fl{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--light);margin-bottom:8px}
+
+  /* ===== CONTENTS CHIPS — large, 2×2 grid ===== */
+  .contents-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+  }
+  .content-chip{
+    padding:14px 8px;
+    border-radius:13px;
+    border:1.5px solid var(--cream-dark);
+    background:var(--cream);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:5px;
+    cursor:pointer;
+    transition:all 0.12s;
+  }
+  .content-chip .cc-ico{font-size:1.5rem;line-height:1}
+  .content-chip .cc-lbl{font-size:0.68rem;font-weight:500;color:var(--mid)}
+
+  /* Selected states — each chip has its own accent */
+  .content-chip.sel-wet{background:rgba(106,171,207,0.12);border-color:rgba(106,171,207,0.35)}
+  .content-chip.sel-wet .cc-lbl{color:#3a7fa8;font-weight:700}
+  .content-chip.sel-dirty{background:rgba(201,168,76,0.12);border-color:rgba(201,168,76,0.35)}
+  .content-chip.sel-dirty .cc-lbl{color:#8a6a10;font-weight:700}
+  .content-chip.sel-both{background:var(--mint-light);border-color:var(--mint-mid)}
+  .content-chip.sel-both .cc-lbl{color:#2a7a5a;font-weight:700}
+  .content-chip.sel-dry{background:rgba(45,90,61,0.07);border-color:rgba(45,90,61,0.2)}
+  .content-chip.sel-dry .cc-lbl{color:var(--forest);font-weight:700}
+
+  /* ===== NAPPY RASH — appears contextually ===== */
+  .rash-section{
+    background:rgba(232,115,90,0.05);
+    border:1.5px solid rgba(232,115,90,0.18);
+    border-radius:12px;
+    padding:11px 13px;
+  }
+  .rash-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .rash-ico{font-size:0.9rem}
+  .rash-label{font-size:0.52rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#b03a20}
+  .rash-row{display:flex;gap:6px}
+  .rash-chip{flex:1;padding:7px 6px;border-radius:10px;font-size:0.65rem;font-weight:500;background:white;border:1.5px solid var(--cream-dark);color:var(--mid);text-align:center;cursor:pointer}
+  .rash-chip.none{flex:2}
+  .rash-chip.sel-none{background:var(--cream);border-color:var(--cream-dark);color:var(--mid)}
+  .rash-chip.sel-mild{background:rgba(245,200,66,0.15);border-color:rgba(245,200,66,0.4);color:#8a6a10;font-weight:700}
+  .rash-chip.sel-mod{background:rgba(232,115,90,0.12);border-color:rgba(232,115,90,0.3);color:#b03a20;font-weight:700}
+
+  /* Hidden rash section (states 1+2) */
+  .rash-hidden{
+    background:var(--cream);
+    border:1.5px solid var(--cream-dark);
+    border-radius:12px;
+    padding:10px 13px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .rash-q{font-size:0.65rem;color:var(--mid);font-weight:400}
+  .rash-toggle-row{display:flex;gap:6px;margin-left:auto}
+  .rash-yn{padding:5px 12px;border-radius:8px;font-size:0.62rem;font-weight:600;border:1.5px solid var(--cream-dark);background:white;color:var(--mid);cursor:pointer}
+  .rash-yn.sel-yes{background:rgba(232,115,90,0.12);border-color:rgba(232,115,90,0.3);color:#b03a20}
+  .rash-yn.sel-no{background:rgba(45,90,61,0.08);border-color:rgba(45,90,61,0.2);color:var(--forest)}
+
+  /* SAVE */
+  .sftr{padding:10px 18px 18px;background:white;flex-shrink:0}
+  .sbtn{width:100%;padding:12px;background:var(--mint);color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:0.02em;cursor:pointer;box-shadow:0 2px 10px rgba(93,184,154,0.35)}
+  .sbtn.off{background:var(--cream-dark);color:var(--light);box-shadow:none}
+
+  /* CAPTION */
+  .cap{margin-top:22px;width:308px;text-align:center}
+  .cap h4{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--mint);margin-bottom:8px}
+  .cap ul{list-style:none;text-align:left}
+  .cap li{font-size:0.62rem;color:#777;font-weight:300;line-height:1.5;display:flex;align-items:flex-start;gap:6px;margin-bottom:4px}
+  .cap li::before{content:'·';color:#bbb;flex-shrink:0}
+
+  /* NOTES */
+  .notes{max-width:1280px;margin:44px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .nc{background:white;border-radius:12px;padding:16px 18px;border:1px solid var(--cream-dark);box-shadow:0 1px 6px rgba(0,0,0,0.05)}
+  .nc h5{font-size:0.66rem;font-weight:700;color:var(--forest);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px}
+  .nc p{font-size:0.68rem;color:var(--mid);line-height:1.65;font-weight:300}
+  .nc p strong{color:var(--txt);font-weight:600}
+
+  /* NEXT */
+  .next{max-width:1280px;margin:14px auto 0;background:var(--forest);border-radius:11px;padding:14px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .next h4{font-family:'Cormorant Garamond',serif;font-size:0.9rem;font-weight:600;color:var(--cream);flex-shrink:0}
+  .nchips{display:flex;gap:6px;flex-wrap:wrap}
+  .nchip{padding:3px 10px;border-radius:20px;font-size:0.6rem;font-weight:500;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15)}
+  .nchip.done{background:rgba(255,255,255,0.18);color:white}
+  .nchip.now{background:var(--gold);color:var(--forest);font-weight:700;border-color:var(--gold)}
+
+  @media(max-width:720px){.phones{gap:24px}}
+
+  /* ── TAPPABLE TIME PILL + PICKER ── */
+  .shtime-tap {
+    display:flex; align-items:center; gap:4px;
+    background:var(--cream); border:1.5px solid var(--cream-dark);
+    border-radius:20px; padding:3px 9px; cursor:pointer;
+  }
+  .shtime-val { font-size:0.58rem; color:var(--txt); font-weight:500; }
+  .shtime-edit { font-size:0.5rem; color:var(--light); }
+  .shtime-active {
+    display:flex; align-items:center; gap:4px;
+    background:rgba(93,184,154,0.08); border:1.5px solid var(--mint);
+    border-radius:20px; padding:3px 9px;
+  }
+  .shtime-active .shtime-val { color:var(--mint); font-weight:600; }
+  .shtime-active .shtime-edit { color:var(--mint); }
+  .time-picker {
+    background:var(--cream); border-bottom:1px solid var(--cream-dark);
+    padding:10px 18px; flex-shrink:0;
+  }
+  .tp-lbl { font-size:0.5rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--light); margin-bottom:6px; }
+  .tp-row { display:flex; align-items:center; gap:6px; }
+  .tp-scroll { flex:1; background:white; border:1.5px solid var(--mint); border-radius:9px; padding:6px 10px; display:flex; align-items:center; justify-content:space-between; }
+  .tp-val { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:600; color:var(--mint); }
+  .tp-arrows { display:flex; flex-direction:column; gap:1px; }
+  .tp-arr { font-size:0.5rem; color:var(--light); line-height:1; }
+  .tp-sep { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:600; color:var(--txt); flex-shrink:0; }
+  .tp-done { padding:6px 14px; background:var(--mint); color:white; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.65rem; font-weight:600; cursor:pointer; flex-shrink:0; }
+  .tp-hint { font-size:0.5rem; color:var(--light); font-weight:300; text-align:center; margin-top:5px; }
+
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>🧷 Nappy Log Sheet</h1>
+  <p>3 taps maximum · contents first · rash check · no photo · mint green accent</p>
+</div>
+
+<div class="lrow">
+  <span class="lbl l1">1 — Sheet opens, nothing selected</span>
+  <span class="lbl l2">2 — Time picker open</span>
+  <span class="lbl l3">3 — Dirty + rash mild</span>
+  <span class="lbl l4">4 — Both + no rash</span>
+</div>
+
+<div class="phones">
+
+
+<!-- ═══ STATE 1 — Sheet opens, nothing selected ═══ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">14:22</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div>
+        <div class="date-nav"><div class="dn-arr">‹</div>
+      </div>
+    </div><div class="dn-arr">›</div></div>
+    </div>
+    <div class="screen-body">
+      <div class="behind"><div class="bg-lbl">Quick Log</div><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div><div style="margin-top:6px"><div class="bg-lbl">Recent</div><div class="bg-card"></div><div class="bg-card"></div></div></div>
+      <div class="dim"></div>
+      <div class="sheet">
+        <div class="hdl"></div>
+        <div class="shd">
+          <div class="shdr"><div class="shdot"></div><div class="shtitle">Log nappy</div></div>
+          <div class="shtime-tap"><span class="shtime-val">14:22</span><span class="shtime-edit">✎</span></div>
+        </div>
+        <div class="sfields">
+          <div>
+            <div class="fl">Contents</div>
+            <div class="contents-grid">
+              <div class="content-chip"><div class="cc-ico">💧</div><div class="cc-lbl">Wet</div></div>
+              <div class="content-chip"><div class="cc-ico">💩</div><div class="cc-lbl">Dirty</div></div>
+              <div class="content-chip"><div class="cc-ico">🔄</div><div class="cc-lbl">Both</div></div>
+              <div class="content-chip"><div class="cc-ico">✓</div><div class="cc-lbl">Dry</div></div>
+            </div>
+          </div>
+          <div class="rash-hidden">
+            <div class="rash-q">Nappy rash?</div>
+            <div class="rash-toggle-row">
+              <div class="rash-yn">Yes</div>
+              <div class="rash-yn">No</div>
+            </div>
+          </div>
+        </div>
+        <div class="sftr"><button class="sbtn off">Save entry</button></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Sheet opens</h4><ul>
+    <li>Large 2×2 grid — easy to tap one-handed</li>
+    <li>Nappy rash question sits below, compact Yes/No</li>
+    <li>Save inactive until contents is selected</li>
+    <li>No photo, no description, no time editing</li>
+  </ul></div>
+</div>
+
+
+<!-- ═══ STATE 2 — Wet selected, save active ═══ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">14:22</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div>
+        <div class="date-nav"><div class="dn-arr">‹</div>
+      </div>
+    </div><div class="dn-arr">›</div></div>
+    </div>
+    <div class="screen-body">
+      <div class="behind"><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div></div>
+      <div class="dim"></div>
+      <div class="sheet">
+        <div class="hdl"></div>
+        <div class="shd">
+          <div class="shdr"><div class="shdot"></div><div class="shtitle">Log nappy</div></div>
+          <div class="shtime-active"><span class="shtime-val">14:05</span><span class="shtime-edit">✎</span></div>
+        </div>
+        <!-- Time picker — open, mint accent -->
+        <div class="time-picker">
+          <div class="tp-lbl">When was the nappy changed?</div>
+          <div class="tp-row">
+            <div class="tp-scroll"><span class="tp-val">14</span><div class="tp-arrows"><span class="tp-arr">▲</span><span class="tp-arr">▼</span></div></div>
+            <span class="tp-sep">:</span>
+            <div class="tp-scroll"><span class="tp-val">05</span><div class="tp-arrows"><span class="tp-arr">▲</span><span class="tp-arr">▼</span></div></div>
+            <button class="tp-done">Done</button>
+          </div>
+          <div class="tp-hint">Tap Done to confirm · logged at 14:22</div>
+        </div>
+        <div class="sfields">
+          <div>
+            <div class="fl">Contents</div>
+            <div class="contents-grid">
+              <div class="content-chip sel-wet"><div class="cc-ico">💧</div><div class="cc-lbl">Wet</div></div>
+              <div class="content-chip"><div class="cc-ico">💩</div><div class="cc-lbl">Dirty</div></div>
+              <div class="content-chip"><div class="cc-ico">🔄</div><div class="cc-lbl">Both</div></div>
+              <div class="content-chip"><div class="cc-ico">✓</div><div class="cc-lbl">Dry</div></div>
+            </div>
+          </div>
+          <!-- Rash — No selected -->
+          <div class="rash-hidden">
+            <div class="rash-q">Nappy rash?</div>
+            <div class="rash-toggle-row">
+              <div class="rash-yn">Yes</div>
+              <div class="rash-yn sel-no">No</div>
+            </div>
+          </div>
+        </div>
+        <div class="sftr"><button class="sbtn">Save entry →</button></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Time picker open</h4><ul>
+    <li>Tapping the ✎ time pill turns it mint and drops the picker below the header</li>
+    <li>Same pattern as the meal log — consistent across all sheets</li>
+    <li>Hint: "logged at 14:22" preserves the original tap timestamp</li>
+    <li>Wet already selected — one more tap on Save to complete</li>
+  </ul></div>
+</div>
+
+
+<!-- ═══ STATE 3 — Dirty + nappy rash mild ═══ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">14:22</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div>
+        <div class="date-nav"><div class="dn-arr">‹</div>
+      </div>
+    </div><div class="dn-arr">›</div></div>
+    </div>
+    <div class="screen-body">
+      <div class="behind"><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div></div>
+      <div class="dim"></div>
+      <div class="sheet">
+        <div class="hdl"></div>
+        <div class="shd">
+          <div class="shdr"><div class="shdot"></div><div class="shtitle">Log nappy</div></div>
+          <div class="shtime-tap"><span class="shtime-val">14:22</span><span class="shtime-edit">✎</span></div>
+        </div>
+        <div class="sfields">
+          <div>
+            <div class="fl">Contents</div>
+            <div class="contents-grid">
+              <div class="content-chip"><div class="cc-ico">💧</div><div class="cc-lbl">Wet</div></div>
+              <div class="content-chip sel-dirty"><div class="cc-ico">💩</div><div class="cc-lbl">Dirty</div></div>
+              <div class="content-chip"><div class="cc-ico">🔄</div><div class="cc-lbl">Both</div></div>
+              <div class="content-chip"><div class="cc-ico">✓</div><div class="cc-lbl">Dry</div></div>
+            </div>
+          </div>
+          <!-- Rash — Yes tapped, severity shown -->
+          <div class="rash-section">
+            <div class="rash-header">
+              <span class="rash-ico">🔴</span>
+              <span class="rash-label">Nappy rash present</span>
+            </div>
+            <div class="rash-row">
+              <div class="rash-chip sel-none">None</div>
+              <div class="rash-chip sel-mild">Mild</div>
+              <div class="rash-chip">Moderate</div>
+            </div>
+          </div>
+        </div>
+        <div class="sftr"><button class="sbtn">Save entry →</button></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Dirty · rash mild</h4><ul>
+    <li>Tapping Yes expands the rash section with severity chips</li>
+    <li>None · Mild · Moderate — tapping Yes pre-selects Mild as the most likely</li>
+    <li>Rash section has a warm red tint — visually distinct, easy to spot in the diary</li>
+    <li>Save active once contents is selected</li>
+  </ul></div>
+</div>
+
+
+<!-- ═══ STATE 4 — Both + no rash, confirming ═══ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">14:22</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div>
+        <div class="date-nav"><div class="dn-arr">‹</div>
+      </div>
+    </div><div class="dn-arr">›</div></div>
+    </div>
+    <div class="screen-body">
+      <div class="behind"><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div></div>
+      <div class="dim"></div>
+      <div class="sheet">
+        <div class="hdl"></div>
+        <div class="shd">
+          <div class="shdr"><div class="shdot"></div><div class="shtitle">Log nappy</div></div>
+          <div class="shtime-tap"><span class="shtime-val">14:22</span><span class="shtime-edit">✎</span></div>
+        </div>
+        <div class="sfields">
+          <div>
+            <div class="fl">Contents</div>
+            <div class="contents-grid">
+              <div class="content-chip"><div class="cc-ico">💧</div><div class="cc-lbl">Wet</div></div>
+              <div class="content-chip"><div class="cc-ico">💩</div><div class="cc-lbl">Dirty</div></div>
+              <div class="content-chip sel-both"><div class="cc-ico">🔄</div><div class="cc-lbl">Both</div></div>
+              <div class="content-chip"><div class="cc-ico">✓</div><div class="cc-lbl">Dry</div></div>
+            </div>
+          </div>
+          <!-- Rash — No selected, compact -->
+          <div class="rash-hidden">
+            <div class="rash-q">Nappy rash?</div>
+            <div class="rash-toggle-row">
+              <div class="rash-yn">Yes</div>
+              <div class="rash-yn sel-no">No</div>
+            </div>
+          </div>
+        </div>
+        <div class="sftr"><button class="sbtn">Save entry →</button></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Both · no rash · ready</h4><ul>
+    <li>Both chip highlights mint — the sheet's primary accent colour</li>
+    <li>No rash — compact row stays in place, no expansion</li>
+    <li>Clean and complete — ready to save</li>
+  </ul></div>
+</div>
+
+
+</div><!-- /phones -->
+
+<div class="notes">
+  <div class="nc"><h5>⚡ 3 taps max</h5><p>The fastest log in the app. Open sheet → tap contents → tap Save. That's it. Nappy rash is optional — most nappy changes won't need it. The rash prompt is always visible but stays compact unless Yes is tapped.</p></div>
+  <div class="nc"><h5>🎨 Contents chip colours</h5><p>Each chip has its own subtle accent: <strong>Wet → sky blue · Dirty → gold · Both → mint · Dry → forest green.</strong> These aren't loud — just enough visual differentiation to scan quickly in the diary view.</p></div>
+  <div class="nc"><h5>🔴 Rash section</h5><p>Tapping Yes expands the section to show <strong>None · Mild · Moderate</strong> chips. Mild is pre-selected as the most likely. The rash section has a warm red tint — visually distinct in the diary so it's easy to spot a rash developing over multiple entries.</p></div>
+  <div class="nc"><h5>🚫 No photo</h5><p>The only log type without a photo attachment. Nappy changes aren't shareable moments — removing the camera icon keeps the sheet focused and the interaction fast.</p></div>
+  <div class="nc"><h5>🟢 Mint save button</h5><p>The Save button uses mint green rather than forest green — <strong>matches the sheet's category colour</strong> for visual consistency. The same principle will apply to all log sheets: the save button reflects the category accent.</p></div>
+  <div class="nc"><h5>💾 Saved data</h5><p><strong>{ category: "nappy", contents: "wet", rash: false }</strong> or with rash: <strong>{ category: "nappy", contents: "dirty", rash: true, rash_severity: "mild" }</strong></p></div>
+</div>
+
+<div class="next">
+  <h4>Screen progress</h4>
+  <div class="nchips">
+    <div class="nchip done">✓ Home</div>
+    <div class="nchip done">✓ Meal log</div>
+    <div class="nchip done">✓ Sleep log</div>
+    <div class="nchip done">✓ Activity log</div>
+    <div class="nchip now">✓ Nappy log</div>
+    <div class="nchip">Medication log</div>
+    <div class="nchip">End of day</div>
+    <div class="nchip">Diary view</div>
+    <div class="nchip">Parent view</div>
+    <div class="nchip">Weekly plan</div>
+  </div>
+</div>
+
+</body>
+</html>

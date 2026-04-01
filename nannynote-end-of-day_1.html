@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NannyNote — End of Day Summary</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest:#2D5A3D; --sage:#8AAB8E; --sage-light:#C8DECA;
+    --cream:#F7F3EC; --cream-dark:#EDE7DC; --cream-bg:#F0EDE5;
+    --gold:#C9A84C; --coral:#E8735A; --sky:#6AABCF;
+    --sunshine:#F5C842; --lavender:#9B8EC4; --mint:#5DB89A; --tan:#C4A882;
+    --txt:#1a1a1a; --mid:#555; --light:#aaa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#dedad2;font-family:'DM Sans',sans-serif;min-height:100vh;padding:52px 24px 80px}
+
+  .page-header{text-align:center;margin-bottom:16px}
+  .page-header h1{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:500;color:var(--forest)}
+  .page-header p{color:#888;font-size:0.78rem;margin-top:8px;font-weight:300}
+
+  .lrow{display:flex;justify-content:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+  .lbl{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;padding:5px 14px;border-radius:20px}
+  .l1{background:rgba(45,90,61,0.08);color:var(--forest);border:1px solid rgba(45,90,61,0.2)}
+  .l2{background:rgba(201,168,76,0.12);color:#8a6a10;border:1px solid rgba(201,168,76,0.28)}
+  .l3{background:rgba(106,171,207,0.12);color:#3a7fa8;border:1px solid rgba(106,171,207,0.28)}
+  .l4{background:rgba(93,184,154,0.12);color:#2a7a5a;border:1px solid rgba(93,184,154,0.28)}
+
+  .phones{display:flex;justify-content:center;gap:36px;align-items:flex-start;flex-wrap:wrap}
+  .pw{display:flex;flex-direction:column;align-items:center}
+
+  /* ── PHONE SHELL — matches all other wireframes ── */
+  .phone{width:308px;background:#0e0e0e;border-radius:50px;padding:11px;box-shadow:0 0 0 1px #1c1c1c,0 0 0 2px #0a0a0a,0 50px 100px rgba(0,0,0,0.38),0 20px 40px rgba(0,0,0,0.2);position:relative;flex-shrink:0}
+  .phone::before{content:'';position:absolute;left:-3px;top:98px;width:3px;height:26px;background:#181818;border-radius:2px 0 0 2px;box-shadow:0 38px 0 #181818,0 74px 0 #181818}
+  .phone::after{content:'';position:absolute;right:-3px;top:132px;width:3px;height:56px;background:#181818;border-radius:0 2px 2px 0}
+  .ps{background:var(--cream-bg);border-radius:40px;overflow:hidden;height:660px;display:flex;flex-direction:column;position:relative}
+  .di{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:88px;height:26px;background:#0e0e0e;border-radius:14px;z-index:20}
+
+  /* ── STATUS BAR ── */
+  .status{height:44px;background:var(--forest);display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;flex-shrink:0;position:relative;z-index:10}
+  .st-time{font-size:0.68rem;font-weight:600;color:var(--cream)}
+  .st-icons{display:flex;align-items:center;gap:4px}
+  .sig{display:flex;gap:1.5px;align-items:flex-end}
+  .sig span{display:block;width:2.5px;background:var(--cream);border-radius:1px}
+  .sig span:nth-child(1){height:3px}.sig span:nth-child(2){height:5px}.sig span:nth-child(3){height:7px}.sig span:nth-child(4){height:9px;opacity:.3}
+  .batt{width:16px;height:8px;border:1.5px solid rgba(255,255,255,0.45);border-radius:2.5px;padding:1.5px;position:relative}
+  .batt::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:2px;height:5px;background:rgba(255,255,255,0.35);border-radius:0 1px 1px 0}
+  .bf{width:60%;height:100%;background:var(--cream);border-radius:1px}
+
+  /* ── HEADER — Option A: thin green bar + cream section ── */
+  .ah{flex-shrink:0}
+  .ah-bar{background:var(--forest);padding:6px 18px 7px;display:flex;align-items:center;justify-content:space-between}
+  .app-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--cream);line-height:1}
+  .nanny-av{width:26px;height:26px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:0.52rem;font-weight:700;color:var(--forest)}
+  .ah-cream{background:var(--cream);padding:10px 18px 12px;border-bottom:1px solid var(--cream-dark)}
+  .ctabs{display:flex;gap:6px;margin-bottom:10px}
+  .ctab{padding:3px 12px;border-radius:20px;font-size:0.64rem;font-weight:500}
+  .ctab.on{background:var(--forest);color:var(--cream)}
+  .ctab.off{background:rgba(45,90,61,0.07);color:var(--forest);border:1px solid rgba(45,90,61,0.18)}
+  .date-nav{display:flex;align-items:center}
+  .dn-arr{width:24px;height:24px;border-radius:50%;background:rgba(45,90,61,0.08);border:1px solid rgba(45,90,61,0.14);display:flex;align-items:center;justify-content:center;color:var(--forest);font-size:0.8rem;flex-shrink:0}
+  .dn-mid{flex:1;padding:0 10px}
+  .dn-lbl{font-size:0.5rem;color:var(--light);text-transform:uppercase;letter-spacing:0.1em;font-weight:500;margin-bottom:2px}
+  .dn-date{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:500;color:var(--txt);line-height:1.1}
+
+  /* ── SCREEN BODY ── */
+  .screen-body{flex:1;overflow-y:auto;scrollbar-width:none;background:var(--cream-bg);display:flex;flex-direction:column}
+  .screen-body::-webkit-scrollbar{display:none}
+
+  /* ── SECTION LABEL ── */
+  .sec-lbl{font-size:0.49rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--light);padding:12px 14px 6px}
+
+  /* ── STAT CHIPS ── */
+  .stat-strip{display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px;background:var(--cream);border-bottom:1px solid var(--cream-dark);flex-shrink:0}
+  .sc{padding:4px 9px;border-radius:20px;font-size:0.54rem;font-weight:600;display:flex;align-items:center;gap:4px}
+  .sc-sl{background:rgba(106,171,207,0.12);color:#3a7fa8}
+  .sc-ml{background:rgba(232,115,90,0.12);color:#b03a20}
+  .sc-ac{background:rgba(245,200,66,0.12);color:#7a5e08}
+  .sc-np{background:rgba(93,184,154,0.12);color:#2a7a5a}
+  .sc-ph{background:rgba(201,168,76,0.12);color:#8a6a10}
+  .sc-md{background:rgba(155,142,196,0.14);color:#6a5aa0}
+
+  /* ── TIMELINE CARD ── */
+  .tl-card{background:white;border-radius:14px;margin:0 12px 10px;box-shadow:0 2px 10px rgba(0,0,0,0.07),0 1px 3px rgba(0,0,0,0.04);overflow:hidden}
+  .tl-hd{padding:9px 12px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--cream-dark);background:rgba(45,90,61,0.03)}
+  .tl-hd-l{display:flex;align-items:center;gap:6px}
+  .tl-title{font-size:0.66rem;font-weight:600;color:var(--forest)}
+  .tl-count{font-size:0.48rem;font-weight:700;color:white;background:var(--sage);border-radius:9px;padding:2px 7px;letter-spacing:0.02em}
+  .tl-hint{font-size:0.5rem;color:var(--light);font-style:italic}
+  .tl-body{padding:4px 0 4px}
+  .tl-row{display:flex;align-items:flex-start;padding:5px 12px;gap:8px;position:relative}
+  .tl-row:not(:last-child)::after{content:'';position:absolute;left:43px;top:22px;width:1.5px;height:calc(100% - 2px);background:var(--cream-dark)}
+  .tl-t{font-size:0.5rem;font-weight:600;color:var(--light);width:26px;flex-shrink:0;padding-top:4px;text-align:right}
+  .tl-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;flex-shrink:0;z-index:1}
+  .tl-cnt{flex:1;padding-top:2px;min-width:0}
+  .tl-lbl{font-size:0.64rem;font-weight:600;color:var(--txt);line-height:1.3}
+  .tl-sub{font-size:0.56rem;color:var(--light);margin-top:1px;line-height:1.4}
+  .tl-photo{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#c8d8b8,#8aab8e);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0}
+
+  /* category dot colours */
+  .d-sleep{background:rgba(106,171,207,0.15)} .d-meal{background:rgba(232,115,90,0.13)}
+  .d-act{background:rgba(245,200,66,0.15)} .d-nappy{background:rgba(93,184,154,0.13)}
+  .d-med{background:rgba(155,142,196,0.15)}
+
+  /* ── NARRATIVE CARD ── */
+  .narr-card{background:white;border-radius:14px;margin:0 12px 6px;box-shadow:0 2px 10px rgba(0,0,0,0.07);overflow:hidden}
+  .narr-hd{padding:9px 12px 8px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--cream-dark)}
+  .narr-hd-title{font-size:0.66rem;font-weight:600;color:var(--forest);flex:1}
+  .narr-body{padding:10px 12px 12px}
+  .narr-empty{font-size:0.72rem;color:var(--light);font-style:italic;line-height:1.6;font-family:'Cormorant Garamond',serif}
+  .narr-text{font-size:0.72rem;color:var(--txt);line-height:1.65;font-family:'Cormorant Garamond',serif;font-style:italic}
+  .narr-typing{border:1.5px solid rgba(45,90,61,0.3);box-shadow:0 0 0 3px rgba(45,90,61,0.06)}
+  .cursor{display:inline-block;width:1.5px;height:13px;background:var(--forest);margin-left:1px;vertical-align:text-bottom;animation:blink 1s step-end infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  .char-count{text-align:right;font-size:0.47rem;color:var(--light);margin-top:5px}
+
+  /* ── AI ASSIST PANEL ── */
+  .ai-panel{background:white;border-radius:14px;margin:0 12px 10px;box-shadow:0 2px 10px rgba(0,0,0,0.07);overflow:hidden;border:1px solid rgba(45,90,61,0.1)}
+  .ai-hd{background:var(--forest);padding:9px 12px;display:flex;align-items:center;gap:7px}
+  .ai-spark{font-size:0.82rem;color:var(--gold)}
+  .ai-hd-title{font-size:0.64rem;font-weight:600;color:white;flex:1}
+  .ai-tone-badge{font-size:0.44rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;background:rgba(201,168,76,0.25);color:var(--gold);padding:2px 7px;border-radius:8px;border:1px solid rgba(201,168,76,0.3)}
+  .ai-modes{display:flex}
+  .ai-opt{flex:1;padding:10px 10px;text-align:center;border-right:1px solid var(--cream-dark);cursor:pointer}
+  .ai-opt:last-child{border-right:none}
+  .ai-opt.active{background:rgba(45,90,61,0.04)}
+  .ai-opt-ico{font-size:1rem;margin-bottom:3px}
+  .ai-opt-lbl{font-size:0.58rem;font-weight:700;color:var(--forest);margin-bottom:2px}
+  .ai-opt-sub{font-size:0.48rem;color:var(--light);line-height:1.35}
+  .ai-footer-strip{padding:6px 12px;border-top:1px solid var(--cream-dark);font-size:0.48rem;color:var(--mid);background:rgba(238,244,240,0.5);display:flex;align-items:center;gap:5px}
+
+  /* ── HANDOVER CARD ── */
+  .ho-card{background:white;border-radius:14px;margin:0 12px 10px;box-shadow:0 2px 10px rgba(0,0,0,0.07);overflow:hidden;border:1.5px solid rgba(201,168,76,0.3)}
+  .ho-hd{background:rgba(201,168,76,0.07);padding:9px 12px;display:flex;align-items:center;gap:7px;border-bottom:1px solid rgba(201,168,76,0.2)}
+  .ho-title{font-size:0.66rem;font-weight:600;color:var(--txt);flex:1}
+  .ho-badge{font-size:0.44rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;background:rgba(201,168,76,0.18);color:#8a6a10;padding:2px 7px;border-radius:8px;border:1px solid rgba(201,168,76,0.28)}
+  .ho-chips{padding:8px 10px 4px;display:flex;gap:5px;flex-wrap:wrap}
+  .hq-chip{font-size:0.54rem;font-weight:500;color:var(--forest);border:1px solid rgba(45,90,61,0.22);border-radius:12px;padding:3px 9px;background:rgba(45,90,61,0.05)}
+  .ho-input{margin:4px 12px 10px;background:var(--cream-bg);border-radius:10px;padding:8px 11px;font-size:0.65rem;color:var(--mid);font-style:italic;line-height:1.6;border:1px solid var(--cream-dark)}
+  .ho-no-ai{padding:5px 12px 8px;font-size:0.48rem;color:var(--light);display:flex;align-items:center;gap:5px;border-top:1px solid rgba(201,168,76,0.18)}
+
+  /* ── FLAG SECTION ── */
+  .flag-row{padding:0 12px 10px;display:flex;gap:5px}
+  .flag-opt{flex:1;border-radius:11px;padding:8px 4px;text-align:center;border:1.5px solid;cursor:pointer}
+  .fo-none{border-color:var(--cream-dark);background:var(--cream)}
+  .fo-blue{border-color:rgba(106,171,207,0.45);background:rgba(106,171,207,0.07)}
+  .fo-amber{border-color:rgba(201,168,76,0.5);background:rgba(245,200,66,0.07)}
+  .fo-red{border-color:rgba(232,100,100,0.45);background:rgba(232,100,100,0.05)}
+  .fo-ico{font-size:0.9rem;margin-bottom:3px}
+  .fo-lbl{font-size:0.5rem;font-weight:700;color:var(--txt);line-height:1.3;margin-bottom:2px}
+  .fo-sub{font-size:0.44rem;color:var(--light)}
+
+  /* ── SEND BUTTON ── */
+  .send-wrap{padding:8px 12px 14px;background:var(--cream-bg);border-top:1px solid var(--cream-dark);flex-shrink:0}
+  .send-btn{width:100%;padding:12px;background:var(--forest);color:var(--cream);border:none;border-radius:13px;font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;box-shadow:0 3px 14px rgba(45,90,61,0.35)}
+  .send-btn.off{background:var(--cream-dark);color:var(--light);box-shadow:none}
+  .send-sub{font-size:0.5rem;color:rgba(247,243,236,0.65);font-weight:300;text-align:center;margin-top:5px}
+  .send-btn.sent{background:rgba(45,90,61,0.08);color:var(--forest);border:1.5px solid rgba(45,90,61,0.2);box-shadow:none}
+
+  /* ── STICKY AI BAR (keyboard state) ── */
+  .sticky-ai{background:white;border-top:1.5px solid var(--cream-dark);padding:7px 12px;display:flex;align-items:center;gap:7px;flex-shrink:0;box-shadow:0 -3px 12px rgba(0,0,0,0.06)}
+  .sticky-lbl{font-size:0.48rem;font-weight:700;color:var(--light);display:flex;align-items:center;gap:3px;flex-shrink:0;text-transform:uppercase;letter-spacing:0.05em}
+  .sticky-spark{color:var(--gold);font-size:0.6rem}
+  .sticky-btn{display:flex;align-items:center;gap:4px;border-radius:20px;padding:5px 12px;font-size:0.6rem;font-weight:600;border:1.5px solid;cursor:pointer;white-space:nowrap}
+  .sb-gen{background:var(--forest);border-color:transparent;color:white;box-shadow:0 2px 8px rgba(45,90,61,0.28)}
+  .sb-pol{background:white;border-color:var(--sage);color:var(--forest)}
+  .sb-pol.dim{border-color:var(--cream-dark);color:var(--light)}
+  .sticky-dismiss{margin-left:auto;width:24px;height:24px;border-radius:50%;background:var(--cream-bg);border:1px solid var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--mid);flex-shrink:0;cursor:pointer}
+
+  /* ── KEYBOARD ── */
+  .keyboard{background:#CDD1D8;padding:5px 4px 10px;flex-shrink:0}
+  .kb-row{display:flex;gap:4px;margin-bottom:4px;justify-content:center}
+  .kb-k{background:white;border-radius:5px;height:36px;flex:1;display:flex;align-items:center;justify-content:center;font-size:0.88rem;font-weight:400;color:var(--txt);box-shadow:0 1px 0 1px #A0A7B0;max-width:27px}
+  .kb-k.dk{background:#AEB6BF;color:var(--txt);font-size:0.66rem;max-width:38px;box-shadow:0 1px 0 1px #8A9099}
+  .kb-k.sp{max-width:140px;font-size:0.6rem;color:var(--mid)}
+  .kb-k.rt{max-width:48px;font-size:0.54rem;background:#AEB6BF;box-shadow:0 1px 0 1px #8A9099}
+
+  /* ── SENT STATE ── */
+  .sent-banner{margin:12px 12px 0;background:rgba(45,90,61,0.06);border:1.5px solid rgba(45,90,61,0.18);border-radius:14px;padding:11px 13px;display:flex;align-items:center;gap:10px}
+  .sent-ico{font-size:1.1rem;flex-shrink:0}
+  .sent-title{font-size:0.7rem;font-weight:600;color:var(--forest)}
+  .sent-sub{font-size:0.54rem;color:var(--light);margin-top:2px;font-weight:300}
+  .locked-field{background:rgba(45,90,61,0.03);border-radius:14px;border:1px solid rgba(45,90,61,0.1);padding:10px 12px;margin:0 12px;position:relative}
+  .lock-ico{position:absolute;top:9px;right:10px;font-size:0.62rem;color:var(--light)}
+
+  /* ── BOTTOM NAV ── */
+  .bnav{background:white;border-top:1px solid var(--cream-dark);display:flex;padding:6px 4px 14px;flex-shrink:0}
+  .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px}
+  .nio{font-size:0.95rem;line-height:1}
+  .nil{font-size:0.43rem;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--light)}
+  .ni.on .nil{color:var(--forest);font-weight:700}
+
+  /* ── CAPTIONS ── */
+  .cap{margin-top:22px;width:308px;text-align:center}
+  .cap h4{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--forest);margin-bottom:8px}
+  .cap ul{list-style:none;text-align:left}
+  .cap li{font-size:0.62rem;color:#777;font-weight:300;line-height:1.5;display:flex;align-items:flex-start;gap:6px;margin-bottom:4px}
+  .cap li::before{content:'·';color:#bbb;flex-shrink:0}
+
+  /* ── NOTES ── */
+  .notes{max-width:1280px;margin:44px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .nc{background:white;border-radius:12px;padding:16px 18px;border:1px solid var(--cream-dark);box-shadow:0 1px 6px rgba(0,0,0,0.05)}
+  .nc h5{font-size:0.66rem;font-weight:700;color:var(--forest);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px}
+  .nc p{font-size:0.68rem;color:var(--mid);line-height:1.65;font-weight:300}
+  .nc p strong{color:var(--txt);font-weight:600}
+
+  .next{max-width:1280px;margin:14px auto 0;background:var(--forest);border-radius:11px;padding:14px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .next h4{font-family:'Cormorant Garamond',serif;font-size:0.9rem;font-weight:600;color:var(--cream);flex-shrink:0}
+  .nchips{display:flex;gap:6px;flex-wrap:wrap}
+  .nchip{padding:3px 10px;border-radius:20px;font-size:0.6rem;font-weight:500;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15)}
+  .nchip.done{background:rgba(255,255,255,0.18);color:white}
+  .nchip.now{background:var(--gold);color:var(--forest);font-weight:700;border-color:var(--gold)}
+
+  @media(max-width:800px){.phones{gap:24px}}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>✍️ End of Day Summary</h1>
+  <p>Timeline of today's logs · AI writing assist · flag system · handover with quick-fill · keyboard state</p>
+</div>
+
+<div class="lrow">
+  <span class="lbl l1">1 — Default, narrative empty</span>
+  <span class="lbl l2">2 — Nanny typing, keyboard open</span>
+  <span class="lbl l3">3 — AI written, all fields filled</span>
+  <span class="lbl l4">4 — Sent and locked</span>
+</div>
+
+<div class="phones">
+
+
+<!-- ════════════ STATE 1 — DEFAULT ════════════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">17:45</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div><div class="ctab off">Theo</div></div>
+        <div class="date-nav"><div class="dn-arr">‹</div><div class="dn-mid"><div class="dn-lbl">Today</div><div class="dn-date">Tuesday, 1 April</div></div><div class="dn-arr">›</div></div>
+      </div>
+    </div>
+
+    <div class="screen-body">
+      <!-- Stat chips -->
+      <div class="stat-strip">
+        <div class="sc sc-sl">😴 3h 10m</div>
+        <div class="sc sc-ml">🍽️ 3 meals</div>
+        <div class="sc sc-ac">🎨 2 acts</div>
+        <div class="sc sc-np">🧷 4</div>
+        <div class="sc sc-ph">📸 6</div>
+      </div>
+
+      <!-- Today's log timeline -->
+      <div class="sec-lbl">Your day with Olivia</div>
+      <div class="tl-card">
+        <div class="tl-hd">
+          <div class="tl-hd-l"><span style="font-size:0.82rem">🕐</span><span class="tl-title">Today's log</span><span class="tl-count">9 entries</span></div>
+          <span class="tl-hint">Pulled from your logs</span>
+        </div>
+        <div class="tl-body">
+          <div class="tl-row"><div class="tl-t">8:05</div><div class="tl-dot d-meal">🍽️</div><div class="tl-cnt"><div class="tl-lbl">Breakfast — porridge, banana</div><div class="tl-sub">Ate well</div></div></div>
+          <div class="tl-row"><div class="tl-t">10:00</div><div class="tl-dot d-act">🎨</div><div class="tl-cnt"><div class="tl-lbl">Nature walk + leaf printing</div><div class="tl-sub">Outdoor · Creative · 1hr+</div></div><div class="tl-photo">🍂</div></div>
+          <div class="tl-row"><div class="tl-t">11:40</div><div class="tl-dot d-nappy">🧷</div><div class="tl-cnt"><div class="tl-lbl">Nappy change — wet</div></div></div>
+          <div class="tl-row"><div class="tl-t">12:15</div><div class="tl-dot d-meal">🍽️</div><div class="tl-cnt"><div class="tl-lbl">Lunch — pasta, pesto, peas</div><div class="tl-sub">Ate all of it</div></div></div>
+          <div class="tl-row"><div class="tl-t">13:28</div><div class="tl-dot d-sleep">😴</div><div class="tl-cnt"><div class="tl-lbl">Nap — 1h 33m</div><div class="tl-sub">Cot · self-settled</div></div></div>
+          <div class="tl-row"><div class="tl-t">15:05</div><div class="tl-dot" style="background:rgba(201,168,76,0.15)">📸</div><div class="tl-cnt"><div class="tl-lbl">Photo moment</div><div class="tl-sub">Someone found their feet 🥰</div></div><div class="tl-photo">👶</div></div>
+        </div>
+      </div>
+
+      <!-- Narrative — empty -->
+      <div class="sec-lbl">Today's diary entry</div>
+      <div class="narr-card">
+        <div class="narr-hd"><div class="narr-hd-title">Your note to the family</div></div>
+        <div class="narr-body">
+          <div class="narr-empty">How was Olivia today? What made her laugh? Anything the parents should know...<span class="cursor"></span></div>
+        </div>
+      </div>
+
+      <!-- AI panel -->
+      <div class="ai-panel">
+        <div class="ai-hd"><div class="ai-spark">✦</div><div class="ai-hd-title">AI writing assist</div><div class="ai-tone-badge">Warm tone only</div></div>
+        <div class="ai-modes">
+          <div class="ai-opt active">
+            <div class="ai-opt-ico">📝</div>
+            <div class="ai-opt-lbl">Generate from logs</div>
+            <div class="ai-opt-sub">Turns today's timeline into a diary entry</div>
+          </div>
+          <div class="ai-opt">
+            <div class="ai-opt-ico">✨</div>
+            <div class="ai-opt-lbl">Polish my writing</div>
+            <div class="ai-opt-sub">Refines what you've written, keeps your voice</div>
+          </div>
+        </div>
+        <div class="ai-footer-strip"><span style="color:var(--gold)">✦</span> Always warm &amp; personal · You edit before sending</div>
+      </div>
+
+    </div>
+
+    <div class="send-wrap">
+      <button class="send-btn off">Send to family →</button>
+    </div>
+    <div class="bnav">
+      <div class="ni"><div class="nio">☀️</div><div class="nil">Today</div></div>
+      <div class="ni"><div class="nio">📓</div><div class="nil">Diary</div></div>
+      <div class="ni"><div class="nio">📅</div><div class="nil">Plan</div></div>
+      <div class="ni"><div class="nio">🏡</div><div class="nil">Family</div></div>
+      <div class="ni on"><div class="nio">⚙️</div><div class="nil" style="color:var(--forest)">More</div></div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Default state</h4><ul>
+    <li>Timeline of today's logs auto-pulled — chronological, with category dots and photo thumbnails</li>
+    <li>Narrative field empty with warm placeholder — cursor blinking</li>
+    <li>AI panel shows both modes — Generate active, Polish greyed (no text yet)</li>
+    <li>Send button greyed until narrative has content</li>
+  </ul></div>
+</div>
+
+
+<!-- ════════════ STATE 2 — KEYBOARD OPEN ════════════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">17:46</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div><div class="ctab off">Theo</div></div>
+        <div class="date-nav"><div class="dn-arr">‹</div><div class="dn-mid"><div class="dn-lbl">Today</div><div class="dn-date">Tuesday, 1 April</div></div><div class="dn-arr">›</div></div>
+      </div>
+    </div>
+
+    <!-- Content dimmed above keyboard -->
+    <div style="flex:1;overflow:hidden;opacity:0.35;pointer-events:none;padding:10px 12px 0;background:var(--cream-bg)">
+      <div class="tl-card" style="margin:0 0 8px">
+        <div class="tl-hd"><div class="tl-hd-l"><span class="tl-title">Today's log</span><span class="tl-count">9 entries</span></div></div>
+        <div class="tl-body">
+          <div class="tl-row"><div class="tl-t">8:05</div><div class="tl-dot d-meal">🍽️</div><div class="tl-cnt"><div class="tl-lbl">Breakfast — porridge</div></div></div>
+          <div class="tl-row"><div class="tl-t">10:00</div><div class="tl-dot d-act">🎨</div><div class="tl-cnt"><div class="tl-lbl">Nature walk + leaf printing</div></div></div>
+        </div>
+      </div>
+      <div style="font-size:0.49rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--light);margin-bottom:6px">Today's diary entry</div>
+    </div>
+
+    <!-- Active narrative input -->
+    <div style="padding:6px 12px 4px;flex-shrink:0;background:var(--cream-bg)">
+      <div class="narr-card narr-typing" style="margin:0">
+        <div class="narr-body">
+          <div class="narr-text">We had such a lovely morning at the leaf printing — Olivia was completely in her element<span class="cursor"></span></div>
+          <div class="char-count">88 / 1000</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky AI bar above keyboard -->
+    <div class="sticky-ai">
+      <div class="sticky-lbl"><span class="sticky-spark">✦</span> AI</div>
+      <div class="sticky-btn sb-gen">📝 Generate</div>
+      <div class="sticky-btn sb-pol">✨ Polish</div>
+      <div class="sticky-dismiss">⌄</div>
+    </div>
+
+    <!-- Keyboard -->
+    <div class="keyboard">
+      <div class="kb-row"><div class="kb-k">q</div><div class="kb-k">w</div><div class="kb-k">e</div><div class="kb-k">r</div><div class="kb-k">t</div><div class="kb-k">y</div><div class="kb-k">u</div><div class="kb-k">i</div><div class="kb-k">o</div><div class="kb-k">p</div></div>
+      <div class="kb-row"><div class="kb-k">a</div><div class="kb-k">s</div><div class="kb-k">d</div><div class="kb-k">f</div><div class="kb-k">g</div><div class="kb-k">h</div><div class="kb-k">j</div><div class="kb-k">k</div><div class="kb-k">l</div></div>
+      <div class="kb-row"><div class="kb-k dk">⇧</div><div class="kb-k">z</div><div class="kb-k">x</div><div class="kb-k">c</div><div class="kb-k">v</div><div class="kb-k">b</div><div class="kb-k">n</div><div class="kb-k">m</div><div class="kb-k dk">⌫</div></div>
+      <div class="kb-row"><div class="kb-k dk" style="max-width:42px">123</div><div class="kb-k dk" style="max-width:28px">🌐</div><div class="kb-k sp">space</div><div class="kb-k rt">return</div></div>
+    </div>
+
+  </div></div>
+  <div class="cap"><h4>Keyboard open</h4><ul>
+    <li>Timeline fades to background — narrative field takes focus</li>
+    <li>Sticky AI bar snaps above the keyboard — always accessible while typing</li>
+    <li>Generate and Polish both active once text exists</li>
+    <li>⌄ dismisses keyboard without losing work</li>
+  </ul></div>
+</div>
+
+
+<!-- ════════════ STATE 3 — AI WRITTEN, ALL FILLED ════════════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">17:49</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div><div class="ctab off">Theo</div></div>
+        <div class="date-nav"><div class="dn-arr">‹</div><div class="dn-mid"><div class="dn-lbl">Today</div><div class="dn-date">Tuesday, 1 April</div></div><div class="dn-arr">›</div></div>
+      </div>
+    </div>
+
+    <div class="screen-body">
+      <div class="stat-strip">
+        <div class="sc sc-sl">😴 3h 10m</div>
+        <div class="sc sc-ml">🍽️ 3 meals</div>
+        <div class="sc sc-ac">🎨 2 acts</div>
+        <div class="sc sc-np">🧷 4</div>
+        <div class="sc sc-ph">📸 6</div>
+        <div class="sc sc-md">💊 Med</div>
+      </div>
+
+      <!-- Narrative — AI written -->
+      <div class="sec-lbl">Today's diary entry</div>
+      <div class="narr-card narr-typing">
+        <div class="narr-hd"><div class="narr-hd-title">Your note to the family</div><span style="font-size:0.48rem;color:var(--sage);font-weight:500">✦ AI drafted · edit freely</span></div>
+        <div class="narr-body">
+          <div class="narr-text">Olivia had the most wonderful day today. She was in such great spirits — laughing and chattering all morning. The leaf printing was a real highlight and she ate brilliantly at both lunch and dinner. Her afternoon nap was a lovely long one. A really good day all round.</div>
+          <div class="char-count">247 / 1000</div>
+        </div>
+      </div>
+
+      <!-- Handover -->
+      <div class="sec-lbl">Handover note</div>
+      <div class="ho-card">
+        <div class="ho-hd"><span style="font-size:0.85rem">📋</span><div class="ho-title">Practical handover</div><div class="ho-badge">No AI</div></div>
+        <div class="ho-chips">
+          <div class="hq-chip">+ Nappy bag low</div>
+          <div class="hq-chip">+ Calpol running low</div>
+          <div class="hq-chip">+ Appt Thursday</div>
+        </div>
+        <div class="ho-input">Nappy bag needs restocking — almost out of size 4. Calpol is running low. Appointment Dr Patel Thursday 10am.</div>
+        <div class="ho-no-ai"><span style="font-size:0.6rem">✕</span> No AI — your words, exactly as written</div>
+      </div>
+
+      <!-- Flag -->
+      <div class="sec-lbl">Anything to flag?</div>
+      <div class="flag-row">
+        <div class="flag-opt fo-none"><div class="fo-ico">✅</div><div class="fo-lbl">All good</div><div class="fo-sub">Nothing to note</div></div>
+        <div class="flag-opt fo-blue"><div class="fo-ico">💙</div><div class="fo-lbl">Just so you know</div><div class="fo-sub">Soft note</div></div>
+        <div class="flag-opt fo-amber"><div class="fo-ico">🟡</div><div class="fo-lbl">Worth discussing</div><div class="fo-sub">In-app</div></div>
+        <div class="flag-opt fo-red"><div class="fo-ico">🔴</div><div class="fo-lbl">Needs attention</div><div class="fo-sub">Push now</div></div>
+      </div>
+
+    </div>
+
+    <div class="send-wrap">
+      <button class="send-btn">Send to family →</button>
+      <div class="send-sub">Locks and delivers · cannot be edited after sending</div>
+    </div>
+    <div class="bnav">
+      <div class="ni"><div class="nio">☀️</div><div class="nil">Today</div></div>
+      <div class="ni"><div class="nio">📓</div><div class="nil">Diary</div></div>
+      <div class="ni"><div class="nio">📅</div><div class="nil">Plan</div></div>
+      <div class="ni"><div class="nio">🏡</div><div class="nil">Family</div></div>
+      <div class="ni on"><div class="nio">⚙️</div><div class="nil" style="color:var(--forest)">More</div></div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>All fields filled, ready to send</h4><ul>
+    <li>Narrative AI-drafted — editable, "✦ AI drafted · edit freely" shown</li>
+    <li>Handover card in gold — quick-fill chips + free text + "No AI" badge</li>
+    <li>Flag section — All good / Just so you know / Worth discussing / Needs attention</li>
+    <li>Medication chip in stats — lavender, stands out</li>
+    <li>Send button active — forest green with lock reminder below</li>
+  </ul></div>
+</div>
+
+
+<!-- ════════════ STATE 4 — SENT AND LOCKED ════════════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">17:52</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div><div class="ctab off">Theo</div></div>
+        <div class="date-nav"><div class="dn-arr">‹</div><div class="dn-mid"><div class="dn-lbl">Today</div><div class="dn-date">Tuesday, 1 April</div></div><div class="dn-arr">›</div></div>
+      </div>
+    </div>
+
+    <div class="screen-body">
+      <div class="stat-strip">
+        <div class="sc sc-sl">😴 3h 10m</div>
+        <div class="sc sc-ml">🍽️ 3 meals</div>
+        <div class="sc sc-ac">🎨 2 acts</div>
+        <div class="sc sc-np">🧷 4</div>
+        <div class="sc sc-ph">📸 6</div>
+        <div class="sc sc-md">💊 Med</div>
+      </div>
+
+      <!-- Sent banner -->
+      <div class="sent-banner">
+        <div class="sent-ico">✅</div>
+        <div><div class="sent-title">Summary sent to family</div><div class="sent-sub">Sent at 5:52 pm · parents notified</div></div>
+      </div>
+
+      <!-- Locked narrative -->
+      <div class="sec-lbl">Today's diary entry · <span style="color:var(--light);font-weight:300;text-transform:none;letter-spacing:0">locked</span></div>
+      <div class="locked-field">
+        <div class="lock-ico">🔒</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:0.72rem;color:var(--txt);line-height:1.65;font-style:italic;padding-right:18px">Olivia had the most wonderful day today. She was in such great spirits — laughing and chattering all morning. The leaf printing was a real highlight and her afternoon nap was a lovely long one. A really good day all round.</div>
+      </div>
+
+      <!-- Locked handover -->
+      <div class="sec-lbl" style="margin-top:10px">Handover note · <span style="color:var(--light);font-weight:300;text-transform:none;letter-spacing:0">locked</span></div>
+      <div class="locked-field" style="margin-top:0;margin-bottom:10px">
+        <div class="lock-ico">🔒</div>
+        <div style="font-size:0.68rem;color:var(--txt);line-height:1.6;padding-right:18px">Nappy bag needs restocking — almost out of size 4. Calpol is running low. Appointment Dr Patel Thursday 10am.</div>
+      </div>
+
+      <!-- Flag result -->
+      <div class="sec-lbl">Flag · <span style="color:var(--light);font-weight:300;text-transform:none;letter-spacing:0">All good</span></div>
+      <div style="margin:0 12px 12px;background:rgba(45,90,61,0.05);border:1px solid rgba(45,90,61,0.12);border-radius:11px;padding:9px 12px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:1rem">✅</span>
+        <span style="font-size:0.65rem;color:var(--forest);font-weight:500">All good — no concerns today</span>
+      </div>
+
+    </div>
+
+    <div class="send-wrap">
+      <button class="send-btn sent">✓ Sent to family</button>
+    </div>
+    <div class="bnav">
+      <div class="ni"><div class="nio">☀️</div><div class="nil">Today</div></div>
+      <div class="ni"><div class="nio">📓</div><div class="nil">Diary</div></div>
+      <div class="ni"><div class="nio">📅</div><div class="nil">Plan</div></div>
+      <div class="ni"><div class="nio">🏡</div><div class="nil">Family</div></div>
+      <div class="ni on"><div class="nio">⚙️</div><div class="nil" style="color:var(--forest)">More</div></div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Sent and locked</h4><ul>
+    <li>Green confirmation banner — "Sent at 5:52 pm · parents notified"</li>
+    <li>Narrative, handover and flag all locked with 🔒</li>
+    <li>Flag result shown — "All good, no concerns today"</li>
+    <li>Send button changes to "✓ Sent to family" — muted, cannot be tapped again</li>
+  </ul></div>
+</div>
+
+
+</div><!-- /phones -->
+
+<div class="notes">
+  <div class="nc"><h5>🕐 Timeline card</h5><p>Auto-pulled from today's log entries — <strong>chronological, with category dots and photo thumbnails inline.</strong> Gives the nanny a quick visual recap before writing. Helps the AI generate something specific rather than generic.</p></div>
+  <div class="nc"><h5>✦ AI writing panel</h5><p><strong>Generate from logs</strong> — reads the timeline and writes a warm diary entry. <strong>Polish my writing</strong> — refines what the nanny has typed. Both modes in one panel with a forest green header. Warm tone only. Always editable before sending.</p></div>
+  <div class="nc"><h5>⌨️ Sticky AI bar</h5><p>When the keyboard opens, the AI panel compresses into a <strong>sticky bar above the keys.</strong> Generate and Polish buttons always accessible while typing. ⌄ dismisses the keyboard without losing any work.</p></div>
+  <div class="nc"><h5>📋 Handover card</h5><p>Gold accent, <strong>"No AI" badge.</strong> Quick-fill chips for common handover items — tap to add, free text below. The nanny's practical words sent exactly as written.</p></div>
+  <div class="nc"><h5>🚩 Flag system</h5><p>Four levels: <strong>All good · Just so you know · Worth discussing · Needs attention.</strong> Controls the notification weight sent to parents. Red sends a push immediately, others are softer.</p></div>
+  <div class="nc"><h5>🔒 Lock on send</h5><p>Tapping Send writes to Supabase, fires parent notification, and <strong>locks narrative, handover and flag immediately.</strong> Cannot be changed. Consistent with medication immutability across the app.</p></div>
+</div>
+
+<div class="next">
+  <h4>Screen progress</h4>
+  <div class="nchips">
+    <div class="nchip done">✓ Home</div>
+    <div class="nchip done">✓ Meal log</div>
+    <div class="nchip done">✓ Sleep log</div>
+    <div class="nchip done">✓ Activity log</div>
+    <div class="nchip done">✓ Nappy log</div>
+    <div class="nchip done">✓ Medication log</div>
+    <div class="nchip done">✓ Parent view</div>
+    <div class="nchip now">✓ End of Day</div>
+    <div class="nchip">Diary view</div>
+    <div class="nchip">Weekly Plan</div>
+  </div>
+</div>
+
+</body>
+</html>

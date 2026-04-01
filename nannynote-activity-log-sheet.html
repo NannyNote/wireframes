@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NannyNote — Activity Log Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest:#2D5A3D; --sage:#8AAB8E; --sage-light:#C8DECA;
+    --cream:#F7F3EC; --cream-dark:#EDE7DC;
+    --gold:#C9A84C; --coral:#E8735A; --sky:#6AABCF;
+    --sunshine:#F5C842; --sunshine-mid:rgba(245,200,66,0.18);
+    --sunshine-border:rgba(245,200,66,0.35);
+    --lavender:#9B8EC4; --mint:#5DB89A; --tan:#C4A882;
+    --txt:#1a1a1a; --mid:#555; --light:#999;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#e0ddd6; font-family:'DM Sans',sans-serif; min-height:100vh; padding:48px 20px 80px; }
+
+  .page-header { text-align:center; margin-bottom:14px; }
+  .page-header h1 { font-family:'Cormorant Garamond',serif; font-size:1.9rem; font-weight:500; color:var(--forest); }
+  .page-header p { color:#888; font-size:0.78rem; margin-top:6px; font-weight:300; }
+
+  .lrow { display:flex; justify-content:center; gap:12px; margin-bottom:22px; flex-wrap:wrap; }
+  .lbl { font-size:0.6rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; padding:4px 12px; border-radius:20px; }
+  .l1 { background:var(--sunshine-mid); color:#8a6a10; border:1px solid var(--sunshine-border); }
+  .l2 { background:rgba(45,90,61,0.08); color:var(--forest); border:1px solid rgba(45,90,61,0.2); }
+  .l3 { background:rgba(232,115,90,0.1); color:#b03a20; border:1px solid rgba(232,115,90,0.25); }
+  .l4 { background:rgba(106,171,207,0.12); color:#3a7fa8; border:1px solid rgba(106,171,207,0.25); }
+
+  .phones { display:flex; justify-content:center; gap:28px; align-items:flex-start; flex-wrap:wrap; }
+  .pw { display:flex; flex-direction:column; align-items:center; }
+
+  /* PHONE */
+  .phone { width:292px; background:#111; border-radius:44px; padding:10px; box-shadow:0 0 0 1px #222, 0 40px 80px rgba(0,0,0,0.3); position:relative; flex-shrink:0; }
+  .phone::before { content:''; position:absolute; left:-3px; top:92px; width:3px; height:23px; background:#1a1a1a; border-radius:2px 0 0 2px; box-shadow:0 35px 0 #1a1a1a, 0 68px 0 #1a1a1a; }
+  .phone::after { content:''; position:absolute; right:-3px; top:124px; width:3px; height:50px; background:#1a1a1a; border-radius:0 2px 2px 0; }
+  .ps { background:var(--cream-bg); border-radius:40px; overflow:hidden; height:700px; display:flex; flex-direction:column; position:relative; }
+  .di { position:absolute; top:7px; left:50%; transform:translateX(-50%); width:80px; height:22px; background:#111; border-radius:12px; z-index:20; }
+
+  /* STATUS BAR */
+  .sb { height:38px; background:var(--forest); display:flex; align-items:flex-end; justify-content:space-between; padding:0 17px 7px; flex-shrink:0; z-index:10; position:relative; }
+  .sbt { font-size:0.63rem; font-weight:600; color:var(--cream); }
+  .sbr { display:flex; align-items:center; gap:3px; }
+  .sig { display:flex; gap:1.5px; align-items:flex-end; }
+  .sig span { display:block; width:2.5px; background:var(--cream); border-radius:1px; }
+  .sig span:nth-child(1){height:3px}.sig span:nth-child(2){height:5px}.sig span:nth-child(3){height:7px}.sig span:nth-child(4){height:9px;opacity:.3}
+  .batt { width:14px; height:7px; border:1.5px solid rgba(255,255,255,0.45); border-radius:2px; padding:1px; position:relative; }
+  .batt::after { content:''; position:absolute; right:-3px; top:50%; transform:translateY(-50%); width:2px; height:4px; background:rgba(255,255,255,0.35); border-radius:0 1px 1px 0; }
+  .bf { width:58%; height:100%; background:var(--cream); border-radius:1px; }
+
+  /* APP HEADER */
+  .ah { background:var(--forest); padding:3px 13px 11px; flex-shrink:0; }
+  .ahr { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .at { font-family:'Cormorant Garamond',serif; font-size:1.25rem; font-weight:600; color:var(--cream); line-height:1; }
+  .av { width:25px; height:25px; border-radius:50%; background:var(--sage); display:flex; align-items:center; justify-content:center; font-size:0.5rem; font-weight:700; color:var(--forest); border:2px solid rgba(255,255,255,0.18); }
+  .tabs { display:flex; gap:5px; margin-bottom:8px; }
+  .tab { padding:3px 10px; border-radius:20px; font-size:0.62rem; font-weight:500; }
+  .tab.on { background:var(--forest); color:var(--cream); }
+  .tab.off { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.13); }
+  .dn { display:flex; align-items:center; }
+  .darr { width:21px; height:21px; border-radius:50%; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.13); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.65); font-size:0.72rem; flex-shrink:0; }
+  .dc { flex:1; padding:0 8px; }
+  .dl { font-size:0.49rem; color:var(--sage-light); text-transform:uppercase; letter-spacing:0.1em; font-weight:500; margin-bottom:1px; }
+  .dd { font-family:'Cormorant Garamond',serif; font-size:0.95rem; font-weight:500; color:var(--cream); line-height:1.1; }
+
+  /* BODY */
+  .body { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--cream); position:relative; }
+  .behind { flex:1; padding:8px 11px 0; opacity:0.18; pointer-events:none; display:flex; flex-direction:column; gap:5px; }
+  .bg-lbl { font-size:0.47rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:var(--light); margin-bottom:4px; }
+  .bg-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; }
+  .bg-btn { background:white; border-radius:8px; border:1.5px solid var(--cream-dark); height:47px; }
+  .bg-card { background:white; border-radius:8px; border:1px solid var(--cream-dark); height:30px; margin-bottom:4px; }
+  .dim { position:absolute; inset:0; background:rgba(20,38,27,0.42); border-radius:0 0 35px 35px; z-index:10; }
+
+  /* SHEET */
+  .sheet { position:absolute; bottom:0; left:0; right:0; background:white; border-radius:17px 17px 0 0; z-index:20; box-shadow:0 -4px 20px rgba(0,0,0,0.12); }
+  .hdl { width:30px; height:4px; background:var(--cream-dark); border-radius:2px; margin:10px auto 0; }
+  .shd { padding:9px 14px 8px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--cream-dark); }
+  .shdr { display:flex; align-items:center; gap:6px; }
+  .shdot { width:8px; height:8px; border-radius:50%; background:var(--sunshine); flex-shrink:0; }
+  .shtitle { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:600; color:var(--txt); line-height:1; }
+  .shtime { font-size:0.56rem; color:var(--light); font-weight:300; background:var(--cream); padding:2px 7px; border-radius:20px; border:1px solid var(--cream-dark); }
+  .sfields { padding:10px 14px; display:flex; flex-direction:column; gap:10px; }
+  .fl { font-size:0.5rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:var(--light); margin-bottom:6px; }
+
+  /* ACTIVITY TYPE CHIPS — multi select, sunshine accent */
+  .act-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
+  .act-chip {
+    padding:7px 4px;
+    border-radius:9px;
+    font-size:0.6rem;
+    font-weight:500;
+    background:var(--cream);
+    border:1.5px solid var(--cream-dark);
+    color:var(--mid);
+    text-align:center;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+    transition:all 0.12s;
+  }
+  .act-chip .ico { font-size:1rem; line-height:1; }
+  .act-chip.sel {
+    background:var(--sunshine-mid);
+    border-color:var(--sunshine-border);
+    color:#7a5e08;
+    font-weight:600;
+  }
+  /* Multi select hint */
+  .multi-hint { font-size:0.5rem; color:var(--light); font-weight:300; text-align:right; margin-top:-4px; margin-bottom:2px; font-style:italic; }
+
+  /* PLAN PULL */
+  .plan-pull { background:linear-gradient(135deg,rgba(45,90,61,0.05),rgba(45,90,61,0.02)); border:1.5px solid rgba(45,90,61,0.16); border-radius:10px; padding:8px 11px; display:flex; align-items:center; gap:8px; }
+  .pp-icon { width:24px; height:24px; border-radius:7px; background:rgba(45,90,61,0.1); display:flex; align-items:center; justify-content:center; font-size:0.82rem; flex-shrink:0; }
+  .pp-body { flex:1; }
+  .pp-lbl { font-size:0.47rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; color:var(--forest); margin-bottom:2px; opacity:0.65; }
+  .pp-act { font-size:0.72rem; font-weight:600; color:var(--forest); }
+  .dtog { display:flex; align-items:center; gap:6px; margin-top:7px; }
+  .dbox { width:15px; height:15px; border-radius:4px; border:1.5px solid var(--cream-dark); background:white; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .dbox.tk { background:var(--sunshine); border-color:var(--sunshine); }
+  .dbox.tk::after { content:''; display:block; width:4px; height:7px; border:1.5px solid white; border-top:none; border-left:none; transform:rotate(45deg) translate(-1px,-1px); }
+  .dtxt { font-size:0.61rem; color:var(--mid); }
+  .dtxt.act { color:#8a6a10; font-weight:500; }
+
+  /* WHAT HAPPENED */
+  .txt-box { width:100%; background:var(--cream); border:1.5px solid var(--cream-dark); border-radius:9px; padding:8px 10px; font-family:'DM Sans',sans-serif; font-size:0.68rem; color:var(--txt); display:flex; align-items:center; }
+  .txt-box.focused { border-color:var(--sunshine); background:white; }
+  .txt-box.filled { background:white; border-color:var(--cream-dark); }
+  .txt-box::placeholder { color:var(--light); }
+  .cur { display:inline-block; width:2px; height:13px; background:var(--sunshine); border-radius:1px; margin-left:2px; animation:blink 1s step-end infinite; }
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+  /* DURATION */
+  .dur-row { display:flex; gap:5px; }
+  .dur-chip { flex:1; padding:7px 4px; border-radius:9px; font-size:0.6rem; font-weight:500; background:var(--cream); border:1.5px solid var(--cream-dark); color:var(--mid); text-align:center; }
+  .dur-chip.sel { background:var(--forest); border-color:var(--forest); color:white; font-weight:600; }
+
+  /* TUMMY TIME (baby only) */
+  .tummy-card { background:rgba(245,200,66,0.08); border:1.5px solid rgba(245,200,66,0.25); border-radius:10px; padding:9px 11px; }
+  .tummy-top { display:flex; align-items:center; gap:6px; margin-bottom:7px; }
+  .tummy-ico { font-size:0.9rem; }
+  .tummy-lbl { font-size:0.52rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:#8a6a10; }
+  .tummy-sub { font-size:0.56rem; color:var(--light); font-weight:300; margin-left:auto; }
+  .tummy-row { display:flex; gap:5px; }
+  .tummy-chip { flex:1; padding:5px 4px; border-radius:8px; font-size:0.59rem; font-weight:500; background:white; border:1.5px solid var(--cream-dark); color:var(--mid); text-align:center; }
+  .tummy-chip.sel { background:var(--sunshine-mid); border-color:var(--sunshine-border); color:#7a5e08; font-weight:600; }
+
+  /* SAVE */
+  .sftr { padding:0 14px 15px; }
+  .sbtn { width:100%; padding:10px; background:var(--forest); color:var(--cream); border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.68rem; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px; letter-spacing:0.02em; }
+  .sbtn.off { background:var(--cream-dark); color:var(--light); }
+
+  /* CAPTION */
+  .cap { margin-top:18px; width:292px; text-align:center; }
+  .cap h4 { font-family:'Cormorant Garamond',serif; font-size:0.95rem; font-weight:600; color:#a88820; margin-bottom:6px; }
+  .cap ul { list-style:none; }
+  .cap li { font-size:0.61rem; color:#777; font-weight:300; line-height:1.45; display:flex; align-items:flex-start; gap:5px; margin-bottom:3px; text-align:left; }
+  .cap li::before { content:'·'; color:#aaa; flex-shrink:0; }
+
+  /* NOTES */
+  .notes { max-width:1220px; margin:40px auto 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; }
+  .nc { background:white; border-radius:11px; padding:14px 15px; border:1px solid var(--cream-dark); box-shadow:0 1px 5px rgba(0,0,0,0.04); }
+  .nc h5 { font-size:0.65rem; font-weight:600; color:var(--forest); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
+  .nc p { font-size:0.67rem; color:var(--mid); line-height:1.6; font-weight:300; }
+  .nc p strong { color:var(--txt); font-weight:600; }
+
+  /* NEXT */
+  .next { max-width:1220px; margin:12px auto 0; background:var(--forest); border-radius:11px; padding:14px 18px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .next h4 { font-family:'Cormorant Garamond',serif; font-size:0.9rem; font-weight:600; color:var(--cream); flex-shrink:0; }
+  .nchips { display:flex; gap:6px; flex-wrap:wrap; }
+  .nchip { padding:3px 10px; border-radius:20px; font-size:0.6rem; font-weight:500; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.15); }
+  .nchip.done { background:rgba(255,255,255,0.18); color:white; }
+  .nchip.now { background:var(--gold); color:var(--forest); font-weight:700; border-color:var(--gold); }
+
+  @media(max-width:680px){.phones{gap:16px}}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>🎨 NannyNote — Activity Log Sheet</h1>
+  <p>Multiple type selection · Outdoor merged into Activity · plan pull-through · duration chips · tummy time for babies</p>
+</div>
+
+<div class="lrow">
+  <span class="lbl l1">1 — Plan pulled, one type selected</span>
+  <span class="lbl l2">2 — Multiple types selected, describing</span>
+  <span class="lbl l3">3 — Something different, free text</span>
+  <span class="lbl l4">4 — Baby view with tummy time</span>
+</div>
+
+<div class="phones">
+
+  <!-- STATE 1 — Plan pulled, single type -->
+  <div class="pw">
+    <div class="phone"><div class="di"></div><div class="ps">
+      <div class="sb"><span class="sbt">10:15</span><div class="sbr"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+      <div class="ah"><div class="ah-bar"><div class="at">NannyNote</div><div class="av">JN</div></div><div class="ah-cream"><div class="tabs"><div class="tab on">Olivia</div><div class="tab off">Theo</div></div><div class="dn"><div class="darr">‹</div><div class="dc"><div class="dl">Today</div><div class="dd">Tuesday, 1 April</div></div><div class="darr">›</div></div></div></div>
+      <div class="body">
+        <div class="behind"><div class="bg-lbl">Quick Log</div><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div><div style="margin-top:5px"><div class="bg-card"></div><div class="bg-card"></div></div></div>
+        <div class="dim"></div>
+        <div class="sheet">
+          <div class="hdl"></div>
+          <div class="shd"><div class="shdr"><div class="shdot"></div><div class="shtitle">Log activity</div></div><div class="shtime">10:15 am</div></div>
+          <div class="sfields">
+
+            <div>
+              <div class="fl">Activity type <span style="font-weight:300;text-transform:none;letter-spacing:0">· select all that apply</span></div>
+              <div class="act-grid">
+                <div class="act-chip sel"><div class="ico">🌿</div>Outdoor</div>
+                <div class="act-chip"><div class="ico">🎨</div>Creative</div>
+                <div class="act-chip"><div class="ico">💧</div>Sensory</div>
+                <div class="act-chip"><div class="ico">🎵</div>Music</div>
+                <div class="act-chip"><div class="ico">📚</div>Reading</div>
+                <div class="act-chip"><div class="ico">🔢</div>Educational</div>
+                <div class="act-chip"><div class="ico">🏠</div>Imaginative</div>
+                <div class="act-chip"><div class="ico">👥</div>Social</div>
+                <div class="act-chip"><div class="ico">📺</div>Screen time</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="fl">From this week's plan</div>
+              <div class="plan-pull"><div class="pp-icon">📋</div><div class="pp-body"><div class="pp-lbl">Planned activity</div><div class="pp-act">Park walk — feed the ducks</div></div></div>
+              <div class="dtog"><div class="dbox"></div><div class="dtxt">We did something different</div></div>
+            </div>
+
+            <div>
+              <div class="fl">Duration</div>
+              <div class="dur-row"><div class="dur-chip">Under 30m</div><div class="dur-chip sel">30–60m</div><div class="dur-chip">1hr+</div></div>
+            </div>
+
+          </div>
+                        <!-- Photo attachment -->
+              <div style="display:flex;align-items:center;gap:8px;padding:8px 0 2px">
+                <div style="width:34px;height:34px;border-radius:9px;background:var(--cream);border:1.5px dashed var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;flex-shrink:0">📷</div>
+                <div style="font-size:0.58rem;color:var(--light);font-weight:300;line-height:1.4">Add a photo <span style="color:var(--text-light);font-style:italic">· optional</span></div>
+              </div>
+            <div class="sftr"><button class="sbtn">Save entry →</button></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="cap"><h4>Plan pulled, one type</h4><ul>
+      <li>Planned activity pulled from weekly plan</li>
+      <li>Outdoor selected — sunshine yellow fill</li>
+      <li>"Select all that apply" hint in field label</li>
+      <li>Duration chips — 30–60m selected</li>
+      <li>No description needed if plan was followed</li>
+    </ul></div>
+  </div>
+
+  <!-- STATE 2 — Multiple types, adding description -->
+  <div class="pw">
+    <div class="phone"><div class="di"></div><div class="ps">
+      <div class="sb"><span class="sbt">10:15</span><div class="sbr"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+      <div class="ah"><div class="ah-bar"><div class="at">NannyNote</div><div class="av">JN</div></div><div class="ah-cream"><div class="tabs"><div class="tab on">Olivia</div><div class="tab off">Theo</div></div><div class="dn"><div class="darr">‹</div><div class="dc"><div class="dl">Today</div><div class="dd">Tuesday, 1 April</div></div><div class="darr">›</div></div></div></div>
+      <div class="body">
+        <div class="behind" style="opacity:0.1"><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div></div>
+        <div class="dim"></div>
+        <div class="sheet">
+          <div class="hdl"></div>
+          <div class="shd"><div class="shdr"><div class="shdot"></div><div class="shtitle">Log activity</div></div><div class="shtime">10:15 am</div></div>
+          <div class="sfields">
+
+            <div>
+              <div class="fl">Activity type <span style="font-weight:300;text-transform:none;letter-spacing:0">· select all that apply</span></div>
+              <div class="act-grid">
+                <div class="act-chip sel"><div class="ico">🌿</div>Outdoor</div>
+                <div class="act-chip sel"><div class="ico">🎨</div>Creative</div>
+                <div class="act-chip"><div class="ico">💧</div>Sensory</div>
+                <div class="act-chip"><div class="ico">🎵</div>Music</div>
+                <div class="act-chip"><div class="ico">📚</div>Reading</div>
+                <div class="act-chip"><div class="ico">🔢</div>Educational</div>
+                <div class="act-chip"><div class="ico">🏠</div>Imaginative</div>
+                <div class="act-chip sel"><div class="ico">👥</div>Social</div>
+                <div class="act-chip"><div class="ico">📺</div>Screen time</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="fl">What happened</div>
+              <div class="txt-box focused"><span style="font-size:0.68rem;color:var(--txt)">Nature walk + leaf printing with</span><span class="cur"></span></div>
+            </div>
+
+            <div>
+              <div class="fl">Duration</div>
+              <div class="dur-row"><div class="dur-chip">Under 30m</div><div class="dur-chip">30–60m</div><div class="dur-chip sel">1hr+</div></div>
+            </div>
+
+          </div>
+                        <!-- Photo attachment -->
+              <div style="display:flex;align-items:center;gap:8px;padding:8px 0 2px">
+                <div style="width:34px;height:34px;border-radius:9px;background:var(--cream);border:1.5px dashed var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;flex-shrink:0">📷</div>
+                <div style="font-size:0.58rem;color:var(--light);font-weight:300;line-height:1.4">Add a photo <span style="color:var(--text-light);font-style:italic">· optional</span></div>
+              </div>
+            <div class="sftr"><button class="sbtn">Save entry →</button></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="cap"><h4>Multiple types selected</h4><ul>
+      <li>Outdoor + Creative + Social all selected</li>
+      <li>Each ticked chip gets sunshine yellow fill</li>
+      <li>Description field active — typing the moment</li>
+      <li>No plan card shown — this was spontaneous</li>
+      <li>1hr+ selected for duration</li>
+    </ul></div>
+  </div>
+
+  <!-- STATE 3 — Something different, plan crossed -->
+  <div class="pw">
+    <div class="phone"><div class="di"></div><div class="ps">
+      <div class="sb"><span class="sbt">10:15</span><div class="sbr"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+      <div class="ah"><div class="ah-bar"><div class="at">NannyNote</div><div class="av">JN</div></div><div class="ah-cream"><div class="tabs"><div class="tab on">Olivia</div><div class="tab off">Theo</div></div><div class="dn"><div class="darr">‹</div><div class="dc"><div class="dl">Today</div><div class="dd">Tuesday, 1 April</div></div><div class="darr">›</div></div></div></div>
+      <div class="body">
+        <div class="behind"><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div></div>
+        <div class="dim"></div>
+        <div class="sheet">
+          <div class="hdl"></div>
+          <div class="shd"><div class="shdr"><div class="shdot"></div><div class="shtitle">Log activity</div></div><div class="shtime">10:15 am</div></div>
+          <div class="sfields">
+
+            <div>
+              <div class="fl">Activity type <span style="font-weight:300;text-transform:none;letter-spacing:0">· select all that apply</span></div>
+              <div class="act-grid">
+                <div class="act-chip"><div class="ico">🌿</div>Outdoor</div>
+                <div class="act-chip sel"><div class="ico">🎨</div>Creative</div>
+                <div class="act-chip sel"><div class="ico">💧</div>Sensory</div>
+                <div class="act-chip"><div class="ico">🎵</div>Music</div>
+                <div class="act-chip"><div class="ico">📚</div>Reading</div>
+                <div class="act-chip"><div class="ico">🔢</div>Educational</div>
+                <div class="act-chip"><div class="ico">🏠</div>Imaginative</div>
+                <div class="act-chip"><div class="ico">👥</div>Social</div>
+                <div class="act-chip"><div class="ico">📺</div>Screen time</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="fl">From this week's plan</div>
+              <!-- Plan faded + crossed out -->
+              <div class="plan-pull" style="opacity:0.35"><div class="pp-icon">📋</div><div class="pp-body"><div class="pp-lbl">Planned activity</div><div class="pp-act" style="text-decoration:line-through;text-decoration-color:rgba(0,0,0,0.4);text-decoration-thickness:1.5px;color:var(--mid)">Park walk — feed the ducks</div></div></div>
+              <div class="dtog"><div class="dbox tk"></div><div class="dtxt act">We did something different</div></div>
+            </div>
+
+            <div>
+              <div class="fl">What happened</div>
+              <div class="txt-box filled">Playdough animals — made a whole farm</div>
+            </div>
+
+            <div>
+              <div class="fl">Duration</div>
+              <div class="dur-row"><div class="dur-chip">Under 30m</div><div class="dur-chip sel">30–60m</div><div class="dur-chip">1hr+</div></div>
+            </div>
+
+          </div>
+                        <!-- Photo attachment -->
+              <div style="display:flex;align-items:center;gap:8px;padding:8px 0 2px">
+                <div style="width:34px;height:34px;border-radius:9px;background:var(--cream);border:1.5px dashed var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;flex-shrink:0">📷</div>
+                <div style="font-size:0.58rem;color:var(--light);font-weight:300;line-height:1.4">Add a photo <span style="color:var(--text-light);font-style:italic">· optional</span></div>
+              </div>
+            <div class="sftr"><button class="sbtn">Save entry →</button></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="cap"><h4>Something different</h4><ul>
+      <li>Planned activity faded + strikethrough — same pattern as meal sheet</li>
+      <li>Checkbox ticked sunshine yellow</li>
+      <li>Override description filled in</li>
+      <li>Only what happened saved — plan deviation private</li>
+    </ul></div>
+  </div>
+
+  <!-- STATE 4 — Baby with tummy time -->
+  <div class="pw">
+    <div class="phone"><div class="di"></div><div class="ps">
+      <div class="sb"><span class="sbt">9:30</span><div class="sbr"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+      <div class="ah"><div class="ahr"><div class="at">NannyNote</div><div class="av">JN</div></div><div class="tabs"><div class="tab on">Olive</div><div class="tab off">Theo</div></div><div class="dn"><div class="darr">‹</div><div class="dc"><div class="dl">Today</div><div class="dd">Tuesday, 1 April</div></div><div class="darr">›</div></div></div>
+      <div class="body">
+        <div class="behind"><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div></div>
+        <div class="dim"></div>
+        <div class="sheet">
+          <div class="hdl"></div>
+          <div class="shd"><div class="shdr"><div class="shdot"></div><div class="shtitle">Log activity</div></div><div class="shtime">9:30 am</div></div>
+          <div class="sfields">
+
+            <div>
+              <div class="fl">Activity type <span style="font-weight:300;text-transform:none;letter-spacing:0">· select all that apply</span></div>
+              <div class="act-grid">
+                <div class="act-chip sel"><div class="ico">💧</div>Sensory</div>
+                <div class="act-chip"><div class="ico">🌿</div>Outdoor</div>
+                <div class="act-chip"><div class="ico">🎨</div>Creative</div>
+                <div class="act-chip"><div class="ico">🎵</div>Music</div>
+                <div class="act-chip"><div class="ico">📚</div>Reading</div>
+                <div class="act-chip"><div class="ico">🔢</div>Educational</div>
+                <div class="act-chip"><div class="ico">🏠</div>Imaginative</div>
+                <div class="act-chip"><div class="ico">👥</div>Social</div>
+                <div class="act-chip"><div class="ico">📺</div>Screen time</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="fl">What happened <span style="font-weight:300;text-transform:none;letter-spacing:0">· optional</span></div>
+              <div class="txt-box" style="color:var(--light);font-size:0.68rem">e.g. water play in the garden...</div>
+            </div>
+
+            <!-- TUMMY TIME — baby only -->
+            <div class="tummy-card">
+              <div class="tummy-top">
+                <div class="tummy-ico">🍼</div>
+                <div class="tummy-lbl">Tummy time</div>
+                <div class="tummy-sub">Babies under 12 months</div>
+              </div>
+              <div class="tummy-row">
+                <div class="tummy-chip">None today</div>
+                <div class="tummy-chip sel">5–10 min</div>
+                <div class="tummy-chip">10–20 min</div>
+                <div class="tummy-chip">20+ min</div>
+              </div>
+            </div>
+
+          </div>
+                        <!-- Photo attachment -->
+              <div style="display:flex;align-items:center;gap:8px;padding:8px 0 2px">
+                <div style="width:34px;height:34px;border-radius:9px;background:var(--cream);border:1.5px dashed var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;flex-shrink:0">📷</div>
+                <div style="font-size:0.58rem;color:var(--light);font-weight:300;line-height:1.4">Add a photo <span style="color:var(--text-light);font-style:italic">· optional</span></div>
+              </div>
+            <div class="sftr"><button class="sbtn off">Save entry</button></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="cap"><h4>Baby view — tummy time</h4><ul>
+      <li>Tummy time card auto-shown for babies under 12 months</li>
+      <li>Duration chips: None · 5–10m · 10–20m · 20+m</li>
+      <li>Description is optional for activity — just type matters for filtering</li>
+      <li>Save active once at least one type selected</li>
+    </ul></div>
+  </div>
+
+</div>
+
+<div class="notes">
+  <div class="nc"><h5>🎨 Multi-select chips</h5><p>Multiple activity types can be selected — each taps to toggle on/off with a sunshine yellow fill. <strong>At least one must be selected before saving.</strong> The selected types determine the colour coding and filtering in the recent log.</p></div>
+  <div class="nc"><h5>📋 Plan pull-through</h5><p>Same pattern as the meal sheet — planned activity pulled from weekly_plans, "We did something different" checkbox below. <strong>Same strikethrough + fade when overridden. Only what happened saved — deviation stays private.</strong></p></div>
+  <div class="nc"><h5>📝 Description is optional</h5><p>Unlike the meal sheet, description is optional for activities. The type chips alone are enough to log — the nanny only adds a description when there's something worth capturing. Placeholder reads "e.g. made a bird feeder from a toilet roll".</p></div>
+  <div class="nc"><h5>🍼 Tummy time</h5><p>Tummy time card <strong>auto-shown for babies under 12 months</strong> based on child profile age. Hidden for toddlers and older children. Duration chips only — no timer, no notes. Clinically important so it gets its own card rather than being buried in the type chips.</p></div>
+  <div class="nc"><h5>💾 What gets saved</h5><p><strong>{ category: "activity", types: ["outdoor","creative"], description: "Nature walk + leaf printing", duration: "1hr_plus", planned: true, used_plan: true }</strong> or with override: <strong>types: ["creative","sensory"], description: "Playdough animals", used_plan: false }</strong></p></div>
+</div>
+
+<div class="next">
+  <h4>Screen progress</h4>
+  <div class="nchips">
+    <div class="nchip done">✓ Home</div>
+    <div class="nchip done">✓ Meal log</div>
+    <div class="nchip done">✓ Sleep log</div>
+    <div class="nchip done">✓ Sleep retro</div>
+    <div class="nchip now">✓ Activity log</div>
+    <div class="nchip">Nappy log</div>
+    <div class="nchip">Medication log</div>
+    <div class="nchip">End of day</div>
+    <div class="nchip">Diary view</div>
+    <div class="nchip">Parent view</div>
+    <div class="nchip">Weekly plan</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NannyNote — Child Profile & Medical Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest:#2D5A3D; --sage:#8AAB8E; --sage-light:#C8DECA;
+    --cream:#F7F3EC; --cream-dark:#EDE7DC; --cream-bg:#F0EDE5;
+    --gold:#C9A84C; --coral:#E8735A; --sky:#6AABCF;
+    --sunshine:#F5C842; --lavender:#9B8EC4; --mint:#5DB89A;
+    --red:#E03030; --red-light:rgba(224,48,48,0.08);
+    --txt:#1a1a1a; --mid:#555; --light:#aaa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#dedad2;font-family:'DM Sans',sans-serif;min-height:100vh;padding:52px 16px 80px}
+
+  .page-header{text-align:center;margin-bottom:16px}
+  .page-header h1{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:500;color:var(--forest)}
+  .page-header p{color:#888;font-size:0.78rem;margin-top:8px;font-weight:300}
+
+  .section-title{text-align:center;margin:36px 0 20px}
+  .section-title h2{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:500;color:var(--forest)}
+  .section-title p{font-size:0.7rem;color:#888;margin-top:5px;font-weight:300}
+
+  .lrow{display:flex;justify-content:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+  .lbl{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;padding:5px 14px;border-radius:20px}
+  .l1{background:rgba(45,90,61,0.08);color:var(--forest);border:1px solid rgba(45,90,61,0.2)}
+  .l2{background:rgba(201,168,76,0.12);color:#8a6a10;border:1px solid rgba(201,168,76,0.28)}
+  .l3{background:rgba(232,115,90,0.1);color:#b03a20;border:1px solid rgba(232,115,90,0.25)}
+  .l4{background:rgba(224,48,48,0.1);color:#a01010;border:1px solid rgba(224,48,48,0.25)}
+
+  .phones{display:flex;justify-content:center;gap:24px;align-items:flex-start;flex-wrap:wrap}
+  .pw{display:flex;flex-direction:column;align-items:center}
+
+  /* PHONE SHELL */
+  .phone{width:308px;background:#0e0e0e;border-radius:50px;padding:11px;box-shadow:0 0 0 1px #1c1c1c,0 0 0 2px #0a0a0a,0 50px 100px rgba(0,0,0,0.38),0 20px 40px rgba(0,0,0,0.2);position:relative;flex-shrink:0}
+  .phone::before{content:'';position:absolute;left:-3px;top:98px;width:3px;height:26px;background:#181818;border-radius:2px 0 0 2px;box-shadow:0 38px 0 #181818,0 74px 0 #181818}
+  .phone::after{content:'';position:absolute;right:-3px;top:132px;width:3px;height:56px;background:#181818;border-radius:0 2px 2px 0}
+  .ps{background:var(--cream-bg);border-radius:40px;overflow:hidden;height:700px;display:flex;flex-direction:column;position:relative}
+  .di{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:88px;height:26px;background:#0e0e0e;border-radius:14px;z-index:20;pointer-events:none}
+
+  /* STATUS */
+  .status{height:44px;background:var(--forest);display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;flex-shrink:0;z-index:10}
+  .st-time{font-size:0.68rem;font-weight:600;color:var(--cream)}
+  .st-icons{display:flex;align-items:center;gap:4px}
+  .sig{display:flex;gap:1.5px;align-items:flex-end}
+  .sig span{display:block;width:2.5px;background:var(--cream);border-radius:1px}
+  .sig span:nth-child(1){height:3px}.sig span:nth-child(2){height:5px}.sig span:nth-child(3){height:7px}.sig span:nth-child(4){height:9px;opacity:.3}
+  .batt{width:16px;height:8px;border:1.5px solid rgba(255,255,255,0.45);border-radius:2.5px;padding:1.5px;position:relative}
+  .batt::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:2px;height:5px;background:rgba(255,255,255,0.35);border-radius:0 1px 1px 0}
+  .bf{width:60%;height:100%;background:var(--cream);border-radius:1px}
+
+  /* HEADER */
+  .ah{flex-shrink:0}
+  .ah-bar{background:var(--forest);padding:6px 18px 7px;display:flex;align-items:center;justify-content:space-between}
+  .app-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--cream);line-height:1}
+  .nanny-av{width:26px;height:26px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:0.52rem;font-weight:700;color:var(--forest)}
+  .ah-cream{background:var(--cream);padding:10px 18px 12px;border-bottom:1px solid var(--cream-dark)}
+  .ctabs{display:flex;gap:6px;margin-bottom:10px}
+  .ctab{padding:3px 12px;border-radius:20px;font-size:0.64rem;font-weight:500}
+  .ctab.on{background:var(--forest);color:var(--cream)}
+  .ctab.off{background:rgba(45,90,61,0.07);color:var(--forest);border:1px solid rgba(45,90,61,0.18)}
+  .date-nav{display:flex;align-items:center}
+  .dn-arr{width:24px;height:24px;border-radius:50%;background:rgba(45,90,61,0.08);border:1px solid rgba(45,90,61,0.14);display:flex;align-items:center;justify-content:center;color:var(--forest);font-size:0.8rem;flex-shrink:0}
+  .dn-mid{flex:1;padding:0 10px}
+  .dn-lbl{font-size:0.5rem;color:var(--light);text-transform:uppercase;letter-spacing:0.1em;font-weight:500;margin-bottom:2px}
+  .dn-date{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:500;color:var(--txt);line-height:1.1}
+
+  /* Screen header for sub-screens */
+  .screen-hd{padding:12px 16px 10px;background:var(--cream);border-bottom:1px solid var(--cream-dark);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+  .screen-hd-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--txt)}
+  .screen-hd-btn{font-size:0.62rem;font-weight:600;color:var(--forest);background:rgba(45,90,61,0.08);padding:5px 12px;border-radius:20px;border:1px solid rgba(45,90,61,0.18)}
+
+  /* SCROLL BODY */
+  .scroll-body{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;background:var(--cream-bg)}
+  .scroll-body::-webkit-scrollbar{display:none}
+
+  /* BOTTOM NAV */
+  .bnav{background:white;border-top:1px solid var(--cream-dark);display:flex;padding:5px 4px 12px;flex-shrink:0}
+  .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px}
+  .nio{font-size:0.9rem;line-height:1}
+  .nil{font-size:0.4rem;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--light)}
+  .ni.on .nil{color:var(--forest);font-weight:700}
+
+  /* ── CHILD PROFILE HERO ── */
+  .profile-hero{background:var(--forest);padding:16px 16px 20px;flex-shrink:0;position:relative;overflow:hidden}
+  .profile-hero::before{content:'';position:absolute;top:-20px;right:-20px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.04)}
+  .profile-hero::after{content:'';position:absolute;bottom:-30px;right:10px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.03)}
+  .ph-top{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+  .ph-avatar{width:56px;height:56px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:1.6rem;border:2.5px solid rgba(255,255,255,0.25);flex-shrink:0}
+  .ph-info{flex:1}
+  .ph-name{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:600;color:white;line-height:1.1}
+  .ph-pref{font-size:0.56rem;color:rgba(200,222,202,0.7);margin-top:2px;font-weight:300}
+  .ph-age{font-size:0.56rem;color:rgba(200,222,202,0.8);font-weight:500;margin-top:1px}
+  .ph-edit{font-size:0.56rem;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);padding:4px 10px;border-radius:20px;position:relative;z-index:1}
+  .ph-chips{display:flex;gap:6px;margin-top:12px;position:relative;z-index:1;flex-wrap:wrap}
+  .ph-chip{padding:3px 10px;border-radius:20px;font-size:0.54rem;font-weight:600}
+  .ph-chip-age{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.8)}
+  .ph-chip-allergy{background:rgba(232,115,90,0.25);color:#f5a88a;border:1px solid rgba(232,115,90,0.3)}
+  .ph-chip-condition{background:rgba(155,142,196,0.25);color:#c4b8e0;border:1px solid rgba(155,142,196,0.3)}
+
+  /* Section label */
+  .sec-lbl{font-size:0.49rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--light);padding:12px 14px 6px}
+
+  /* Info card */
+  .info-card{background:white;border-radius:13px;margin:0 12px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.07);overflow:hidden}
+  .info-row{display:flex;align-items:center;padding:9px 13px;border-bottom:1px solid var(--cream-dark)}
+  .info-row:last-child{border-bottom:none}
+  .info-ico{font-size:0.9rem;width:22px;flex-shrink:0}
+  .info-label{font-size:0.52rem;color:var(--light);font-weight:500;width:68px;flex-shrink:0}
+  .info-val{font-size:0.68rem;color:var(--txt);font-weight:500;flex:1}
+  .info-val.light{color:var(--mid);font-weight:300}
+  .info-arrow{font-size:0.6rem;color:var(--light)}
+
+  /* Allergy pill */
+  .allergy-card{background:white;border-radius:13px;margin:0 12px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.07);overflow:hidden;border-left:3px solid var(--coral)}
+  .ac-hd{padding:9px 13px 7px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--cream-dark)}
+  .ac-hd-title{font-size:0.66rem;font-weight:600;color:var(--txt);flex:1}
+  .ac-severity{font-size:0.46rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;padding:2px 7px;border-radius:8px}
+  .sev-mild{background:rgba(201,168,76,0.14);color:#8a6a10;border:1px solid rgba(201,168,76,0.28)}
+  .sev-severe{background:rgba(232,115,90,0.12);color:#b03a20;border:1px solid rgba(232,115,90,0.28)}
+  .sev-ana{background:rgba(224,48,48,0.1);color:#a01010;border:1px solid rgba(224,48,48,0.25)}
+  .ac-body{padding:7px 13px 10px}
+  .ac-action{font-size:0.6rem;color:var(--mid);line-height:1.5}
+
+  /* Medical vault card */
+  .vault-card{background:white;border-radius:13px;margin:0 12px 8px;box-shadow:0 2px 10px rgba(0,0,0,0.08);overflow:hidden;border:1.5px solid rgba(224,48,48,0.2)}
+  .vault-hd{background:rgba(224,48,48,0.05);padding:10px 13px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(224,48,48,0.12)}
+  .vault-ico{font-size:1rem;flex-shrink:0}
+  .vault-title{font-size:0.7rem;font-weight:700;color:var(--txt);flex:1}
+  .vault-tag{font-size:0.44rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;background:rgba(224,48,48,0.1);color:#a01010;padding:2px 7px;border-radius:8px;border:1px solid rgba(224,48,48,0.2)}
+  .vault-body{padding:10px 13px 12px}
+  .vault-summary{display:flex;gap:8px;margin-bottom:10px}
+  .vs-item{flex:1;text-align:center;background:var(--cream-bg);border-radius:9px;padding:7px 4px}
+  .vs-num{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--txt);line-height:1}
+  .vs-lbl{font-size:0.44rem;color:var(--light);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px}
+  .vault-btn{width:100%;padding:10px;background:var(--red,#E03030);color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.66rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;box-shadow:0 2px 10px rgba(224,48,48,0.3)}
+
+  /* ── MEDICAL VAULT SCREEN ── */
+  .vault-screen{background:var(--cream-bg)}
+
+  /* Allergy entry — large, prominent */
+  .allergy-entry{background:white;border-radius:13px;margin:0 12px 6px;box-shadow:0 2px 8px rgba(0,0,0,0.07);overflow:hidden}
+  .ae-strip{display:flex;overflow:hidden}
+  .ae-bar{width:5px;flex-shrink:0}
+  .ae-content{flex:1;padding:10px 12px}
+  .ae-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .ae-name{font-size:0.75rem;font-weight:700;color:var(--txt)}
+  .ae-action{font-size:0.6rem;color:var(--mid);line-height:1.5;margin-top:2px}
+  .ae-edit{font-size:0.52rem;color:var(--light)}
+
+  /* Medication entry */
+  .med-entry{background:white;border-radius:13px;margin:0 12px 6px;box-shadow:0 2px 8px rgba(0,0,0,0.07);overflow:hidden;display:flex}
+  .me-strip{width:4px;background:var(--lavender);flex-shrink:0}
+  .me-body{flex:1;padding:9px 12px}
+  .me-name{font-size:0.7rem;font-weight:600;color:var(--txt)}
+  .me-detail{font-size:0.58rem;color:var(--mid);margin-top:2px;line-height:1.4}
+
+  /* Condition entry */
+  .cond-entry{background:white;border-radius:13px;margin:0 12px 6px;box-shadow:0 2px 8px rgba(0,0,0,0.07);overflow:hidden;display:flex}
+  .ce-strip{width:4px;background:var(--sky);flex-shrink:0}
+  .ce-body{flex:1;padding:9px 12px}
+  .ce-name{font-size:0.7rem;font-weight:600;color:var(--txt)}
+  .ce-detail{font-size:0.58rem;color:var(--mid);margin-top:2px;line-height:1.4}
+
+  /* Emergency info card */
+  .emg-card{background:white;border-radius:13px;margin:0 12px 6px;box-shadow:0 2px 8px rgba(0,0,0,0.07);overflow:hidden;border-left:3px solid var(--red,#E03030)}
+  .ec-hd{padding:8px 12px;background:rgba(224,48,48,0.04);border-bottom:1px solid rgba(224,48,48,0.1);display:flex;align-items:center;gap:6px}
+  .ec-title{font-size:0.63rem;font-weight:700;color:#a01010}
+  .ec-body{padding:8px 12px}
+  .ec-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+  .ec-row:last-child{margin-bottom:0}
+  .ec-label{font-size:0.5rem;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:0.08em;width:56px;flex-shrink:0}
+  .ec-val{font-size:0.65rem;color:var(--txt);font-weight:500}
+
+  /* Edit mode */
+  .edit-field{background:white;border-radius:10px;border:1.5px solid rgba(45,90,61,0.2);padding:8px 11px;font-family:'DM Sans',sans-serif;font-size:0.7rem;color:var(--txt);display:flex;align-items:center;justify-content:space-between}
+  .ef-val{flex:1}
+  .ef-edit{font-size:0.5rem;color:var(--light)}
+  .edit-section-card{background:white;border-radius:13px;margin:0 12px 8px;box-shadow:0 2px 8px rgba(0,0,0,0.07);padding:11px 13px}
+
+  /* ── EMERGENCY VIEW ── */
+  .emv-screen{background:#1a0505;flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .emv-header{background:#E03030;padding:12px 16px;flex-shrink:0}
+  .emv-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:white;line-height:1.1}
+  .emv-sub{font-size:0.6rem;color:rgba(255,255,255,0.75);margin-top:3px}
+  .emv-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding:0}
+  .emv-scroll::-webkit-scrollbar{display:none}
+  .emv-section{padding:10px 14px 4px}
+  .emv-sec-lbl{font-size:0.48rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.35);margin-bottom:6px}
+  .emv-allergy-card{background:rgba(224,48,48,0.15);border:1.5px solid rgba(224,48,48,0.4);border-radius:12px;padding:11px 13px;margin-bottom:6px}
+  .emv-allergy-name{font-size:0.85rem;font-weight:700;color:white;line-height:1.1;margin-bottom:3px}
+  .emv-allergy-sev{display:inline-block;font-size:0.46rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;background:rgba(224,48,48,0.4);color:#ffaaaa;padding:2px 7px;border-radius:8px;margin-bottom:5px}
+  .emv-allergy-action{font-size:0.66rem;color:rgba(255,255,255,0.85);line-height:1.5}
+  .emv-info-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:11px;padding:10px 13px;margin-bottom:6px}
+  .emv-info-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:5px}
+  .emv-info-row:last-child{margin-bottom:0}
+  .emv-info-lbl{font-size:0.5rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.4);width:52px;flex-shrink:0;padding-top:1px}
+  .emv-info-val{font-size:0.72rem;color:white;font-weight:500;line-height:1.3}
+  .emv-call-btn{margin:8px 14px 6px;background:white;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+  .emv-call-ico{font-size:1.2rem;flex-shrink:0}
+  .emv-call-label{font-size:0.65rem;font-weight:700;color:var(--txt)}
+  .emv-call-num{font-size:0.58rem;color:var(--mid);margin-top:1px}
+  .emv-close{margin:8px 14px 12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:11px;padding:10px;text-align:center;font-size:0.63rem;color:rgba(255,255,255,0.6);font-weight:500}
+
+  /* CAPS */
+  .cap{margin-top:20px;width:308px}
+  .cap h4{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--forest);margin-bottom:7px}
+  .cap ul{list-style:none}
+  .cap li{font-size:0.61rem;color:#777;font-weight:300;line-height:1.45;display:flex;align-items:flex-start;gap:5px;margin-bottom:3px}
+  .cap li::before{content:'·';color:#bbb;flex-shrink:0}
+
+  /* NOTES */
+  .notes{max-width:1280px;margin:40px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+  .nc{background:white;border-radius:12px;padding:14px 16px;border:1px solid var(--cream-dark);box-shadow:0 1px 6px rgba(0,0,0,0.05)}
+  .nc h5{font-size:0.64rem;font-weight:700;color:var(--forest);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+  .nc p{font-size:0.67rem;color:var(--mid);line-height:1.6;font-weight:300}
+  .nc p strong{color:var(--txt);font-weight:600}
+
+  .divider{height:1px;background:rgba(0,0,0,0.08);margin:40px 0 0;max-width:1280px;margin-left:auto;margin-right:auto}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>👶 Child Profile & Medical Vault</h1>
+  <p>Three connected screens · profile → vault → emergency view</p>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 1 — CHILD PROFILE
+══════════════════════════════════════ -->
+
+<div class="section-title">
+  <h2>Child Profile</h2>
+  <p>Profile view · edit mode</p>
+</div>
+
+<div class="lrow">
+  <span class="lbl l1">Profile view — reading</span>
+  <span class="lbl l2">Edit mode — updating details</span>
+</div>
+
+<div class="phones">
+
+<!-- PROFILE — VIEW MODE -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">10:15</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div><div class="ctab off">Theo</div></div>
+        <div class="date-nav"><div class="dn-arr">‹</div><div class="dn-mid"><div class="dn-lbl">Family</div><div class="dn-date">Profile</div></div><div class="dn-arr">›</div></div>
+      </div>
+    </div>
+
+    <!-- Profile hero -->
+    <div class="profile-hero" style="flex-shrink:0">
+      <div class="ph-top">
+        <div class="ph-avatar">👧</div>
+        <div class="ph-info">
+          <div class="ph-name">Olivia Rose Henderson</div>
+          <div class="ph-pref">Known as: Livvy</div>
+          <div class="ph-age">2 years, 4 months · born 14 Nov 2023</div>
+        </div>
+        <div class="ph-edit">Edit</div>
+      </div>
+      <div class="ph-chips">
+        <div class="ph-chip ph-chip-age">🎂 Toddler · 2y 4m</div>
+        <div class="ph-chip ph-chip-allergy">⚠️ 2 allergies</div>
+        <div class="ph-chip ph-chip-condition">💜 Eczema</div>
+      </div>
+    </div>
+
+    <div class="scroll-body">
+
+      <!-- Medical Vault entry point -->
+      <div class="sec-lbl">Medical</div>
+      <div class="vault-card">
+        <div class="vault-hd">
+          <div class="vault-ico">🏥</div>
+          <div class="vault-title">Medical Vault</div>
+          <div class="vault-tag">Emergency access</div>
+        </div>
+        <div class="vault-body">
+          <div class="vault-summary">
+            <div class="vs-item"><div class="vs-num" style="color:var(--coral)">2</div><div class="vs-lbl">Allergies</div></div>
+            <div class="vs-item"><div class="vs-num" style="color:var(--lavender)">1</div><div class="vs-lbl">Medications</div></div>
+            <div class="vs-item"><div class="vs-num" style="color:var(--sky)">2</div><div class="vs-lbl">Conditions</div></div>
+            <div class="vs-item"><div class="vs-num">A+</div><div class="vs-lbl">Blood type</div></div>
+          </div>
+          <button class="vault-btn">🏥 Open Medical Vault</button>
+        </div>
+      </div>
+
+      <!-- Key info -->
+      <div class="sec-lbl">Key information</div>
+      <div class="info-card">
+        <div class="info-row"><div class="info-ico">👶</div><div class="info-label">Full name</div><div class="info-val">Olivia Rose Henderson</div></div>
+        <div class="info-row"><div class="info-ico">🎂</div><div class="info-label">Date of birth</div><div class="info-val">14 November 2023</div></div>
+        <div class="info-row"><div class="info-ico">🍽️</div><div class="info-label">Diet notes</div><div class="info-val">No nuts · no eggs · dairy ok</div></div>
+        <div class="info-row"><div class="info-ico">🏥</div><div class="info-label">GP</div><div class="info-val">Dr S. Patel · 020 7946 0800</div></div>
+      </div>
+
+      <!-- Routines -->
+      <div class="sec-lbl">Typical routines</div>
+      <div class="info-card">
+        <div class="info-row"><div class="info-ico">😴</div><div class="info-label">Nap time</div><div class="info-val">1:00 – 2:30 pm · cot</div></div>
+        <div class="info-row"><div class="info-ico">🍽️</div><div class="info-label">Meal times</div><div class="info-val">8am · 12pm · 5pm</div></div>
+        <div class="info-row"><div class="info-ico">🌙</div><div class="info-label">Bedtime</div><div class="info-val">7:00 pm · bath, story, sleep</div></div>
+      </div>
+
+      <!-- Contacts -->
+      <div class="sec-lbl">Family contacts</div>
+      <div class="info-card">
+        <div class="info-row"><div class="info-ico">👩</div><div class="info-label">Parent 1</div><div class="info-val">Sarah Henderson · 07700 900123</div><div class="info-arrow">›</div></div>
+        <div class="info-row"><div class="info-ico">👨</div><div class="info-label">Parent 2</div><div class="info-val">James Henderson · 07700 900456</div><div class="info-arrow">›</div></div>
+        <div class="info-row"><div class="info-ico">🆘</div><div class="info-label">Emergency</div><div class="info-val">Margaret Henderson (Gran)</div><div class="info-arrow">›</div></div>
+      </div>
+
+      <!-- Quick log prefs -->
+      <div class="sec-lbl">Quick log grid</div>
+      <div class="info-card">
+        <div class="info-row"><div class="info-ico">⚙️</div><div class="info-label">Shortcuts</div><div class="info-val light">Meal · Sleep · Nappy · Photo · Medication · Note</div><div class="info-arrow">›</div></div>
+      </div>
+
+      <div style="height:10px"></div>
+    </div>
+
+    <div class="bnav">
+      <div class="ni"><div class="nio">☀️</div><div class="nil">Today</div></div>
+      <div class="ni"><div class="nio">📓</div><div class="nil">Diary</div></div>
+      <div class="ni"><div class="nio">📅</div><div class="nil">Plan</div></div>
+      <div class="ni on"><div class="nio">🏡</div><div class="nil" style="color:var(--forest)">Family</div></div>
+      <div class="ni"><div class="nio">⚙️</div><div class="nil">More</div></div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Profile view</h4><ul>
+    <li>Hero header in forest green — child photo, full name, preferred name, auto-calculated age</li>
+    <li>Quick-read chips: age bracket, allergy count, conditions</li>
+    <li>Medical Vault card shows summary counts — prominent, always at the top</li>
+    <li>Routines feed into sleep wake windows and meal plan pull-through automatically</li>
+    <li>Family tab is active in bottom nav</li>
+  </ul></div>
+</div>
+
+
+<!-- PROFILE — EDIT MODE -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">10:16</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div><div class="ctab off">Theo</div></div>
+        <div class="date-nav"><div class="dn-arr">‹</div><div class="dn-mid"><div class="dn-lbl">Family</div><div class="dn-date">Editing profile</div></div><div class="dn-arr">›</div></div>
+      </div>
+    </div>
+
+    <div class="screen-hd">
+      <div class="screen-hd-title">Edit profile</div>
+      <div class="screen-hd-btn">Save changes</div>
+    </div>
+
+    <div class="scroll-body">
+
+      <!-- Photo edit -->
+      <div class="sec-lbl">Photo</div>
+      <div style="margin:0 12px 8px;display:flex;align-items:center;gap:12px">
+        <div style="width:52px;height:52px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid var(--cream-dark)">👧</div>
+        <div style="font-size:0.65rem;color:var(--forest);font-weight:600;flex:1">Change photo</div>
+        <div style="font-size:0.6rem;color:var(--light)">›</div>
+      </div>
+
+      <!-- Name fields -->
+      <div class="sec-lbl">Name</div>
+      <div class="edit-section-card" style="display:flex;flex-direction:column;gap:8px">
+        <div>
+          <div style="font-size:0.48rem;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Full name</div>
+          <div class="edit-field" style="border-color:rgba(45,90,61,0.3);box-shadow:0 0 0 3px rgba(45,90,61,0.06)"><div class="ef-val">Olivia Rose Henderson</div></div>
+        </div>
+        <div>
+          <div style="font-size:0.48rem;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Known as (optional)</div>
+          <div class="edit-field"><div class="ef-val">Livvy</div></div>
+        </div>
+        <div>
+          <div style="font-size:0.48rem;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Date of birth</div>
+          <div class="edit-field"><div class="ef-val">14 November 2023</div><div class="ef-edit">📅</div></div>
+        </div>
+      </div>
+
+      <!-- Dietary -->
+      <div class="sec-lbl">Diet & food notes</div>
+      <div class="edit-section-card">
+        <div style="font-size:0.48rem;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Notes for nanny</div>
+        <div class="edit-field" style="min-height:52px;align-items:flex-start;padding:9px 11px"><div class="ef-val" style="font-weight:300;color:var(--mid)">No nuts · no eggs · dairy fine · check labels on snacks</div></div>
+      </div>
+
+      <!-- Routines -->
+      <div class="sec-lbl">Routines</div>
+      <div class="edit-section-card" style="display:flex;flex-direction:column;gap:8px">
+        <div>
+          <div style="font-size:0.48rem;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Typical nap time</div>
+          <div class="edit-field"><div class="ef-val">1:00 pm – 2:30 pm</div><div class="ef-edit">✎</div></div>
+        </div>
+        <div>
+          <div style="font-size:0.48rem;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Bedtime</div>
+          <div class="edit-field"><div class="ef-val">7:00 pm</div><div class="ef-edit">✎</div></div>
+        </div>
+      </div>
+
+      <!-- GP -->
+      <div class="sec-lbl">GP details</div>
+      <div class="edit-section-card" style="display:flex;flex-direction:column;gap:8px">
+        <div>
+          <div style="font-size:0.48rem;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">GP name</div>
+          <div class="edit-field"><div class="ef-val">Dr S. Patel</div></div>
+        </div>
+        <div>
+          <div style="font-size:0.48rem;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">GP phone</div>
+          <div class="edit-field"><div class="ef-val">020 7946 0800</div></div>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+    </div>
+
+    <div class="bnav">
+      <div class="ni"><div class="nio">☀️</div><div class="nil">Today</div></div>
+      <div class="ni"><div class="nio">📓</div><div class="nil">Diary</div></div>
+      <div class="ni"><div class="nio">📅</div><div class="nil">Plan</div></div>
+      <div class="ni on"><div class="nio">🏡</div><div class="nil" style="color:var(--forest)">Family</div></div>
+      <div class="ni"><div class="nio">⚙️</div><div class="nil">More</div></div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Edit mode</h4><ul>
+    <li>Save changes button top right — consistent with other edit screens</li>
+    <li>Fields open inline — no separate page per field</li>
+    <li>Active field has green focus ring (same as meal log time picker)</li>
+    <li>Routines edited here automatically update sleep wake windows and plan pull-through</li>
+    <li>Medical Vault edited separately — not part of this form</li>
+  </ul></div>
+</div>
+
+</div><!-- /phones -->
+
+<div class="divider"></div>
+
+
+<!-- ══════════════════════════════════════
+     SECTION 2 — MEDICAL VAULT
+══════════════════════════════════════ -->
+
+<div class="section-title">
+  <h2>Medical Vault</h2>
+  <p>Full record view · edit mode · both nanny and parents can edit</p>
+</div>
+
+<div class="lrow">
+  <span class="lbl l3">Medical vault — full record</span>
+  <span class="lbl l4">Emergency view — critical info only</span>
+</div>
+
+<div class="phones">
+
+<!-- MEDICAL VAULT — FULL RECORD -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">10:17</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div><div class="ctab off">Theo</div></div>
+        <div class="date-nav"><div class="dn-arr">‹</div><div class="dn-mid"><div class="dn-lbl">Profile</div><div class="dn-date">Medical Vault</div></div><div class="dn-arr">›</div></div>
+      </div>
+    </div>
+
+    <div class="screen-hd">
+      <div class="screen-hd-title">🏥 Medical Vault</div>
+      <div class="screen-hd-btn" style="background:rgba(224,48,48,0.08);color:#a01010;border-color:rgba(224,48,48,0.2)">🚨 Emergency</div>
+    </div>
+
+    <div class="scroll-body">
+
+      <!-- Allergies — always first, anaphylactic at top -->
+      <div class="sec-lbl">Allergies</div>
+
+      <div class="allergy-entry">
+        <div class="ae-strip">
+          <div class="ae-bar" style="background:#E03030"></div>
+          <div class="ae-content">
+            <div class="ae-top">
+              <div class="ae-name">Peanuts</div>
+              <div class="ae-severity sev-ana">Anaphylactic</div>
+            </div>
+            <div class="ae-action">Use EpiPen immediately — in red case in kitchen drawer. Call 999. Do not wait to see if symptoms improve.</div>
+            <div style="font-size:0.5rem;color:var(--light);margin-top:4px;font-weight:300">EpiPen location: kitchen drawer, red case</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="allergy-entry">
+        <div class="ae-strip">
+          <div class="ae-bar" style="background:var(--coral)"></div>
+          <div class="ae-content">
+            <div class="ae-top">
+              <div class="ae-name">Eggs</div>
+              <div class="ae-severity sev-severe">Severe</div>
+            </div>
+            <div class="ae-action">Avoid all egg products including baked goods. If ingested — give antihistamine (Piriton), monitor closely, call parents.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regular medications -->
+      <div class="sec-lbl">Regular medications</div>
+      <div class="med-entry">
+        <div class="me-strip"></div>
+        <div class="me-body">
+          <div class="me-name">Cetirizine (Zyrtec) · 2.5ml</div>
+          <div class="me-detail">Daily antihistamine · give with breakfast · prescribed by Dr Patel</div>
+        </div>
+      </div>
+
+      <!-- Conditions -->
+      <div class="sec-lbl">Medical conditions</div>
+      <div class="cond-entry">
+        <div class="ce-strip"></div>
+        <div class="ce-body">
+          <div class="ce-name">Eczema</div>
+          <div class="ce-detail">Epaderm cream to affected areas after bath · avoid wool fabrics · Hydrocortisone 1% for flares only</div>
+        </div>
+      </div>
+      <div class="cond-entry" style="margin-top:0">
+        <div class="ce-strip"></div>
+        <div class="ce-body">
+          <div class="ce-name">Mild asthma</div>
+          <div class="ce-detail">Blue Ventolin inhaler in changing bag · 2 puffs if wheezing · call parents if no improvement after 10 min</div>
+        </div>
+      </div>
+
+      <!-- Emergency info -->
+      <div class="sec-lbl">Emergency information</div>
+      <div class="emg-card">
+        <div class="ec-hd"><span style="font-size:0.85rem">🚨</span><div class="ec-title">Emergency contacts & details</div></div>
+        <div class="ec-body">
+          <div class="ec-row"><div class="ec-label">NHS number</div><div class="ec-val">485 777 3456</div></div>
+          <div class="ec-row"><div class="ec-label">Blood type</div><div class="ec-val">A positive</div></div>
+          <div class="ec-row"><div class="ec-label">Hospital</div><div class="ec-val">Chelsea & Westminster</div></div>
+          <div class="ec-row"><div class="ec-label">GP</div><div class="ec-val">Dr S. Patel · 020 7946 0800</div></div>
+        </div>
+      </div>
+
+      <!-- Edit note -->
+      <div style="margin:6px 12px 10px;font-size:0.5rem;color:var(--light);text-align:center;font-weight:300">Last edited by Sarah Henderson · today 9:30 am · <span style="color:var(--forest)">Edit vault</span></div>
+
+      <div style="height:8px"></div>
+    </div>
+
+    <div class="bnav">
+      <div class="ni"><div class="nio">☀️</div><div class="nil">Today</div></div>
+      <div class="ni"><div class="nio">📓</div><div class="nil">Diary</div></div>
+      <div class="ni"><div class="nio">📅</div><div class="nil">Plan</div></div>
+      <div class="ni on"><div class="nio">🏡</div><div class="nil" style="color:var(--forest)">Family</div></div>
+      <div class="ni"><div class="nio">⚙️</div><div class="nil">More</div></div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Medical Vault</h4><ul>
+    <li>Allergies always first — anaphylactic at the very top with red strip</li>
+    <li>EpiPen location shown directly on the allergy card</li>
+    <li>🚨 Emergency button top right — opens the emergency view instantly</li>
+    <li>Both nanny and parents can edit — last edit attributed and timestamped</li>
+    <li>Conditions show treatment notes inline — no extra tap needed</li>
+  </ul></div>
+</div>
+
+
+<!-- EMERGENCY VIEW -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">10:17</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+
+    <!-- Emergency view fills the entire phone — no app header -->
+    <div class="emv-screen">
+      <div class="emv-header">
+        <div class="emv-title">🚨 Emergency — Olivia</div>
+        <div class="emv-sub">Most critical information · tap to call</div>
+      </div>
+
+      <div class="emv-scroll">
+
+        <div class="emv-section">
+          <div class="emv-sec-lbl">Allergies — most severe first</div>
+          <div class="emv-allergy-card">
+            <div class="emv-allergy-name">⚠️ Peanuts</div>
+            <div class="emv-allergy-sev">Anaphylactic</div>
+            <div class="emv-allergy-action">EpiPen in kitchen drawer (red case). Use immediately. Call 999. Do not wait.</div>
+          </div>
+          <div class="emv-allergy-card" style="background:rgba(232,115,90,0.12);border-color:rgba(232,115,90,0.35)">
+            <div class="emv-allergy-name" style="color:rgba(255,200,180,1)">Eggs</div>
+            <div class="emv-allergy-sev" style="background:rgba(232,115,90,0.3);color:#ffc0a0">Severe</div>
+            <div class="emv-allergy-action">Give Piriton. Monitor closely. Call parents.</div>
+          </div>
+        </div>
+
+        <div class="emv-section">
+          <div class="emv-sec-lbl">Call now</div>
+          <div class="emv-call-btn">
+            <div class="emv-call-ico">📞</div>
+            <div><div class="emv-call-label">999 — Emergency services</div><div class="emv-call-num">Ambulance · Police · Fire</div></div>
+          </div>
+          <div class="emv-call-btn">
+            <div class="emv-call-ico">👩</div>
+            <div><div class="emv-call-label">Sarah Henderson (Mum)</div><div class="emv-call-num">07700 900123</div></div>
+          </div>
+          <div class="emv-call-btn">
+            <div class="emv-call-ico">👨</div>
+            <div><div class="emv-call-label">James Henderson (Dad)</div><div class="emv-call-num">07700 900456</div></div>
+          </div>
+        </div>
+
+        <div class="emv-section">
+          <div class="emv-sec-lbl">Key details</div>
+          <div class="emv-info-card">
+            <div class="emv-info-row"><div class="emv-info-lbl">NHS no.</div><div class="emv-info-val">485 777 3456</div></div>
+            <div class="emv-info-row"><div class="emv-info-lbl">Blood</div><div class="emv-info-val">A positive</div></div>
+            <div class="emv-info-row"><div class="emv-info-lbl">Hospital</div><div class="emv-info-val">Chelsea & Westminster</div></div>
+            <div class="emv-info-row"><div class="emv-info-lbl">GP</div><div class="emv-info-val">Dr S. Patel · 020 7946 0800</div></div>
+            <div class="emv-info-row"><div class="emv-info-lbl">DOB</div><div class="emv-info-val">14 Nov 2023 · age 2y 4m</div></div>
+          </div>
+        </div>
+
+        <div class="emv-close">← Close emergency view</div>
+
+      </div>
+    </div>
+
+  </div></div>
+  <div class="cap"><h4>Emergency view</h4><ul>
+    <li>Full screen — no app chrome, no navigation, no distractions</li>
+    <li>Dark red background — immediately signals this is a critical screen</li>
+    <li>Allergies first, most severe at top, action in plain language</li>
+    <li>Tap-to-call buttons for 999 and both parents — large, easy to tap in a panic</li>
+    <li>NHS number, blood type, hospital preference all visible without scrolling</li>
+    <li>"Close emergency view" at bottom — subtle, doesn't compete with critical info</li>
+  </ul></div>
+</div>
+
+</div><!-- /phones -->
+
+<div class="notes">
+  <div class="nc"><h5>🏗️ Architecture</h5><p><strong>Profile → Medical Vault → Emergency View.</strong> Three connected screens. Profile holds routines and contacts. Vault holds clinical info. Emergency view is stripped back for crisis moments.</p></div>
+  <div class="nc"><h5>⚠️ Allergy priority</h5><p>Anaphylactic allergies always at the top of the vault, always with a red strip. <strong>EpiPen location shown on the allergy card itself</strong> — no hunting for it.</p></div>
+  <div class="nc"><h5>✏️ Edit permissions</h5><p>Both nanny and parents can edit the Medical Vault. <strong>Every edit is timestamped and attributed</strong> — "edited by Sarah Henderson at 9:30 am today." No silent changes.</p></div>
+  <div class="nc"><h5>🚨 Emergency access</h5><p>Emergency view is one tap from inside the vault (red button top right). <strong>Full-screen, no app header,</strong> dark background signals urgency. Large tap targets for calls.</p></div>
+  <div class="nc"><h5>🔄 Feeds the app</h5><p>Nap routine → sleep wake window banner. Meal times → plan pull-through on meal log. DOB → age-gated features (tummy time, toddler vs baby sleep sheet). <strong>Set once, works everywhere.</strong></p></div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NannyNote — Home Screen</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #2D5A3D;
+    --sage: #8AAB8E;
+    --sage-light: #C8DECA;
+    --cream: #F7F3EC;
+    --cream-dark: #EDE7DC;
+    --cream-bg: #F0EDE5;
+    --gold: #C9A84C;
+    --coral: #E8735A;
+    --sky: #6AABCF;
+    --sunshine: #F5C842;
+    --lavender: #9B8EC4;
+    --mint: #5DB89A;
+    --tan: #C4A882;
+    --red-del: #E03030;
+    --txt: #1a1a1a;
+    --mid: #555;
+    --light: #aaa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #dedad2; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 52px 24px 80px; }
+
+  .page-header { text-align: center; margin-bottom: 16px; }
+  .page-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 500; color: var(--forest); }
+  .page-header p { color: #888; font-size: 0.78rem; margin-top: 8px; font-weight: 300; }
+
+  .lrow { display: flex; justify-content: center; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+  .lbl { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; padding: 5px 14px; border-radius: 20px; }
+  .l1 { background: rgba(45,90,61,0.08); color: var(--forest); border: 1px solid rgba(45,90,61,0.2); }
+  .l2 { background: rgba(106,171,207,0.12); color: #3a7fa8; border: 1px solid rgba(106,171,207,0.3); }
+  .l3 { background: rgba(224,48,48,0.08); color: #b02020; border: 1px solid rgba(224,48,48,0.2); }
+
+  .phones { display: flex; justify-content: center; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .pw { display: flex; flex-direction: column; align-items: center; }
+
+  /* PHONE */
+  .phone { width: 308px; background: #0e0e0e; border-radius: 50px; padding: 11px; box-shadow: 0 0 0 1px #1c1c1c, 0 0 0 2px #0a0a0a, 0 50px 100px rgba(0,0,0,0.38), 0 20px 40px rgba(0,0,0,0.2); position: relative; flex-shrink: 0; }
+  .phone::before { content:''; position:absolute; left:-3px; top:98px; width:3px; height:26px; background:#181818; border-radius:2px 0 0 2px; box-shadow:0 38px 0 #181818,0 74px 0 #181818; }
+  .phone::after { content:''; position:absolute; right:-3px; top:132px; width:3px; height:56px; background:#181818; border-radius:0 2px 2px 0; }
+
+  .ps { background: var(--cream-bg); border-radius: 40px; overflow: hidden; height: 700px; display: flex; flex-direction: column; position: relative; }
+  .di { position:absolute; top:9px; left:50%; transform:translateX(-50%); width:88px; height:26px; background:#0e0e0e; border-radius:14px; z-index:20; }
+
+  /* STATUS BAR */
+  .status { height: 44px; background: var(--forest); display: flex; align-items: flex-end; justify-content: space-between; padding: 0 20px 8px; flex-shrink: 0; position: relative; z-index: 10; }
+  .st-time { font-size: 0.68rem; font-weight: 600; color: var(--cream); }
+  .st-icons { display: flex; align-items: center; gap: 4px; }
+  .sig { display: flex; gap: 1.5px; align-items: flex-end; }
+  .sig span { display: block; width: 2.5px; background: var(--cream); border-radius: 1px; }
+  .sig span:nth-child(1){height:3px} .sig span:nth-child(2){height:5px} .sig span:nth-child(3){height:7px} .sig span:nth-child(4){height:9px;opacity:.3}
+  .batt { width:16px; height:8px; border:1.5px solid rgba(255,255,255,0.45); border-radius:2.5px; padding:1.5px; position:relative; }
+  .batt::after { content:''; position:absolute; right:-4px; top:50%; transform:translateY(-50%); width:2px; height:5px; background:rgba(255,255,255,0.35); border-radius:0 1px 1px 0; }
+  .bf { width:60%; height:100%; background:var(--cream); border-radius:1px; }
+
+  /* APP HEADER */
+  /* HEADER — Option A: thin green bar + cream section */
+  .ah { flex-shrink: 0; }
+  .ah-bar { background: var(--forest); padding: 6px 18px 7px; display: flex; align-items: center; justify-content: space-between; }
+  .app-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--cream); line-height: 1; }
+  .nanny-av { width:26px; height:26px; border-radius:50%; background:var(--sage); display:flex; align-items:center; justify-content:center; font-size:0.52rem; font-weight:700; color:var(--forest); }
+  .ah-cream { background: var(--cream); padding: 10px 18px 12px; border-bottom: 1px solid var(--cream-dark); }
+  .ctabs { display: flex; gap: 6px; margin-bottom: 10px; }
+  .ctab { padding: 3px 12px; border-radius: 20px; font-size: 0.64rem; font-weight: 500; }
+  .ctab.on { background: var(--forest); color: var(--cream); }
+  .ctab.off { background: rgba(45,90,61,0.07); color: var(--forest); border: 1px solid rgba(45,90,61,0.18); }
+  .date-nav { display: flex; align-items: center; }
+  .dn-arr { width:24px; height:24px; border-radius:50%; background:rgba(45,90,61,0.08); border:1px solid rgba(45,90,61,0.14); display:flex; align-items:center; justify-content:center; color:var(--forest); font-size:0.8rem; flex-shrink:0; }
+  .dn-mid { flex:1; padding:0 10px; }
+  .dn-lbl { font-size:0.5rem; color:var(--light); text-transform:uppercase; letter-spacing:0.1em; font-weight:500; margin-bottom:2px; }
+  .dn-date { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:500; color:var(--txt); line-height:1.1; }
+
+  /* SCREEN BODY */
+  .screen-body { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--cream-bg); position:relative; }
+
+  /* ===== PLAN CARD — matching screenshot ===== */
+  .plan-card {
+    margin: 14px 14px 0;
+    background: white;
+    border-radius: 18px;
+    border: 1px solid rgba(0,0,0,0.055);
+    display: flex;
+    align-items: center;
+    padding: 13px 16px 13px 13px;
+    gap: 13px;
+    flex-shrink: 0;
+    cursor: pointer;
+    box-shadow:
+      0 2px 12px rgba(0,0,0,0.065),
+      0 1px 3px rgba(0,0,0,0.045);
+  }
+  .plan-icon-wrap {
+    width: 46px; height: 46px;
+    border-radius: 13px;
+    background: #EEEAE3;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.55rem;
+    flex-shrink: 0;
+  }
+  .plan-text { flex: 1; min-width: 0; }
+  .plan-title { font-size: 0.84rem; font-weight: 700; color: var(--forest); line-height: 1.2; margin-bottom: 3px; letter-spacing: -0.01em; }
+  .plan-sub { font-size: 0.64rem; color: var(--light); font-weight: 400; }
+  .plan-chev { font-size: 0.52rem; color: var(--light); flex-shrink: 0; }
+
+  /* QUICK LOG */
+  .ql-section { padding: 11px 14px 0; flex-shrink: 0; }
+  .sec-lbl { font-size: 0.49rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--light); margin-bottom: 8px; }
+  .ql-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+  .ql-btn { background: white; border-radius: 14px; border: 1px solid rgba(0,0,0,0.055); padding: 10px 4px 8px; display: flex; flex-direction: column; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.065), 0 1px 2px rgba(0,0,0,0.04); cursor: pointer; }
+  .ql-ico { font-size: 1.28rem; line-height: 1; }
+  .ql-lbl { font-size: 0.52rem; font-weight: 500; color: var(--mid); }
+  .ql-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+  /* FAB */
+  .fab { position:absolute; bottom:60px; right:14px; z-index:40; width:44px; height:44px; border-radius:50%; background:var(--forest); display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:white; font-weight:300; box-shadow:0 4px 16px rgba(45,90,61,0.42),0 2px 6px rgba(0,0,0,0.15); line-height:1; }
+
+  /* DIVIDER */
+  .divider { height:1px; background:var(--cream-dark); margin:11px 14px 0; flex-shrink:0; }
+
+  /* RECENT SECTION */
+  .recent-section { padding:10px 14px 0; flex:1; overflow:hidden; display:flex; flex-direction:column; position:relative; }
+  .recent-section::after { content:''; position:absolute; bottom:0; left:0; right:0; height:36px; background:linear-gradient(transparent,var(--cream-bg)); pointer-events:none; z-index:5; }
+  .filter-pills { display:flex; gap:5px; margin-bottom:8px; flex-shrink:0; }
+  .fp { padding:3px 10px; border-radius:20px; font-size:0.49rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; border:1px solid transparent; cursor:pointer; }
+  .fp.on { background:var(--forest); color:white; }
+  .fp.sl { background:rgba(106,171,207,0.12); color:#3a7fa8; border-color:rgba(106,171,207,0.25); }
+  .fp.ml { background:rgba(232,115,90,0.12); color:#b03a20; border-color:rgba(232,115,90,0.25); }
+  .fp.ac { background:rgba(245,200,66,0.12); color:#7a5e08; border-color:rgba(245,200,66,0.3); }
+  .card-list { display:flex; flex-direction:column; gap:6px; }
+
+  /* ===== LOG CARD SYSTEM ===== */
+  /*
+    Architecture:
+    .card-row       — relative container, clips overflow, border-radius applied here
+    .swipe-behind   — absolute, right-aligned, full height, z-index 1
+    .log-card       — the white card, z-index 2, transition on transform
+    .log-card.swiped — card translated left by exactly sw-edit + sw-delete width (100px)
+  */
+
+  .card-row {
+    position: relative;
+    border-radius: 13px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .log-card {
+    background: white;
+    border-radius: 13px;
+    border: 1px solid rgba(0,0,0,0.055);
+    display: flex;
+    overflow: visible; /* let border-radius show */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+    position: relative;
+    z-index: 2;
+    transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  /* Swiped state — slides left by 100px (edit 52 + delete 48) */
+  .log-card.swiped {
+    transform: translateX(-100px);
+    border-radius: 13px; /* keep on card itself */
+  }
+
+  /* Legal swiped — slides left by 100px (single view-only action) */
+  .log-card.swiped-lock {
+    transform: translateX(-100px);
+    border-radius: 13px;
+  }
+
+  .card-strip { width: 4px; flex-shrink: 0; border-radius: 13px 0 0 13px; }
+  .card-inner { flex:1; padding:9px 10px; display:flex; align-items:center; gap:8px; }
+  .card-emoji { font-size:1rem; flex-shrink:0; line-height:1; }
+  .card-body { flex:1; min-width:0; }
+  .card-title { font-size:0.7rem; font-weight:600; color:var(--txt); line-height:1.2; display:flex; align-items:center; gap:5px; }
+  .card-sub { font-size:0.57rem; color:var(--light); margin-top:2px; font-weight:400; }
+  .card-time { font-size:0.56rem; color:var(--light); flex-shrink:0; font-weight:400; }
+
+  /* ===== SWIPE ACTIONS behind the card ===== */
+  .swipe-behind {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    display: flex;
+    z-index: 1;
+    /* No border-radius here — card-row clips it */
+  }
+
+  .sw-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    /* full height via flex stretch in parent */
+  }
+
+  .sw-edit { width: 52px; background: var(--forest); }
+  .sw-delete { width: 48px; background: var(--red-del); }
+  .sw-lock { width: 100px; background: var(--lavender); }
+
+  .sw-ico { font-size: 1rem; line-height: 1; }
+  .sw-lbl { font-size: 0.43rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.92); text-align: center; line-height: 1.3; }
+
+  /* LOCKED badge on card face */
+  .lock-badge { font-size:0.43rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; background:rgba(155,142,196,0.14); color:var(--lavender); border:1px solid rgba(155,142,196,0.28); padding:2px 6px; border-radius:8px; flex-shrink:0; }
+
+  /* EOD + NAV */
+  .eod-wrap { padding:7px 14px 9px; background:var(--cream-bg); border-top:1px solid var(--cream-dark); flex-shrink:0; }
+  .eod-btn { width:100%; padding:10px; background:var(--forest); color:var(--cream); border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:0.65rem; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; }
+  .bnav { background:white; border-top:1px solid var(--cream-dark); display:flex; padding:6px 4px 14px; flex-shrink:0; }
+  .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:2px; cursor:pointer; }
+  .nav-ico { font-size:0.98rem; line-height:1; }
+  .nav-lbl { font-size:0.43rem; font-weight:500; text-transform:uppercase; letter-spacing:0.07em; color:var(--light); }
+  .nav-item.active .nav-lbl { color:var(--forest); font-weight:700; }
+
+  /* CAPTIONS */
+  .cap { margin-top:22px; width:308px; text-align:center; }
+  .cap h4 { font-family:'Cormorant Garamond',serif; font-size:1rem; font-weight:600; color:var(--forest); margin-bottom:8px; }
+  .cap ul { list-style:none; }
+  .cap li { font-size:0.62rem; color:#777; font-weight:300; line-height:1.5; display:flex; align-items:flex-start; gap:6px; margin-bottom:4px; text-align:left; }
+  .cap li::before { content:'·'; color:#bbb; flex-shrink:0; }
+
+  /* NOTES */
+  .notes { max-width:1020px; margin:44px auto 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+  .nc { background:white; border-radius:12px; padding:16px 18px; border:1px solid var(--cream-dark); box-shadow:0 1px 6px rgba(0,0,0,0.05); }
+  .nc h5 { font-size:0.66rem; font-weight:700; color:var(--forest); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:7px; }
+  .nc p { font-size:0.68rem; color:var(--mid); line-height:1.65; font-weight:300; }
+  .nc p strong { color:var(--txt); font-weight:600; }
+
+  @media(max-width:720px){ .phones{gap:24px} }
+
+  /* ── PHOTO ON CARDS — middle path ── */
+
+  /* Option A: thumbnail right — structured logs */
+  .log-card.has-thumb { overflow: visible; }
+  .card-thumb {
+    width: 54px;
+    flex-shrink: 0;
+    border-radius: 0 13px 13px 0;
+    overflow: hidden;
+    background: linear-gradient(135deg, #b8d4c8, #8fbbaa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    position: relative;
+    align-self: stretch;
+  }
+  .thumb-badge {
+    position: absolute;
+    bottom: 4px; right: 4px;
+    background: rgba(0,0,0,0.45);
+    color: white;
+    font-size: 0.42rem;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 8px;
+  }
+
+  /* Option C: photo strip below — standalone photo moments */
+  .photo-strip-card {
+    background: white;
+    border-radius: 13px;
+    border: 1px solid rgba(0,0,0,0.055);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+    position: relative;
+    z-index: 2;
+  }
+  .photo-strip {
+    display: flex;
+    height: 72px;
+    border-top: 1px solid rgba(0,0,0,0.055);
+    overflow: hidden;
+  }
+  .strip-pane {
+    flex: 1;
+    background: linear-gradient(135deg, #c8d8b8, #a0b890);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    position: relative;
+    border-right: 2px solid var(--cream-bg);
+  }
+  .strip-pane:last-child { border-right: none; }
+  .strip-caption-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.52));
+    padding: 6px 8px 5px;
+    font-size: 0.46rem;
+    color: white;
+    font-weight: 400;
+    line-height: 1.3;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>☀️ Home Screen</h1>
+  <p>Plan card matching your screenshot · "Up next" · swipe left to edit/delete · shadows</p>
+</div>
+
+<div class="lrow">
+  <span class="lbl l1">Default state</span>
+  <span class="lbl l2">Swipe left — edit + delete</span>
+  <span class="lbl l3">Swipe left — legal entry locked</span>
+</div>
+
+<div class="phones">
+
+
+<!-- ══════════════════════ STATE 1 — DEFAULT ══════════════════════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+
+    <div class="status">
+      <span class="st-time">9:41</span>
+      <div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div>
+    </div>
+
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div><div class="ctab off">Theo</div></div>
+        <div class="date-nav"><div class="dn-arr">‹</div><div class="dn-mid"><div class="dn-lbl">Today</div><div class="dn-date">Tuesday, 1 April</div></div><div class="dn-arr">›</div></div>
+      </div>
+    </div>
+
+    <div class="screen-body">
+
+      <!-- PLAN CARD — matching screenshot precisely -->
+      <div class="plan-card">
+        <div class="plan-icon-wrap">📋</div>
+        <div class="plan-text">
+          <div class="plan-title">Today's plan</div>
+          <div class="plan-sub">Up next · Afternoon nap · 1:30 pm</div>
+        </div>
+        <div class="plan-chev">▾</div>
+      </div>
+
+      <!-- QUICK LOG -->
+      <div class="ql-section">
+        <div class="sec-lbl">Quick Log</div>
+        <div class="ql-grid">
+          <div class="ql-btn"><div class="ql-ico">🍽️</div><div class="ql-lbl">Meal</div><div class="ql-dot" style="background:var(--coral)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">😴</div><div class="ql-lbl">Sleep</div><div class="ql-dot" style="background:var(--sky)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">🧷</div><div class="ql-lbl">Nappy</div><div class="ql-dot" style="background:var(--mint)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">📸</div><div class="ql-lbl">Photo</div><div class="ql-dot" style="background:var(--gold)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">💊</div><div class="ql-lbl">Medication</div><div class="ql-dot" style="background:var(--lavender)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">📝</div><div class="ql-lbl">Note</div><div class="ql-dot" style="background:var(--tan)"></div></div>
+        </div>
+      </div>
+
+      <!-- FAB -->
+      <div class="fab">＋</div>
+
+      <div class="divider"></div>
+
+      <!-- RECENT LOG -->
+      <div class="recent-section">
+        <div class="sec-lbl">Recent</div>
+        <div class="filter-pills">
+          <div class="fp on">All</div><div class="fp sl">Sleep</div><div class="fp ml">Meals</div><div class="fp ac">Activity</div>
+        </div>
+        <div class="card-list">
+          <div class="card-row">
+            <div class="log-card"><div class="card-strip" style="background:var(--sky)"></div><div class="card-inner"><div class="card-emoji">😴</div><div class="card-body"><div class="card-title">Nap — 1h 20m</div><div class="card-sub">Cot · bedroom</div></div><div class="card-time">11:10</div></div></div>
+          </div>
+          <div class="card-row">
+            <div class="log-card"><div class="card-strip" style="background:var(--coral)"></div><div class="card-inner"><div class="card-emoji">🍽️</div><div class="card-body"><div class="card-title">Lunch</div><div class="card-sub">Pasta with pesto · ate well</div></div><div class="card-time">12:15</div></div></div>
+          </div>
+          <div class="card-row">
+            <div class="log-card"><div class="card-strip" style="background:var(--sunshine)"></div><div class="card-inner"><div class="card-emoji">🎨</div><div class="card-body"><div class="card-title">Nature walk + leaf printing</div><div class="card-sub">Outdoor · Creative · 1hr+</div></div><div class="card-time">10:00</div></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="eod-wrap"><button class="eod-btn">✍️ Write today's summary →</button></div>
+    <div class="bnav">
+      <div class="nav-item active"><div class="nav-ico">☀️</div><div class="nav-lbl" style="color:var(--forest)">Today</div></div>
+      <div class="nav-item"><div class="nav-ico">📓</div><div class="nav-lbl">Diary</div></div>
+      <div class="nav-item"><div class="nav-ico">📅</div><div class="nav-lbl">Plan</div></div>
+      <div class="nav-item"><div class="nav-ico">🏡</div><div class="nav-lbl">Family</div></div>
+      <div class="nav-item"><div class="nav-ico">⚙️</div><div class="nav-lbl">More</div></div>
+    </div>
+
+  </div></div>
+  <div class="cap"><h4>Default state</h4><ul>
+    <li>Plan card matches your screenshot — large white rounded card, icon in a soft rounded square, bold green title, light grey subtitle</li>
+    <li>"Up next · Afternoon nap · 1:30 pm" replaces "4 things scheduled"</li>
+    <li>Small ▾ chevron right-aligned — tap to expand full day plan</li>
+    <li>Cards have soft shadow to lift off the background</li>
+  </ul></div>
+</div>
+
+
+<!-- ══════════════════════ STATE 2 — SWIPE LEFT ══════════════════════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+
+    <div class="status">
+      <span class="st-time">9:41</span>
+      <div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div>
+    </div>
+
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div><div class="ctab off">Theo</div></div>
+        <div class="date-nav"><div class="dn-arr">‹</div><div class="dn-mid"><div class="dn-lbl">Today</div><div class="dn-date">Tuesday, 1 April</div></div><div class="dn-arr">›</div></div>
+      </div>
+    </div>
+
+    <div class="screen-body">
+
+      <div class="plan-card">
+        <div class="plan-icon-wrap">📋</div>
+        <div class="plan-text">
+          <div class="plan-title">Today's plan</div>
+          <div class="plan-sub">Up next · Afternoon nap · 1:30 pm</div>
+        </div>
+        <div class="plan-chev">▾</div>
+      </div>
+
+      <div class="ql-section">
+        <div class="sec-lbl">Quick Log</div>
+        <div class="ql-grid">
+          <div class="ql-btn"><div class="ql-ico">🍽️</div><div class="ql-lbl">Meal</div><div class="ql-dot" style="background:var(--coral)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">😴</div><div class="ql-lbl">Sleep</div><div class="ql-dot" style="background:var(--sky)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">🧷</div><div class="ql-lbl">Nappy</div><div class="ql-dot" style="background:var(--mint)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">📸</div><div class="ql-lbl">Photo</div><div class="ql-dot" style="background:var(--gold)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">💊</div><div class="ql-lbl">Medication</div><div class="ql-dot" style="background:var(--lavender)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">📝</div><div class="ql-lbl">Note</div><div class="ql-dot" style="background:var(--tan)"></div></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="recent-section">
+        <div class="sec-lbl">Recent</div>
+        <div class="filter-pills">
+          <div class="fp on">All</div><div class="fp sl">Sleep</div><div class="fp ml">Meals</div><div class="fp ac">Activity</div>
+        </div>
+        <div class="card-list">
+
+          <!-- CARD SWIPED — edit + delete revealed cleanly behind -->
+          <div class="card-row">
+            <div class="swipe-behind">
+              <div class="sw-btn sw-edit">
+                <div class="sw-ico">✏️</div>
+                <div class="sw-lbl">Edit</div>
+              </div>
+              <div class="sw-btn sw-delete">
+                <div class="sw-ico">🗑</div>
+                <div class="sw-lbl">Delete</div>
+              </div>
+            </div>
+            <div class="log-card swiped">
+              <div class="card-strip" style="background:var(--sky)"></div>
+              <div class="card-inner">
+                <div class="card-emoji">😴</div>
+                <div class="card-body"><div class="card-title">Nap — 1h 20m</div><div class="card-sub">Cot · bedroom</div></div>
+                <div class="card-time">11:10</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Other cards untouched -->
+          <div class="card-row">
+            <div class="log-card"><div class="card-strip" style="background:var(--coral)"></div><div class="card-inner"><div class="card-emoji">🍽️</div><div class="card-body"><div class="card-title">Lunch</div><div class="card-sub">Pasta with pesto · ate well</div></div><div class="card-time">12:15</div></div></div>
+          </div>
+          <div class="card-row">
+            <div class="log-card"><div class="card-strip" style="background:var(--sunshine)"></div><div class="card-inner"><div class="card-emoji">🎨</div><div class="card-body"><div class="card-title">Nature walk + leaf printing</div><div class="card-sub">Outdoor · Creative · 1hr+</div></div><div class="card-time">10:00</div></div></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="eod-wrap"><button class="eod-btn">✍️ Write today's summary →</button></div>
+    <div class="bnav">
+      <div class="nav-item active"><div class="nav-ico">☀️</div><div class="nav-lbl" style="color:var(--forest)">Today</div></div>
+      <div class="nav-item"><div class="nav-ico">📓</div><div class="nav-lbl">Diary</div></div>
+      <div class="nav-item"><div class="nav-ico">📅</div><div class="nav-lbl">Plan</div></div>
+      <div class="nav-item"><div class="nav-ico">🏡</div><div class="nav-lbl">Family</div></div>
+      <div class="nav-item"><div class="nav-ico">⚙️</div><div class="nav-lbl">More</div></div>
+    </div>
+
+  </div></div>
+  <div class="cap"><h4>Swipe left — edit + delete</h4><ul>
+    <li>Card slides left 100px — forest green Edit (52px) and red Delete (48px) sit cleanly behind it at full card height</li>
+    <li>Actions feel like extensions of the card — same height, flush to the card-row container</li>
+    <li>Edit reopens the log sheet pre-filled</li>
+    <li>Delete shows a confirmation bottom sheet before removing</li>
+    <li>Tap anywhere else to snap card back</li>
+  </ul></div>
+</div>
+
+
+<!-- ══════════════════════ STATE 3 — LEGAL ENTRY LOCKED ══════════════════════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+
+    <div class="status">
+      <span class="st-time">9:41</span>
+      <div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div>
+    </div>
+
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div><div class="ctab off">Theo</div></div>
+        <div class="date-nav"><div class="dn-arr">‹</div><div class="dn-mid"><div class="dn-lbl">Today</div><div class="dn-date">Tuesday, 1 April</div></div><div class="dn-arr">›</div></div>
+      </div>
+    </div>
+
+    <div class="screen-body">
+
+      <div class="plan-card">
+        <div class="plan-icon-wrap">📋</div>
+        <div class="plan-text">
+          <div class="plan-title">Today's plan</div>
+          <div class="plan-sub">Up next · School run · 3:30 pm</div>
+        </div>
+        <div class="plan-chev">▾</div>
+      </div>
+
+      <div class="ql-section">
+        <div class="sec-lbl">Quick Log</div>
+        <div class="ql-grid">
+          <div class="ql-btn"><div class="ql-ico">🍽️</div><div class="ql-lbl">Meal</div><div class="ql-dot" style="background:var(--coral)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">😴</div><div class="ql-lbl">Sleep</div><div class="ql-dot" style="background:var(--sky)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">🧷</div><div class="ql-lbl">Nappy</div><div class="ql-dot" style="background:var(--mint)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">📸</div><div class="ql-lbl">Photo</div><div class="ql-dot" style="background:var(--gold)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">💊</div><div class="ql-lbl">Medication</div><div class="ql-dot" style="background:var(--lavender)"></div></div>
+          <div class="ql-btn"><div class="ql-ico">📝</div><div class="ql-lbl">Note</div><div class="ql-dot" style="background:var(--tan)"></div></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="recent-section">
+        <div class="sec-lbl">Recent</div>
+        <div class="filter-pills">
+          <div class="fp on">All</div><div class="fp sl">Sleep</div><div class="fp ml">Meals</div><div class="fp ac">Activity</div>
+        </div>
+        <div class="card-list">
+
+          <!-- MEDICATION — swiped, single lock action -->
+          <div class="card-row">
+            <div class="swipe-behind">
+              <div class="sw-btn sw-lock">
+                <div class="sw-ico">🔒</div>
+                <div class="sw-lbl">Locked<br>View only</div>
+              </div>
+            </div>
+            <div class="log-card swiped-lock">
+              <div class="card-strip" style="background:var(--lavender)"></div>
+              <div class="card-inner">
+                <div class="card-emoji">💊</div>
+                <div class="card-body">
+                  <div class="card-title"><span class="lock-badge">Locked</span> Calpol 5ml</div>
+                  <div class="card-sub">High temp 38.2° · given at home</div>
+                </div>
+                <div class="card-time">9:30</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-row">
+            <div class="log-card"><div class="card-strip" style="background:var(--sky)"></div><div class="card-inner"><div class="card-emoji">😴</div><div class="card-body"><div class="card-title">Nap — 1h 20m</div><div class="card-sub">Cot · bedroom</div></div><div class="card-time">11:10</div></div></div>
+          </div>
+          <div class="card-row">
+            <div class="log-card"><div class="card-strip" style="background:var(--coral)"></div><div class="card-inner"><div class="card-emoji">🍽️</div><div class="card-body"><div class="card-title">Lunch</div><div class="card-sub">Pasta with pesto · ate well</div></div><div class="card-time">12:15</div></div></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="eod-wrap"><button class="eod-btn">✍️ Write today's summary →</button></div>
+    <div class="bnav">
+      <div class="nav-item active"><div class="nav-ico">☀️</div><div class="nav-lbl" style="color:var(--forest)">Today</div></div>
+      <div class="nav-item"><div class="nav-ico">📓</div><div class="nav-lbl">Diary</div></div>
+      <div class="nav-item"><div class="nav-ico">📅</div><div class="nav-lbl">Plan</div></div>
+      <div class="nav-item"><div class="nav-ico">🏡</div><div class="nav-lbl">Family</div></div>
+      <div class="nav-item"><div class="nav-ico">⚙️</div><div class="nav-lbl">More</div></div>
+    </div>
+
+  </div></div>
+  <div class="cap"><h4>Medication — locked</h4><ul>
+    <li>Single lavender 🔒 "Locked · View only" action — full 100px width, no edit or delete option</li>
+    <li>LOCKED badge visible on the card face before and after swiping</li>
+    <li>Applies to Medication and Incident log entries — immutable by design</li>
+    <li>Tapping the action opens a read-only view of the entry</li>
+  </ul></div>
+</div>
+
+
+</div><!-- /phones -->
+
+
+<div class="notes">
+  <div class="nc"><h5>📋 Plan card</h5><p>Matches your screenshot — <strong>white rounded card (18px radius), 46px icon in a rounded square, bold forest green title (DM Sans 700), light grey subtitle.</strong> The only change from your screenshot is "Up next · [event] · [time]" replacing "4 things scheduled".</p></div>
+  <div class="nc"><h5>⏭ Up next</h5><p>The subtitle line shows the immediately relevant next event. <strong>If nothing is scheduled, it shows "Nothing planned · free afternoon".</strong> If the plan is expanded, the chevron rotates to ▴. Tapping the card navigates to the full day plan.</p></div>
+  <div class="nc"><h5>← Swipe left</h5><p>Card slides left 100px. <strong>Edit (forest green, 52px) and Delete (red, 48px) are revealed at full card height</strong> — they fill the card-row container cleanly. The card-row clips both the card and the actions with matching border-radius. Tap elsewhere to dismiss.</p></div>
+  <div class="nc"><h5>🔒 Locked entries</h5><p>Medication and Incident entries show a <strong>single lavender action (100px) on swipe.</strong> LOCKED badge appears on the card face itself. Tapping opens a read-only view. Neither edit nor delete is offered — legal grade, immutable by design.</p></div>
+  <div class="nc"><h5>🌑 Shadows</h5><p>Cards, plan card and quick log buttons all share the same two-layer shadow system: <strong>0 2px 10px rgba(0,0,0,0.08)</strong> for depth, <strong>0 1px 3px rgba(0,0,0,0.05)</strong> for a crisp edge. Consistent depth throughout the screen.</p></div>
+</div>
+
+</body>
+</html>

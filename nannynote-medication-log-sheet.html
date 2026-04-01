@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NannyNote — Medication Log Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest:#2D5A3D; --sage:#8AAB8E; --sage-light:#C8DECA;
+    --cream:#F7F3EC; --cream-dark:#EDE7DC; --cream-bg:#F0EDE5;
+    --gold:#C9A84C; --coral:#E8735A; --sky:#6AABCF;
+    --lav:#9B8EC4; --lav-light:rgba(155,142,196,0.1); --lav-mid:rgba(155,142,196,0.25);
+    --txt:#1a1a1a; --mid:#555; --light:#aaa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#dedad2;font-family:'DM Sans',sans-serif;min-height:100vh;padding:52px 24px 80px}
+
+  .page-header{text-align:center;margin-bottom:16px}
+  .page-header h1{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:500;color:var(--forest)}
+  .page-header p{color:#888;font-size:0.78rem;margin-top:8px;font-weight:300}
+
+  .lrow{display:flex;justify-content:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+  .lbl{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;padding:5px 14px;border-radius:20px}
+  .l1{background:rgba(155,142,196,0.12);color:#6a5aa0;border:1px solid rgba(155,142,196,0.28)}
+  .l2{background:rgba(45,90,61,0.08);color:var(--forest);border:1px solid rgba(45,90,61,0.2)}
+  .l3{background:rgba(232,115,90,0.1);color:#b03a20;border:1px solid rgba(232,115,90,0.25)}
+  .l4{background:rgba(201,168,76,0.12);color:#8a6a10;border:1px solid rgba(201,168,76,0.28)}
+
+  .phones{display:flex;justify-content:center;gap:24px;align-items:flex-start;flex-wrap:wrap}
+  .pw{display:flex;flex-direction:column;align-items:center}
+
+  /* PHONE */
+  .phone{width:308px;background:#0e0e0e;border-radius:50px;padding:11px;box-shadow:0 0 0 1px #1c1c1c,0 0 0 2px #0a0a0a,0 50px 100px rgba(0,0,0,0.38),0 20px 40px rgba(0,0,0,0.2);position:relative;flex-shrink:0}
+  .phone::before{content:'';position:absolute;left:-3px;top:98px;width:3px;height:26px;background:#181818;border-radius:2px 0 0 2px;box-shadow:0 38px 0 #181818,0 74px 0 #181818}
+  .phone::after{content:'';position:absolute;right:-3px;top:132px;width:3px;height:56px;background:#181818;border-radius:0 2px 2px 0}
+  .ps{background:var(--cream-bg);border-radius:40px;overflow:hidden;height:700px;display:flex;flex-direction:column;position:relative}
+  .di{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:88px;height:26px;background:#0e0e0e;border-radius:14px;z-index:20}
+
+  /* STATUS */
+  .status{height:44px;background:var(--forest);display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;flex-shrink:0;position:relative;z-index:10}
+  .st-time{font-size:0.68rem;font-weight:600;color:var(--cream)}
+  .st-icons{display:flex;align-items:center;gap:4px}
+  .sig{display:flex;gap:1.5px;align-items:flex-end}
+  .sig span{display:block;width:2.5px;background:var(--cream);border-radius:1px}
+  .sig span:nth-child(1){height:3px}.sig span:nth-child(2){height:5px}.sig span:nth-child(3){height:7px}.sig span:nth-child(4){height:9px;opacity:.3}
+  .batt{width:16px;height:8px;border:1.5px solid rgba(255,255,255,0.45);border-radius:2.5px;padding:1.5px;position:relative}
+  .batt::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:2px;height:5px;background:rgba(255,255,255,0.35);border-radius:0 1px 1px 0}
+  .bf{width:60%;height:100%;background:var(--cream);border-radius:1px}
+
+  /* HEADER */
+  .ah{background:var(--forest);padding:2px 18px 14px;flex-shrink:0}
+  .ah-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .app-name{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:600;color:var(--cream);line-height:1}
+  .nanny-av{width:28px;height:28px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:0.54rem;font-weight:700;color:var(--forest);border:2px solid rgba(255,255,255,0.2)}
+  .ctabs{display:flex;gap:6px;margin-bottom:10px}
+  .ctab{padding:3px 12px;border-radius:20px;font-size:0.64rem;font-weight:500}
+  .ctab.on{background:var(--cream);color:var(--forest)}
+  .ctab.off{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.14)}
+  .date-nav{display:flex;align-items:center}
+  .dn-arr{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.65);font-size:0.8rem;flex-shrink:0}
+  .dn-mid{flex:1;padding:0 10px}
+  .dn-lbl{font-size:0.5rem;color:var(--sage-light);text-transform:uppercase;letter-spacing:0.1em;font-weight:500;margin-bottom:2px}
+  .dn-date{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:500;color:var(--cream);line-height:1.1}
+
+  /* BODY */
+  .screen-body{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--cream-bg);position:relative}
+  .behind{flex:1;padding:10px 14px 0;opacity:0.16;pointer-events:none;display:flex;flex-direction:column;gap:6px}
+  .bg-lbl{font-size:0.47rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--light);margin-bottom:5px}
+  .bg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .bg-btn{background:white;border-radius:12px;border:1px solid var(--cream-dark);height:52px}
+  .bg-card{background:white;border-radius:10px;border:1px solid var(--cream-dark);height:36px;margin-bottom:5px}
+  .dim{position:absolute;inset:0;background:rgba(20,38,27,0.45);border-radius:0 0 40px 40px;z-index:10}
+
+  /* ===== SHEET ===== */
+  .sheet{position:absolute;bottom:0;left:0;right:0;background:white;border-radius:20px 20px 0 0;z-index:20;box-shadow:0 -4px 28px rgba(0,0,0,0.14);display:flex;flex-direction:column;max-height:580px}
+  .hdl{width:36px;height:4px;background:var(--cream-dark);border-radius:2px;margin:12px auto 0;flex-shrink:0}
+
+  /* Sheet header */
+  .shd{padding:11px 18px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--lav-mid);flex-shrink:0;background:rgba(155,142,196,0.04)}
+  .shdr{display:flex;align-items:center;gap:8px}
+  .shdot{width:9px;height:9px;border-radius:50%;background:var(--lav);flex-shrink:0}
+  .shtitle{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--txt);line-height:1}
+  .legal-tag{font-size:0.44rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;background:rgba(155,142,196,0.14);color:var(--lav);border:1px solid rgba(155,142,196,0.28);padding:2px 7px;border-radius:10px}
+
+  /* Tappable time pill */
+  .shtime-tap{display:flex;align-items:center;gap:4px;background:var(--cream);border:1.5px solid var(--cream-dark);border-radius:20px;padding:3px 9px;cursor:pointer}
+  .shtime-val{font-size:0.58rem;color:var(--txt);font-weight:500}
+  .shtime-edit{font-size:0.5rem;color:var(--light)}
+  .shtime-active{display:flex;align-items:center;gap:4px;background:var(--lav-light);border:1.5px solid var(--lav);border-radius:20px;padding:3px 9px}
+  .shtime-active .shtime-val{color:var(--lav);font-weight:600}
+  .shtime-active .shtime-edit{color:var(--lav)}
+
+  /* Scrollable fields */
+  .sfields{padding:12px 18px;display:flex;flex-direction:column;gap:11px;overflow-y:auto;flex:1}
+  .fl{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--light);margin-bottom:6px}
+
+  /* ===== MED NAME — searchable ===== */
+  .med-input-wrap{position:relative}
+  .med-input{width:100%;background:white;border:1.5px solid var(--lav);border-radius:11px;padding:9px 12px 9px 34px;font-family:'DM Sans',sans-serif;font-size:0.75rem;color:var(--txt);display:flex;align-items:center}
+  .med-input-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:0.85rem;color:var(--lav)}
+  .med-dropdown{background:white;border:1.5px solid var(--lav-mid);border-radius:11px;overflow:hidden;margin-top:4px;box-shadow:0 4px 16px rgba(155,142,196,0.15)}
+  .med-item{padding:9px 12px;font-size:0.7rem;color:var(--txt);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--cream-dark);cursor:pointer}
+  .med-item:last-child{border-bottom:none}
+  .med-item.sel{background:var(--lav-light);font-weight:600;color:#5a4890}
+  .med-common{font-size:0.5rem;color:var(--light);font-weight:300}
+
+  /* ===== DOSAGE ===== */
+  .dosage-row{display:flex;gap:8px;align-items:center}
+  .dose-num{width:72px;background:white;border:1.5px solid var(--lav);border-radius:10px;padding:8px 10px;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--lav);text-align:center;flex-shrink:0}
+  .unit-chips{display:flex;gap:5px;flex:1;flex-wrap:wrap}
+  .uc{padding:7px 10px;border-radius:9px;font-size:0.63rem;font-weight:500;background:var(--cream);border:1.5px solid var(--cream-dark);color:var(--mid);cursor:pointer;text-align:center}
+  .uc.sel{background:var(--lav);border-color:var(--lav);color:white;font-weight:700}
+
+  /* ===== REASON ===== */
+  .reason-input{width:100%;background:var(--cream);border:1.5px solid var(--cream-dark);border-radius:10px;padding:8px 11px;font-family:'DM Sans',sans-serif;font-size:0.7rem;color:var(--txt);display:flex;align-items:center}
+  .reason-input.active{background:white;border-color:var(--lav)}
+  .reason-ph{color:var(--light)}
+  .cur{display:inline-block;width:2px;height:13px;background:var(--lav);border-radius:1px;margin-left:2px;animation:blink 1s step-end infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+  /* ===== NEXT DOSE ===== */
+  .next-dose-card{background:rgba(155,142,196,0.06);border:1.5px solid rgba(155,142,196,0.2);border-radius:11px;padding:10px 12px}
+  .nd-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .nd-label{font-size:0.52rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6a5aa0}
+  .nd-suggest{font-size:0.55rem;color:var(--lav);font-weight:400;background:rgba(155,142,196,0.12);padding:2px 8px;border-radius:10px}
+  .nd-time{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:var(--lav);text-align:center;padding:6px 0}
+  .nd-sub{font-size:0.54rem;color:var(--light);text-align:center;font-weight:300;margin-top:-2px}
+  .nd-skip{font-size:0.54rem;color:var(--light);text-decoration:underline;text-underline-offset:2px;text-align:center;display:block;margin-top:6px;cursor:pointer}
+
+  /* ===== ADMINISTERED BY ===== */
+  .admin-row{display:flex;align-items:center;gap:10px;background:rgba(45,90,61,0.04);border:1.5px solid rgba(45,90,61,0.12);border-radius:10px;padding:9px 12px}
+  .admin-av{width:28px;height:28px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:0.52rem;font-weight:700;color:var(--forest);flex-shrink:0}
+  .admin-info{flex:1}
+  .admin-name{font-size:0.72rem;font-weight:600;color:var(--forest)}
+  .admin-sub{font-size:0.52rem;color:var(--light);font-weight:300;margin-top:1px}
+  .admin-lock{font-size:0.6rem;color:var(--light)}
+
+  /* SAVE */
+  .sftr{padding:10px 18px 18px;background:white;flex-shrink:0}
+  .sbtn{width:100%;padding:12px;background:var(--lav);color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:0.02em;cursor:pointer;box-shadow:0 2px 12px rgba(155,142,196,0.4)}
+  .sbtn.off{background:var(--cream-dark);color:var(--light);box-shadow:none}
+
+  /* ===== CONFIRMATION OVERLAY ===== */
+  .confirm-overlay{position:absolute;inset:0;background:white;border-radius:0 0 40px 40px;z-index:30;display:flex;flex-direction:column;padding:0}
+  .co-header{background:var(--lav);padding:20px 18px 18px;flex-shrink:0;border-radius:0}
+  .co-icon{font-size:2rem;margin-bottom:8px;display:block}
+  .co-title{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:600;color:white;line-height:1.2}
+  .co-subtitle{font-size:0.62rem;color:rgba(255,255,255,0.75);margin-top:4px;font-weight:300}
+  .co-body{flex:1;padding:18px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+  .co-detail-row{display:flex;align-items:flex-start;gap:10px}
+  .co-detail-label{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--light);width:70px;flex-shrink:0;padding-top:1px}
+  .co-detail-val{font-size:0.72rem;font-weight:600;color:var(--txt);line-height:1.3}
+  .co-detail-val.big{font-family:'Cormorant Garamond',serif;font-size:1rem}
+  .co-warning{background:rgba(155,142,196,0.08);border:1.5px solid rgba(155,142,196,0.2);border-radius:10px;padding:10px 12px;display:flex;align-items:flex-start;gap:8px}
+  .co-warn-ico{font-size:0.85rem;flex-shrink:0;margin-top:1px}
+  .co-warn-txt{font-size:0.62rem;color:#6a5aa0;font-weight:400;line-height:1.5}
+  .co-warn-txt strong{font-weight:700}
+  .co-footer{padding:12px 18px 20px;flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+  .co-confirm-btn{width:100%;padding:13px;background:var(--lav);color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;box-shadow:0 3px 14px rgba(155,142,196,0.45)}
+  .co-cancel-btn{width:100%;padding:10px;background:transparent;color:var(--mid);border:1.5px solid var(--cream-dark);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:0.68rem;font-weight:500;cursor:pointer;text-align:center}
+
+  /* ===== LOCKED CARD STATE ===== */
+  .locked-screen{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--cream-bg)}
+  .locked-banner{background:rgba(155,142,196,0.08);border-bottom:1px solid rgba(155,142,196,0.2);padding:8px 14px;display:flex;align-items:center;gap:7px;flex-shrink:0}
+  .lb-ico{font-size:0.85rem}
+  .lb-txt{font-size:0.58rem;color:#6a5aa0;font-weight:500}
+  .locked-recent{padding:10px 14px 0;flex:1;overflow:hidden}
+  .ls-lbl{font-size:0.49rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--light);margin-bottom:7px}
+  .locked-card{background:white;border-radius:13px;border:1px solid rgba(0,0,0,0.055);display:flex;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.08)}
+  .lc-strip{width:4px;background:var(--lav);flex-shrink:0}
+  .lc-inner{flex:1;padding:10px 11px;display:flex;align-items:center;gap:8px}
+  .lc-ico{font-size:1rem;flex-shrink:0}
+  .lc-body{flex:1;min-width:0}
+  .lc-title{font-size:0.7rem;font-weight:600;color:var(--txt);display:flex;align-items:center;gap:6px}
+  .lc-badge{font-size:0.42rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;background:rgba(155,142,196,0.14);color:var(--lav);border:1px solid rgba(155,142,196,0.28);padding:2px 6px;border-radius:8px}
+  .lc-sub{font-size:0.57rem;color:var(--light);margin-top:2px;font-weight:300}
+  .lc-time{font-size:0.56rem;color:var(--light);flex-shrink:0;font-weight:300}
+  .swipe-hint{margin-top:8px;display:flex;align-items:center;gap:6px}
+  .sh-card{background:white;border-radius:11px;border:1px solid rgba(0,0,0,0.055);display:flex;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.07);transform:translateX(-88px);position:relative;z-index:2;flex:1}
+  .sh-behind{position:absolute;right:0;top:0;bottom:0;width:88px;background:var(--lav);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;z-index:1;border-radius:0 11px 11px 0}
+  .sh-wrap{position:relative;border-radius:11px;overflow:hidden}
+  .sh-ico{font-size:0.95rem;color:white}
+  .sh-lbl{font-size:0.42rem;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.9);text-align:center;line-height:1.3}
+
+  /* EOD + NAV */
+  .eod-wrap{padding:6px 14px 8px;background:var(--cream-bg);border-top:1px solid var(--cream-dark);flex-shrink:0}
+  .eod-btn{width:100%;padding:9px;background:var(--forest);color:var(--cream);border:none;border-radius:11px;font-family:'DM Sans',sans-serif;font-size:0.64rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:5px}
+  .bnav{background:white;border-top:1px solid var(--cream-dark);display:flex;padding:6px 4px 14px;flex-shrink:0}
+  .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px}
+  .nio{font-size:0.95rem;line-height:1}
+  .nil{font-size:0.43rem;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--light)}
+  .ni.on .nil{color:var(--forest);font-weight:700}
+
+  /* CAPTION */
+  .cap{margin-top:22px;width:308px;text-align:center}
+  .cap h4{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--lav);margin-bottom:8px}
+  .cap ul{list-style:none;text-align:left}
+  .cap li{font-size:0.62rem;color:#777;font-weight:300;line-height:1.5;display:flex;align-items:flex-start;gap:6px;margin-bottom:4px}
+  .cap li::before{content:'·';color:#bbb;flex-shrink:0}
+
+  /* NOTES */
+  .notes{max-width:1280px;margin:44px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .nc{background:white;border-radius:12px;padding:16px 18px;border:1px solid var(--cream-dark);box-shadow:0 1px 6px rgba(0,0,0,0.05)}
+  .nc h5{font-size:0.66rem;font-weight:700;color:var(--forest);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px}
+  .nc p{font-size:0.68rem;color:var(--mid);line-height:1.65;font-weight:300}
+  .nc p strong{color:var(--txt);font-weight:600}
+
+  /* NEXT */
+  .next{max-width:1280px;margin:14px auto 0;background:var(--forest);border-radius:11px;padding:14px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .next h4{font-family:'Cormorant Garamond',serif;font-size:0.9rem;font-weight:600;color:var(--cream);flex-shrink:0}
+  .nchips{display:flex;gap:6px;flex-wrap:wrap}
+  .nchip{padding:3px 10px;border-radius:20px;font-size:0.6rem;font-weight:500;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15)}
+  .nchip.done{background:rgba(255,255,255,0.18);color:white}
+  .nchip.now{background:var(--gold);color:var(--forest);font-weight:700;border-color:var(--gold)}
+
+  @media(max-width:760px){.phones{gap:24px}}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>💊 Medication Log Sheet</h1>
+  <p>Legal grade · lavender accent · pre-suggested next dose · mandatory confirmation · immutable once saved</p>
+</div>
+
+<div class="lrow">
+  <span class="lbl l1">1 — Sheet open, searching medication</span>
+  <span class="lbl l2">2 — All fields filled, ready to confirm</span>
+  <span class="lbl l3">3 — Confirmation overlay</span>
+  <span class="lbl l4">4 — Saved, locked card in recent log</span>
+</div>
+
+<div class="phones">
+
+
+<!-- ═══ STATE 1 — Sheet open, medication name active ═══ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">14:15</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div>
+        <div class="date-nav"><div class="dn-arr">‹</div>
+      </div>
+    </div><div class="dn-arr">›</div></div>
+    </div>
+    <div class="screen-body">
+      <div class="behind"><div class="bg-lbl">Quick Log</div><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div><div style="margin-top:6px"><div class="bg-lbl">Recent</div><div class="bg-card"></div><div class="bg-card"></div></div></div>
+      <div class="dim"></div>
+      <div class="sheet">
+        <div class="hdl"></div>
+        <div class="shd">
+          <div class="shdr">
+            <div class="shdot"></div>
+            <div class="shtitle">Log medication</div>
+            <div class="legal-tag">Legal record</div>
+          </div>
+          <div class="shtime-tap"><span class="shtime-val">14:15</span><span class="shtime-edit">✎</span></div>
+        </div>
+        <div class="sfields">
+          <div>
+            <div class="fl">Medication</div>
+            <div class="med-input-wrap">
+              <div class="med-input-icon">🔍</div>
+              <div class="med-input"><span style="color:var(--lav)">Cal</span><span class="cur"></span></div>
+            </div>
+            <div class="med-dropdown">
+              <div class="med-item sel">Calpol 6+ <span class="med-common">Paracetamol · common</span></div>
+              <div class="med-item">Calpol Sugar Free <span class="med-common">Paracetamol</span></div>
+              <div class="med-item">Calprofen <span class="med-common">Ibuprofen</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Searching medication</h4><ul>
+    <li>Lavender search border + category dot signals legal grade immediately</li>
+    <li>"Legal record" tag in the sheet header — the nanny knows this is serious before typing a word</li>
+    <li>Typing "Cal" filters the dropdown to matching medications</li>
+    <li>Common medications pre-loaded — most will be found in 2–3 keystrokes</li>
+    <li>Tappable ✎ time pill in header — same pattern as all sheets</li>
+  </ul></div>
+</div>
+
+
+<!-- ═══ STATE 2 — All fields filled ═══ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">14:15</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div>
+        <div class="date-nav"><div class="dn-arr">‹</div>
+      </div>
+    </div><div class="dn-arr">›</div></div>
+    </div>
+    <div class="screen-body">
+      <div class="behind"><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div></div>
+      <div class="dim"></div>
+      <div class="sheet">
+        <div class="hdl"></div>
+        <div class="shd">
+          <div class="shdr">
+            <div class="shdot"></div>
+            <div class="shtitle">Log medication</div>
+            <div class="legal-tag">Legal record</div>
+          </div>
+          <div class="shtime-tap"><span class="shtime-val">14:15</span><span class="shtime-edit">✎</span></div>
+        </div>
+        <div class="sfields">
+
+          <!-- Med name — filled -->
+          <div>
+            <div class="fl">Medication</div>
+            <div style="background:var(--lav-light);border:1.5px solid var(--lav);border-radius:11px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:0.75rem;font-weight:600;color:#5a4890">Calpol 6+</span>
+              <span style="font-size:0.55rem;color:var(--lav);font-weight:300">Paracetamol · change</span>
+            </div>
+          </div>
+
+          <!-- Dosage -->
+          <div>
+            <div class="fl">Dosage</div>
+            <div class="dosage-row">
+              <div class="dose-num">5</div>
+              <div class="unit-chips">
+                <div class="uc sel">ml</div>
+                <div class="uc">mg</div>
+                <div class="uc">tablet</div>
+                <div class="uc">drop</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reason -->
+          <div>
+            <div class="fl">Reason</div>
+            <div class="reason-input filled" style="background:white;border-color:var(--cream-dark)">High temperature 38.4°</div>
+          </div>
+
+          <!-- Next dose -->
+          <div class="next-dose-card">
+            <div class="nd-header">
+              <div class="nd-label">⏰ Next dose due</div>
+              <div class="nd-suggest">Suggested · 4–6 hrs</div>
+            </div>
+            <div class="nd-time">18:15</div>
+            <div class="nd-sub">In-app reminder · nanny only</div>
+            <span class="nd-skip">Skip reminder</span>
+          </div>
+
+          <!-- Administered by -->
+          <div class="admin-row">
+            <div class="admin-av">FJ</div>
+            <div class="admin-info">
+              <div class="admin-name">Francesca Jones</div>
+              <div class="admin-sub">Administered by · auto-filled</div>
+            </div>
+            <div class="admin-lock">🔒</div>
+          </div>
+
+        </div>
+        <div class="sftr"><button class="sbtn">Review & confirm →</button></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>All fields filled</h4><ul>
+    <li>Medication confirmed — lavender filled state with "change" link</li>
+    <li>Dosage: 5 ml — amount + unit chips, ml selected</li>
+    <li>Next dose: app pre-suggested 18:15 (4 hrs from 14:15 for Calpol). Nanny can adjust or skip</li>
+    <li>Administered by: auto-filled, read-only, padlock icon</li>
+    <li>Save reads "Review & confirm →" — signals there is one more step</li>
+  </ul></div>
+</div>
+
+
+<!-- ═══ STATE 3 — Confirmation overlay ═══ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">14:15</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div>
+        <div class="date-nav"><div class="dn-arr">‹</div>
+      </div>
+    </div><div class="dn-arr">›</div></div>
+    </div>
+    <div class="screen-body">
+      <div class="behind"><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div></div>
+      <!-- CONFIRMATION OVERLAY — covers everything -->
+      <div class="confirm-overlay">
+        <div class="co-header">
+          <span class="co-icon">💊</span>
+          <div class="co-title">Confirm medication given</div>
+          <div class="co-subtitle">Please review before saving — this cannot be changed</div>
+        </div>
+        <div class="co-body">
+          <div class="co-detail-row">
+            <div class="co-detail-label">Medication</div>
+            <div class="co-detail-val big">Calpol 6+</div>
+          </div>
+          <div class="co-detail-row">
+            <div class="co-detail-label">Dosage</div>
+            <div class="co-detail-val big">5 ml</div>
+          </div>
+          <div class="co-detail-row">
+            <div class="co-detail-label">Given to</div>
+            <div class="co-detail-val">Olivia</div>
+          </div>
+          <div class="co-detail-row">
+            <div class="co-detail-label">Time</div>
+            <div class="co-detail-val">2:15 pm · Tuesday 1 April</div>
+          </div>
+          <div class="co-detail-row">
+            <div class="co-detail-label">Reason</div>
+            <div class="co-detail-val">High temperature 38.4°</div>
+          </div>
+          <div class="co-detail-row">
+            <div class="co-detail-label">Given by</div>
+            <div class="co-detail-val">Francesca Jones</div>
+          </div>
+          <div class="co-detail-row">
+            <div class="co-detail-label">Next dose</div>
+            <div class="co-detail-val">Reminder set · 6:15 pm</div>
+          </div>
+          <div class="co-warning">
+            <div class="co-warn-ico">🔒</div>
+            <div class="co-warn-txt"><strong>This record cannot be edited or deleted once saved.</strong> A notification will be sent to parents automatically.</div>
+          </div>
+        </div>
+        <div class="co-footer">
+          <button class="co-confirm-btn">✓ Confirm & save record</button>
+          <button class="co-cancel-btn">← Go back and edit</button>
+        </div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Confirmation overlay</h4><ul>
+    <li>Full-screen — not a small dialog. The nanny reads every detail before confirming</li>
+    <li>Lavender header with medication emoji — serious but calm</li>
+    <li>Every field listed clearly: medication, dose, child, time, reason, given by, next dose</li>
+    <li>🔒 Warning explicitly states it cannot be edited or deleted, and that parents will be notified</li>
+    <li>"Go back and edit" is always available — no pressure to confirm incorrectly</li>
+  </ul></div>
+</div>
+
+
+<!-- ═══ STATE 4 — Saved, locked card visible ═══ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">14:17</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div>
+        <div class="date-nav"><div class="dn-arr">‹</div>
+      </div>
+    </div><div class="dn-arr">›</div></div>
+    </div>
+    <div class="screen-body">
+      <div class="locked-screen">
+
+        <!-- Next dose reminder banner -->
+        <div class="locked-banner">
+          <span class="lb-ico">⏰</span>
+          <span class="lb-txt">Next dose of Calpol for Olivia — reminder set for 6:15 pm</span>
+        </div>
+
+        <!-- Home screen behind (dim) -->
+        <div style="padding:10px 14px 0;opacity:0.18;pointer-events:none">
+          <div style="font-size:0.47rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--light);margin-bottom:5px">Quick Log</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+            <div style="background:white;border-radius:12px;border:1px solid var(--cream-dark);height:52px"></div>
+            <div style="background:white;border-radius:12px;border:1px solid var(--cream-dark);height:52px"></div>
+            <div style="background:white;border-radius:12px;border:1px solid var(--cream-dark);height:52px"></div>
+            <div style="background:white;border-radius:12px;border:1px solid var(--cream-dark);height:52px"></div>
+            <div style="background:white;border-radius:12px;border:1px solid var(--cream-dark);height:52px"></div>
+            <div style="background:white;border-radius:12px;border:1px solid var(--cream-dark);height:52px"></div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--cream-dark);margin:10px 14px 0;flex-shrink:0"></div>
+
+        <div class="locked-recent">
+          <div class="ls-lbl">Recent</div>
+
+          <!-- Locked medication card — swiped to show view-only action -->
+          <div style="margin-bottom:6px">
+            <div class="sh-wrap">
+              <div style="position:absolute;right:0;top:0;bottom:0;width:88px;background:var(--lav);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;z-index:1;border-radius:0 11px 11px 0">
+                <div class="sh-ico">🔒</div>
+                <div class="sh-lbl">Locked<br>View only</div>
+              </div>
+              <div class="sh-card">
+                <div class="lc-strip"></div>
+                <div class="lc-inner">
+                  <div class="lc-ico">💊</div>
+                  <div class="lc-body">
+                    <div class="lc-title"><span class="lc-badge">Locked</span> Calpol 6+ · 5ml</div>
+                    <div class="lc-sub">High temp 38.4° · Francesca Jones</div>
+                  </div>
+                  <div class="lc-time">14:15</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Other normal cards -->
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <div style="background:white;border-radius:11px;border:1px solid rgba(0,0,0,0.055);display:flex;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.07)"><div style="width:4px;background:var(--sky);flex-shrink:0"></div><div style="flex:1;padding:8px 9px;display:flex;align-items:center;gap:7px"><div style="font-size:0.9rem">😴</div><div style="flex:1"><div style="font-size:0.66rem;font-weight:600;color:var(--txt)">Nap — 1h 20m</div><div style="font-size:0.54rem;color:var(--light);margin-top:1px">Cot · bedroom</div></div><div style="font-size:0.54rem;color:var(--light)">11:10</div></div></div>
+            <div style="background:white;border-radius:11px;border:1px solid rgba(0,0,0,0.055);display:flex;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.07)"><div style="width:4px;background:var(--coral);flex-shrink:0"></div><div style="flex:1;padding:8px 9px;display:flex;align-items:center;gap:7px"><div style="font-size:0.9rem">🍽️</div><div style="flex:1"><div style="font-size:0.66rem;font-weight:600;color:var(--txt)">Lunch</div><div style="font-size:0.54rem;color:var(--light);margin-top:1px">Pasta · ate well</div></div><div style="font-size:0.54rem;color:var(--light)">12:15</div></div></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="eod-wrap"><button class="eod-btn">✍️ Write today's summary →</button></div>
+      <div class="bnav">
+        <div class="ni on"><div class="nio">☀️</div><div class="nil" style="color:var(--forest)">Today</div></div>
+        <div class="ni"><div class="nio">📓</div><div class="nil">Diary</div></div>
+        <div class="ni"><div class="nio">📅</div><div class="nil">Plan</div></div>
+        <div class="ni"><div class="nio">🏡</div><div class="nil">Family</div></div>
+        <div class="ni"><div class="nio">⚙️</div><div class="nil">More</div></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Saved — locked in recent log</h4><ul>
+    <li>Next dose banner appears at top of home screen — "reminder set for 6:15 pm"</li>
+    <li>Medication card shows LOCKED badge and is swiped to show the lavender View only action</li>
+    <li>Swipe left on a locked entry never shows Edit or Delete — only View only</li>
+    <li>Parent notification has already fired automatically in the background</li>
+  </ul></div>
+</div>
+
+
+</div><!-- /phones -->
+
+<div class="notes">
+  <div class="nc"><h5>⚖️ Legal grade design</h5><p>"Legal record" tag in the sheet header, lavender accent on all borders and inputs, confirmation overlay before saving. <strong>The visual language is serious and deliberate from the moment the sheet opens.</strong></p></div>
+  <div class="nc"><h5>🔍 Medication dropdown</h5><p>Pre-populated with common children's medications. Typing filters in real time. <strong>Most medications found in 2–3 keystrokes.</strong> Free text "Other" option for anything not in the list.</p></div>
+  <div class="nc"><h5>⏰ Next dose suggestion</h5><p>App pre-suggests the next dose time based on the medication selected. <strong>Calpol → every 4–6 hrs. Nurofen → every 6–8 hrs.</strong> Nanny can adjust the suggested time or skip the reminder entirely. Nanny-side notification only — not visible to parents.</p></div>
+  <div class="nc"><h5>🔒 Confirmation overlay</h5><p>Full-screen — not a dialog. Lists every detail: medication, dose, child, time, reason, given by, next dose. <strong>Warning explicitly states it cannot be edited or deleted.</strong> "Go back and edit" always available.</p></div>
+  <div class="nc"><h5>📩 Parent notification</h5><p>Fires automatically on save. <strong>No manual trigger needed.</strong> Parent receives: "Olivia was given Calpol 5ml at 2:15 pm. Tap to view full record."</p></div>
+  <div class="nc"><h5>💾 Saved data</h5><p><strong>{ category: "medication", name: "Calpol 6+", amount: 5, unit: "ml", reason: "High temp 38.4°", administered_by: "Francesca Jones", time: "14:15", next_dose_due: "18:15" }</strong></p></div>
+</div>
+
+<div class="next">
+  <h4>Screen progress</h4>
+  <div class="nchips">
+    <div class="nchip done">✓ Home</div>
+    <div class="nchip done">✓ Meal log</div>
+    <div class="nchip done">✓ Sleep log</div>
+    <div class="nchip done">✓ Activity log</div>
+    <div class="nchip done">✓ Nappy log</div>
+    <div class="nchip now">✓ Medication log</div>
+    <div class="nchip">End of day</div>
+    <div class="nchip">Diary view</div>
+    <div class="nchip">Parent view</div>
+    <div class="nchip">Weekly plan</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NannyNote — Parent View · Option B</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest:#2D5A3D; --sage:#8AAB8E; --sage-light:#C8DECA;
+    --cream:#F7F3EC; --cream-dark:#EDE7DC; --bg:#FEFAF5;
+    --gold:#C9A84C;
+    --coral:#E8735A; --coral-bg:rgba(232,115,90,0.07);
+    --sky:#6AABCF;   --sky-bg:rgba(106,171,207,0.07);
+    --sun:#F5C842;   --sun-bg:rgba(245,200,66,0.08);
+    --lav:#9B8EC4;   --lav-bg:rgba(155,142,196,0.08);
+    --mint:#5DB89A;  --mint-bg:rgba(93,184,154,0.08);
+    --txt:#1a1a1a; --mid:#555; --light:#bbb;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#e8e4dd;font-family:'DM Sans',sans-serif;min-height:100vh;padding:52px 24px 80px}
+
+  .page-header{text-align:center;margin-bottom:16px}
+  .page-header h1{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:500;color:var(--forest)}
+  .page-header p{color:#888;font-size:0.78rem;margin-top:8px;font-weight:300}
+
+  .lrow{display:flex;justify-content:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+  .lbl{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;padding:5px 14px;border-radius:20px}
+  .l1{background:rgba(45,90,61,0.08);color:var(--forest);border:1px solid rgba(45,90,61,0.2)}
+  .l2{background:rgba(201,168,76,0.12);color:#8a6a10;border:1px solid rgba(201,168,76,0.28)}
+
+  .phones{display:flex;justify-content:center;gap:24px;align-items:flex-start;flex-wrap:wrap}
+  .pw{display:flex;flex-direction:column;align-items:center}
+
+  /* ── PHONE SHELL ── */
+  .phone{width:300px;background:#0a0a0a;border-radius:48px;padding:10px;box-shadow:0 0 0 1px #1c1c1c,0 0 0 2px #0a0a0a,0 44px 88px rgba(0,0,0,0.45),0 16px 32px rgba(0,0,0,0.25);position:relative;flex-shrink:0}
+  .phone::before{content:'';position:absolute;left:-3px;top:94px;width:3px;height:24px;background:#151515;border-radius:2px 0 0 2px;box-shadow:0 36px 0 #151515,0 70px 0 #151515}
+  .phone::after{content:'';position:absolute;right:-3px;top:126px;width:3px;height:52px;background:#151515;border-radius:0 2px 2px 0}
+  .ps{background:var(--bg);border-radius:39px;overflow:hidden;height:700px;display:flex;flex-direction:column;position:relative}
+  .di{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:82px;height:22px;background:#0a0a0a;border-radius:13px;z-index:20;pointer-events:none}
+
+  /* STATUS */
+  .status{height:38px;background:var(--bg);display:flex;align-items:flex-end;justify-content:space-between;padding:0 18px 7px;flex-shrink:0}
+  .st{font-size:0.63rem;font-weight:700;color:var(--txt)}
+  .si{display:flex;align-items:center;gap:3px}
+  .sig{display:flex;gap:1.5px;align-items:flex-end}
+  .sig span{display:block;width:2.5px;background:var(--txt);border-radius:1px}
+  .sig span:nth-child(1){height:3px}.sig span:nth-child(2){height:5px}.sig span:nth-child(3){height:7px}.sig span:nth-child(4){height:9px;opacity:.3}
+  .batt{width:14px;height:7px;border:1.5px solid rgba(0,0,0,0.4);border-radius:2px;padding:1px;position:relative}
+  .batt::after{content:'';position:absolute;right:-3px;top:50%;transform:translateY(-50%);width:2px;height:4px;background:rgba(0,0,0,0.3);border-radius:0 1px 1px 0}
+  .bf{width:60%;height:100%;background:var(--txt);border-radius:1px}
+
+  /* SCROLL */
+  .scroll{flex:1;overflow-y:auto;scrollbar-width:none}
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* ── GREETING CARD ── */
+  .greeting{padding:10px 14px 0}
+  .greeting-inner{background:var(--forest);border-radius:20px;padding:16px;position:relative;overflow:hidden}
+  .greeting-inner::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.04)}
+  .greeting-inner::after{content:'';position:absolute;bottom:-30px;right:20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.03)}
+  .g-date{font-size:0.5rem;text-transform:uppercase;letter-spacing:0.12em;color:rgba(200,222,202,0.6);font-weight:600;margin-bottom:4px}
+  .g-name{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:400;color:#FEFAF5;line-height:1.15;margin-bottom:12px}
+  .g-name em{font-style:italic;color:rgba(200,222,202,0.8)}
+
+  /* Tappable stat chips */
+  .g-stats{display:flex;gap:6px;flex-wrap:wrap}
+  .g-stat{padding:5px 10px;border-radius:20px;font-size:0.56rem;font-weight:600;display:flex;align-items:center;gap:4px;cursor:pointer;transition:all 0.15s;border:1.5px solid transparent;user-select:none}
+  .gs-sleep{background:rgba(106,171,207,0.18);color:#6AABCF}
+  .gs-meal{background:rgba(232,115,90,0.18);color:#E8735A}
+  .gs-act{background:rgba(245,200,66,0.18);color:#C9A84C}
+  .gs-nappy{background:rgba(93,184,154,0.18);color:#5DB89A}
+  .gs-photo{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.75)}
+  /* Active filter state */
+  .g-stat.active{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:white}
+  /* Filter hint */
+  .filter-hint{font-size:0.5rem;color:rgba(200,222,202,0.55);margin-top:8px;font-weight:300;display:none}
+  .filter-hint.visible{display:block}
+
+  /* ── IN-PROGRESS BANNER ── */
+  .progress-bar{margin:10px 14px 0;background:rgba(201,168,76,0.09);border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:8px;border:1px solid rgba(201,168,76,0.18)}
+  .pd{width:7px;height:7px;border-radius:50%;background:#C9A84C;flex-shrink:0;animation:pulse 1.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.85)}}
+  .pt{font-size:0.57rem;color:#8a6a10;font-weight:500}
+
+  /* ── NANNY NARRATIVE CARD ── */
+  .narrative-card{margin:10px 14px 0;background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,0.07)}
+  .nc-header{background:rgba(45,90,61,0.04);padding:10px 14px 8px;border-bottom:1px solid rgba(45,90,61,0.07);display:flex;align-items:center;gap:8px}
+  .nc-av{width:26px;height:26px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:0.48rem;font-weight:700;color:var(--forest);flex-shrink:0}
+  .nc-from{font-size:0.52rem;color:var(--mid)}
+  .nc-from strong{color:var(--forest);font-weight:600}
+  .nc-sent{margin-left:auto;font-size:0.46rem;color:var(--light)}
+  .nc-body{padding:12px 14px}
+  .nc-text{font-family:'Cormorant Garamond',serif;font-size:0.92rem;color:var(--txt);line-height:1.65;font-style:italic}
+
+  /* ── HANDOVER CARD ── */
+  .handover-card{margin:8px 14px 0;background:rgba(201,168,76,0.06);border:1.5px solid rgba(201,168,76,0.18);border-radius:14px;padding:10px 13px;display:flex;gap:9px;align-items:flex-start}
+  .hc-ico{font-size:0.9rem;flex-shrink:0;margin-top:1px}
+  .hc-label{font-size:0.48rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#8a6a10;margin-bottom:3px}
+  .hc-text{font-size:0.65rem;color:var(--mid);font-weight:400;line-height:1.5}
+
+  /* ── CHAPTER DIVIDER ── */
+  .chapter{display:flex;align-items:center;gap:10px;padding:14px 14px 6px}
+  .ch-line{flex:1;height:1px;background:var(--cream-dark)}
+  .ch-lbl{font-size:0.48rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--light)}
+
+  /* ──────────────────────────────────────────
+     STANDALONE PHOTO — true edge to edge
+     No margin, no padding, no card container
+     Caption overlaid at bottom
+  ────────────────────────────────────────── */
+  .photo-edge{
+    width:100%;
+    position:relative;
+    flex-shrink:0;
+    overflow:hidden;
+    /* No margin — touches the full width of the scroll container */
+  }
+  .photo-edge .pe-img{
+    width:100%;
+    height:190px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:5rem;
+    position:relative;
+  }
+  .photo-edge .pe-img::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,0.45));
+  }
+  .photo-edge .pe-cap{
+    position:absolute;
+    bottom:0;left:0;right:0;
+    padding:14px 16px;
+    z-index:2;
+  }
+  .pe-cap-txt{font-family:'Cormorant Garamond',serif;font-size:0.92rem;color:white;font-style:italic;line-height:1.3}
+  .pe-cap-meta{font-size:0.46rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin-top:3px}
+
+  /* Attached photo (smaller, within a card below log entry) */
+  .photo-attached{margin:8px 14px 0;background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07)}
+  .pa-img{width:100%;height:130px;display:flex;align-items:center;justify-content:center;font-size:3.5rem}
+  .pa-foot{padding:9px 13px 11px}
+  .pa-cap{font-family:'Cormorant Garamond',serif;font-size:0.88rem;color:var(--txt);font-style:italic}
+  .pa-time{font-size:0.48rem;color:var(--light);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px}
+
+  /* ── MEAL CARD ── */
+  .meal-card{margin:8px 14px 0;background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+  .mc-top{background:var(--coral-bg);padding:10px 13px 8px;border-bottom:1px solid rgba(232,115,90,0.09);display:flex;align-items:center;justify-content:space-between}
+  .mc-ico{width:26px;height:26px;border-radius:8px;background:rgba(232,115,90,0.14);display:flex;align-items:center;justify-content:center;font-size:0.9rem}
+  .mc-cat{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--coral)}
+  .mc-title{font-size:0.68rem;font-weight:600;color:var(--txt);margin-top:1px}
+  .mc-time{font-size:0.52rem;color:var(--light)}
+  .mc-body{padding:10px 13px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .mc-food{font-family:'Cormorant Garamond',serif;font-size:0.95rem;color:var(--txt);font-weight:500;flex:1}
+
+  /* ──────────────────────────────────────────
+     PLATE APPETITE INDICATOR
+     Circle plate, fills from bottom up
+  ────────────────────────────────────────── */
+  .plate-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0}
+  .plate{position:relative;width:40px;height:40px}
+  .plate-rim{position:absolute;inset:0;border-radius:50%;background:#f5f0e8;border:2.5px solid #e8e0d4}
+  .plate-fill-clip{position:absolute;inset:0;border-radius:50%;overflow:hidden}
+  .plate-fill{position:absolute;bottom:0;left:0;right:0;background:var(--coral);opacity:0.72;transition:height 0.3s}
+  .plate-inner-rim{position:absolute;inset:5px;border-radius:50%;border:1.5px solid rgba(232,115,90,0.15)}
+  .plate-lbl{font-size:0.44rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--coral);text-align:center}
+
+  /* ── SLEEP CARD ── */
+  .sleep-card{margin:8px 14px 0;background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+  .sc-top{background:var(--sky-bg);padding:10px 13px 8px;border-bottom:1px solid rgba(106,171,207,0.09);display:flex;align-items:center;justify-content:space-between}
+  .sc-ico{width:26px;height:26px;border-radius:8px;background:rgba(106,171,207,0.14);display:flex;align-items:center;justify-content:center;font-size:0.9rem}
+  .sc-cat{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--sky)}
+  .sc-title{font-size:0.68rem;font-weight:600;color:var(--txt);margin-top:1px}
+  .sc-body{padding:10px 13px 12px;display:flex;align-items:center;justify-content:space-between}
+  .sc-dur{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:500;color:var(--sky);line-height:1}
+  .sc-dur-lbl{font-size:0.46rem;color:var(--light);text-transform:uppercase;letter-spacing:0.1em;margin-top:2px}
+  .waveform{display:flex;align-items:center;gap:2px;height:18px;margin-top:8px}
+  .wf-b{border-radius:2px;background:rgba(106,171,207,0.22)}
+  .wf-b.hi{background:rgba(106,171,207,0.45)}
+  .sc-times{text-align:right}
+  .sc-tr{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:4px}
+  .sc-tl{font-size:0.46rem;color:var(--light);text-transform:uppercase;letter-spacing:0.08em}
+  .sc-tv{font-size:0.72rem;font-weight:600;color:var(--txt)}
+
+  /* ── ACTIVITY CARD ── */
+  .act-card{margin:8px 14px 0;background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+  .ac-top{background:var(--sun-bg);padding:10px 13px 8px;border-bottom:1px solid rgba(245,200,66,0.12);display:flex;align-items:center;justify-content:space-between}
+  .ac-ico{width:26px;height:26px;border-radius:8px;background:rgba(245,200,66,0.16);display:flex;align-items:center;justify-content:center;font-size:0.9rem}
+  .ac-cat{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a88820}
+  .ac-title{font-size:0.68rem;font-weight:600;color:var(--txt);margin-top:1px}
+  .ac-dur{font-size:0.52rem;color:var(--light)}
+  .ac-body{padding:9px 13px 11px}
+  .ac-desc{font-family:'Cormorant Garamond',serif;font-size:0.88rem;color:var(--txt);font-style:italic;line-height:1.45;margin-bottom:8px}
+  .ac-tags{display:flex;gap:5px;flex-wrap:wrap}
+  .ac-tag{padding:3px 9px;border-radius:20px;font-size:0.54rem;font-weight:600}
+  .tag-out{background:rgba(45,90,61,0.08);color:var(--forest)}
+  .tag-cre{background:rgba(245,200,66,0.12);color:#8a6a10}
+  .tag-soc{background:rgba(106,171,207,0.1);color:#3a7fa8}
+
+  /* ──────────────────────────────────────────
+     NAPPY CARD — colour strip not dot
+     Matches the log card pattern on home screen
+  ────────────────────────────────────────── */
+  .nappy-card{
+    margin:8px 14px 0;
+    background:white;
+    border-radius:12px;
+    display:flex;
+    overflow:hidden;
+    box-shadow:0 1px 8px rgba(0,0,0,0.05);
+  }
+  .nappy-strip{width:4px;background:var(--mint);flex-shrink:0}
+  .nappy-inner{flex:1;padding:9px 12px;display:flex;align-items:center;gap:8px}
+  .nappy-ico{font-size:0.9rem;line-height:1}
+  .nappy-lbl{flex:1;font-size:0.65rem;color:var(--mid)}
+  .nappy-lbl strong{color:var(--txt);font-weight:600}
+  .nappy-tm{font-size:0.52rem;color:var(--light)}
+
+  /* ── MEDICATION CARD ── */
+  .med-card{margin:8px 14px 0;background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 14px rgba(155,142,196,0.16);border:1.5px solid rgba(155,142,196,0.18)}
+  .med-top{background:var(--lav-bg);padding:10px 13px 8px;border-bottom:1px solid rgba(155,142,196,0.1);display:flex;align-items:center;justify-content:space-between}
+  .med-ico{width:26px;height:26px;border-radius:8px;background:rgba(155,142,196,0.16);display:flex;align-items:center;justify-content:center;font-size:0.9rem}
+  .med-cat{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--lav)}
+  .med-title{font-size:0.68rem;font-weight:600;color:var(--txt);margin-top:1px}
+  .med-body{padding:9px 13px 11px}
+  .med-name{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:#5a4890;margin-bottom:4px}
+  .med-detail{font-size:0.62rem;color:var(--mid);font-weight:300;line-height:1.5}
+  .med-next{margin-top:7px;background:rgba(155,142,196,0.08);border-radius:8px;padding:5px 9px;font-size:0.56rem;color:#6a5aa0;font-weight:500;display:flex;align-items:center;gap:5px}
+
+  .pad{height:24px}
+
+  /* ── CAPTIONS ── */
+  .cap{margin-top:22px;width:300px}
+  .cap h4{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--forest);margin-bottom:8px}
+  .cap ul{list-style:none}
+  .cap li{font-size:0.62rem;color:#777;font-weight:300;line-height:1.5;display:flex;align-items:flex-start;gap:6px;margin-bottom:4px}
+  .cap li::before{content:'·';color:#bbb;flex-shrink:0}
+
+  /* NOTES */
+  .notes{max-width:780px;margin:44px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .nc2{background:white;border-radius:12px;padding:16px 18px;border:1px solid var(--cream-dark);box-shadow:0 1px 6px rgba(0,0,0,0.05)}
+  .nc2 h5{font-size:0.66rem;font-weight:700;color:var(--forest);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px}
+  .nc2 p{font-size:0.68rem;color:var(--mid);line-height:1.65;font-weight:300}
+  .nc2 p strong{color:var(--txt);font-weight:600}
+
+  /* HIDDEN state for filtered items */
+  .entry-group{transition:opacity 0.2s}
+  .entry-group.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>👩‍👧 Parent View — Option B</h1>
+  <p>Tap a stat chip to filter · edge-to-edge standalone photos · plate appetite indicator · colour strip on nappy</p>
+</div>
+
+<div class="lrow">
+  <span class="lbl l1">Day in progress</span>
+  <span class="lbl l2">Complete day (summary sent)</span>
+</div>
+
+<div class="phones">
+
+
+<!-- ════════════ STATE 1 — DAY IN PROGRESS ════════════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st">14:35</span><div class="si"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="scroll" id="scroll1">
+
+      <!-- Greeting -->
+      <div class="greeting">
+        <div class="greeting-inner">
+          <div class="g-date">Tuesday · 1 April 2026</div>
+          <div class="g-name">Olivia's day <em>so far</em></div>
+          <div class="g-stats" id="chips1">
+            <div class="g-stat gs-sleep" data-filter="sleep" data-scroll="scroll1">😴 3h 10m</div>
+            <div class="g-stat gs-meal" data-filter="meal" data-scroll="scroll1">🍽️ 2 meals</div>
+            <div class="g-stat gs-act" data-filter="activity" data-scroll="scroll1">🎨 1 activity</div>
+            <div class="g-stat gs-photo" data-filter="photo" data-scroll="scroll1">📸 4 photos</div>
+          </div>
+          <div class="filter-hint" id="hint1">Tap again to show all</div>
+        </div>
+      </div>
+
+      <!-- In progress -->
+      <div class="progress-bar entry-group" data-type="meta">
+        <div class="pd"></div>
+        <span class="pt">Day in progress · Francesca last logged at 13:28</span>
+      </div>
+
+      <div class="chapter"><div class="ch-line"></div><div class="ch-lbl">This morning</div><div class="ch-line"></div></div>
+
+      <!-- STANDALONE PHOTO — edge to edge, no margin -->
+      <div class="photo-edge entry-group" data-type="photo">
+        <div class="pe-img" style="background:linear-gradient(155deg,#c8d8b8,#8aab8e 45%,#5a8a6a)">
+          🍂
+        </div>
+        <div class="pe-cap">
+          <div class="pe-cap-txt">Leaf printing in the garden — she was so focused</div>
+          <div class="pe-cap-meta">10:30 am · standalone photo</div>
+        </div>
+      </div>
+
+      <!-- MEAL CARD — breakfast with plate -->
+      <div class="meal-card entry-group" data-type="meal">
+        <div class="mc-top">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="mc-ico">🍽️</div>
+            <div><div class="mc-cat">Breakfast</div><div class="mc-title">Porridge with banana & honey</div></div>
+          </div>
+          <div class="mc-time">9:05</div>
+        </div>
+        <div class="mc-body">
+          <div class="mc-food">Porridge, banana</div>
+          <div class="plate-wrap">
+            <div class="plate">
+              <div class="plate-rim"></div>
+              <div class="plate-fill-clip"><div class="plate-fill" style="height:75%"></div></div>
+              <div class="plate-inner-rim"></div>
+            </div>
+            <div class="plate-lbl">Ate well</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAPPY — colour strip, consistent with app -->
+      <div class="nappy-card entry-group" data-type="nappy">
+        <div class="nappy-strip"></div>
+        <div class="nappy-inner">
+          <div class="nappy-ico">🧷</div>
+          <div class="nappy-lbl"><strong>Wet</strong> nappy change</div>
+          <div class="nappy-tm">10:45</div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY CARD -->
+      <div class="act-card entry-group" data-type="activity">
+        <div class="ac-top">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="ac-ico">🎨</div>
+            <div><div class="ac-cat">Activity</div><div class="ac-title">Nature walk + leaf printing</div></div>
+          </div>
+          <div class="ac-dur">1hr+</div>
+        </div>
+        <div class="ac-body">
+          <div class="ac-desc">"Made the most beautiful collection of autumn leaves — she was completely absorbed in it."</div>
+          <div class="ac-tags">
+            <div class="ac-tag tag-out">🌿 Outdoor</div>
+            <div class="ac-tag tag-cre">🎨 Creative</div>
+            <div class="ac-tag tag-soc">👥 Social</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapter entry-group" data-type="meta"><div class="ch-line"></div><div class="ch-lbl">Afternoon</div><div class="ch-line"></div></div>
+
+      <!-- MEAL CARD — lunch -->
+      <div class="meal-card entry-group" data-type="meal">
+        <div class="mc-top">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="mc-ico">🍽️</div>
+            <div><div class="mc-cat">Lunch</div><div class="mc-title">Pasta with pesto & peas</div></div>
+          </div>
+          <div class="mc-time">12:15</div>
+        </div>
+        <div class="mc-body">
+          <div class="mc-food">Pasta, pesto, peas</div>
+          <div class="plate-wrap">
+            <div class="plate">
+              <div class="plate-rim"></div>
+              <div class="plate-fill-clip"><div class="plate-fill" style="height:100%"></div></div>
+              <div class="plate-inner-rim"></div>
+            </div>
+            <div class="plate-lbl">All of it</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLEEP CARD -->
+      <div class="sleep-card entry-group" data-type="sleep">
+        <div class="sc-top">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="sc-ico">😴</div>
+            <div><div class="sc-cat">Nap</div><div class="sc-title">Afternoon sleep</div></div>
+          </div>
+          <div class="mc-time">13:28</div>
+        </div>
+        <div class="sc-body">
+          <div>
+            <div class="sc-dur">1h 33m</div>
+            <div class="sc-dur-lbl">Total sleep</div>
+            <div class="waveform">
+              <div class="wf-b" style="width:2px;height:4px"></div><div class="wf-b" style="width:2px;height:7px"></div><div class="wf-b" style="width:2px;height:5px"></div><div class="wf-b" style="width:2px;height:11px"></div><div class="wf-b hi" style="width:2px;height:16px"></div><div class="wf-b hi" style="width:2px;height:18px"></div><div class="wf-b hi" style="width:2px;height:14px"></div><div class="wf-b hi" style="width:2px;height:18px"></div><div class="wf-b hi" style="width:2px;height:16px"></div><div class="wf-b" style="width:2px;height:11px"></div><div class="wf-b" style="width:2px;height:7px"></div><div class="wf-b" style="width:2px;height:4px"></div>
+            </div>
+          </div>
+          <div class="sc-times">
+            <div class="sc-tr"><div class="sc-tl">Down</div><div class="sc-tv">1:28</div></div>
+            <div class="sc-tr"><div class="sc-tl">Woke</div><div class="sc-tv">3:01</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATTACHED PHOTO (smaller, within card) -->
+      <div class="photo-attached entry-group" data-type="photo">
+        <div class="pa-img" style="background:linear-gradient(135deg,#d4c8f0,#b0a0d8)">👶</div>
+        <div class="pa-foot">
+          <div class="pa-cap">Just woke up and already smiling 🥰</div>
+          <div class="pa-time">3:05 pm · after nap</div>
+        </div>
+      </div>
+
+      <div class="pad"></div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Day in progress</h4><ul>
+    <li>Tap any stat chip to filter — only that category stays visible</li>
+    <li>Tap sleep chip → only sleep cards show · tap again to clear filter</li>
+    <li>Standalone photo goes edge-to-edge, no card, no margin — maximum impact</li>
+    <li>Attached photo (after nap) uses the smaller card treatment</li>
+    <li>Nappy card has a 4px mint strip — consistent with the home screen log cards</li>
+    <li>Plate fills up to show appetite level — intuitive at a glance</li>
+  </ul></div>
+</div>
+
+
+<!-- ════════════ STATE 2 — COMPLETE DAY ════════════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st">18:20</span><div class="si"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="scroll" id="scroll2">
+
+      <!-- Greeting — complete day -->
+      <div class="greeting">
+        <div class="greeting-inner">
+          <div class="g-date">Tuesday · 1 April 2026</div>
+          <div class="g-name">A lovely day <em>for Olivia</em></div>
+          <div class="g-stats" id="chips2">
+            <div class="g-stat gs-sleep" data-filter="sleep" data-scroll="scroll2">😴 3h 10m</div>
+            <div class="g-stat gs-meal" data-filter="meal" data-scroll="scroll2">🍽️ 3 meals</div>
+            <div class="g-stat gs-act" data-filter="activity" data-scroll="scroll2">🎨 2 activities</div>
+            <div class="g-stat gs-nappy" data-filter="nappy" data-scroll="scroll2">🧷 4 nappies</div>
+            <div class="g-stat gs-photo" data-filter="photo" data-scroll="scroll2">📸 6 photos</div>
+          </div>
+          <div class="filter-hint" id="hint2">Tap again to show all</div>
+        </div>
+      </div>
+
+      <!-- Nanny narrative -->
+      <div class="narrative-card entry-group" data-type="meta">
+        <div class="nc-header">
+          <div class="nc-av">FJ</div>
+          <div class="nc-from"><strong>Francesca</strong> · your nanny</div>
+          <div class="nc-sent">Sent 6:02 pm</div>
+        </div>
+        <div class="nc-body">
+          <div class="nc-text">"Olivia had the most wonderful day. She was in such great spirits — laughing and chattering all morning. The leaf printing was a big hit and she ate brilliantly at both lunch and dinner. Her nap was lovely and long. A really good day all round."</div>
+        </div>
+      </div>
+
+      <!-- Handover -->
+      <div class="handover-card entry-group" data-type="meta">
+        <div class="hc-ico">📋</div>
+        <div>
+          <div class="hc-label">Handover note</div>
+          <div class="hc-text">Nappy bag needs restocking — almost out of size 4. Calpol is running low. Appointment Dr Patel Thursday 10am.</div>
+        </div>
+      </div>
+
+      <div class="chapter entry-group" data-type="meta"><div class="ch-line"></div><div class="ch-lbl">Morning</div><div class="ch-line"></div></div>
+
+      <!-- MEDICATION — stands out -->
+      <div class="med-card entry-group" data-type="medication">
+        <div class="med-top">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="med-ico">💊</div>
+            <div><div class="med-cat">Medication given</div><div class="med-title">Calpol 6+</div></div>
+          </div>
+          <div class="mc-time">9:30</div>
+        </div>
+        <div class="med-body">
+          <div class="med-name">Calpol 6+ · 5ml</div>
+          <div class="med-detail">High temperature 38.4° · given by Francesca Jones</div>
+          <div class="med-next">⏰ Next dose reminder set for 1:30 pm</div>
+        </div>
+      </div>
+
+      <!-- STANDALONE PHOTO — edge to edge -->
+      <div class="photo-edge entry-group" data-type="photo">
+        <div class="pe-img" style="background:linear-gradient(155deg,#c8d8b8,#8aab8e 45%,#5a8a6a)">
+          🍂
+        </div>
+        <div class="pe-cap">
+          <div class="pe-cap-txt">Leaf printing — completely absorbed</div>
+          <div class="pe-cap-meta">10:30 am · standalone photo</div>
+        </div>
+      </div>
+
+      <!-- MEAL — breakfast -->
+      <div class="meal-card entry-group" data-type="meal">
+        <div class="mc-top">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="mc-ico">🍽️</div>
+            <div><div class="mc-cat">Breakfast</div><div class="mc-title">Porridge with banana & honey</div></div>
+          </div>
+          <div class="mc-time">9:05</div>
+        </div>
+        <div class="mc-body">
+          <div class="mc-food">Porridge, banana</div>
+          <div class="plate-wrap">
+            <div class="plate">
+              <div class="plate-rim"></div>
+              <div class="plate-fill-clip"><div class="plate-fill" style="height:75%"></div></div>
+              <div class="plate-inner-rim"></div>
+            </div>
+            <div class="plate-lbl">Ate well</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAPPY -->
+      <div class="nappy-card entry-group" data-type="nappy">
+        <div class="nappy-strip"></div>
+        <div class="nappy-inner">
+          <div class="nappy-ico">🧷</div>
+          <div class="nappy-lbl"><strong>Wet</strong> nappy change</div>
+          <div class="nappy-tm">10:45</div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY -->
+      <div class="act-card entry-group" data-type="activity">
+        <div class="ac-top">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="ac-ico">🎨</div>
+            <div><div class="ac-cat">Activity</div><div class="ac-title">Nature walk + leaf printing</div></div>
+          </div>
+          <div class="ac-dur">1hr+</div>
+        </div>
+        <div class="ac-body">
+          <div class="ac-desc">"Made the most beautiful collection — she was completely absorbed in it."</div>
+          <div class="ac-tags">
+            <div class="ac-tag tag-out">🌿 Outdoor</div>
+            <div class="ac-tag tag-cre">🎨 Creative</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapter entry-group" data-type="meta"><div class="ch-line"></div><div class="ch-lbl">Afternoon</div><div class="ch-line"></div></div>
+
+      <!-- MEAL — lunch -->
+      <div class="meal-card entry-group" data-type="meal">
+        <div class="mc-top">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="mc-ico">🍽️</div>
+            <div><div class="mc-cat">Lunch</div><div class="mc-title">Pasta with pesto & peas</div></div>
+          </div>
+          <div class="mc-time">12:15</div>
+        </div>
+        <div class="mc-body">
+          <div class="mc-food">Pasta, pesto, peas</div>
+          <div class="plate-wrap">
+            <div class="plate">
+              <div class="plate-rim"></div>
+              <div class="plate-fill-clip"><div class="plate-fill" style="height:100%"></div></div>
+              <div class="plate-inner-rim"></div>
+            </div>
+            <div class="plate-lbl">All of it</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLEEP -->
+      <div class="sleep-card entry-group" data-type="sleep">
+        <div class="sc-top">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="sc-ico">😴</div>
+            <div><div class="sc-cat">Nap</div><div class="sc-title">Afternoon sleep</div></div>
+          </div>
+          <div class="mc-time">13:28</div>
+        </div>
+        <div class="sc-body">
+          <div>
+            <div class="sc-dur">1h 33m</div>
+            <div class="sc-dur-lbl">Total sleep</div>
+            <div class="waveform">
+              <div class="wf-b" style="width:2px;height:4px"></div><div class="wf-b" style="width:2px;height:7px"></div><div class="wf-b" style="width:2px;height:5px"></div><div class="wf-b" style="width:2px;height:11px"></div><div class="wf-b hi" style="width:2px;height:16px"></div><div class="wf-b hi" style="width:2px;height:18px"></div><div class="wf-b hi" style="width:2px;height:14px"></div><div class="wf-b hi" style="width:2px;height:18px"></div><div class="wf-b hi" style="width:2px;height:16px"></div><div class="wf-b" style="width:2px;height:11px"></div><div class="wf-b" style="width:2px;height:7px"></div><div class="wf-b" style="width:2px;height:4px"></div>
+            </div>
+          </div>
+          <div class="sc-times">
+            <div class="sc-tr"><div class="sc-tl">Down</div><div class="sc-tv">1:28</div></div>
+            <div class="sc-tr"><div class="sc-tl">Woke</div><div class="sc-tv">3:01</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATTACHED PHOTO -->
+      <div class="photo-attached entry-group" data-type="photo">
+        <div class="pa-img" style="background:linear-gradient(135deg,#d4c8f0,#b0a0d8)">👶</div>
+        <div class="pa-foot">
+          <div class="pa-cap">Just woke up and already smiling 🥰</div>
+          <div class="pa-time">3:05 pm · after nap</div>
+        </div>
+      </div>
+
+      <div class="chapter entry-group" data-type="meta"><div class="ch-line"></div><div class="ch-lbl">Evening</div><div class="ch-line"></div></div>
+
+      <!-- MEAL — dinner, barely ate -->
+      <div class="meal-card entry-group" data-type="meal">
+        <div class="mc-top">
+          <div style="display:flex;align-items:center;gap:7px">
+            <div class="mc-ico">🍽️</div>
+            <div><div class="mc-cat">Dinner</div><div class="mc-title">Salmon, sweet potato, broccoli</div></div>
+          </div>
+          <div class="mc-time">17:00</div>
+        </div>
+        <div class="mc-body">
+          <div class="mc-food">Salmon, sweet potato</div>
+          <div class="plate-wrap">
+            <div class="plate">
+              <div class="plate-rim"></div>
+              <div class="plate-fill-clip"><div class="plate-fill" style="height:50%"></div></div>
+              <div class="plate-inner-rim"></div>
+            </div>
+            <div class="plate-lbl">Some</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAPPY -->
+      <div class="nappy-card entry-group" data-type="nappy">
+        <div class="nappy-strip"></div>
+        <div class="nappy-inner">
+          <div class="nappy-ico">🧷</div>
+          <div class="nappy-lbl"><strong>Both</strong> · nappy change</div>
+          <div class="nappy-tm">17:45</div>
+        </div>
+      </div>
+
+      <div class="pad"></div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Complete day</h4><ul>
+    <li>Nanny narrative at top — Cormorant Garamond italic, warm and personal</li>
+    <li>Handover note in gold accent — practical items clearly separated</li>
+    <li>Medication card stands out with lavender shadow — impossible to miss</li>
+    <li>Three plate levels visible: Ate well (75%) · All of it (100%) · Some (50%)</li>
+    <li>Two nappy cards shown — both have the mint colour strip</li>
+    <li>Tap 🧷 4 nappies chip to show only nappy entries</li>
+  </ul></div>
+</div>
+
+
+</div><!-- /phones -->
+
+<div class="notes">
+  <div class="nc2"><h5>📸 Two photo treatments</h5><p><strong>Standalone photo moments — edge to edge.</strong> No card, no margin, caption overlaid. The full screen width. <strong>Attached photos (linked to an entry) — in a white card</strong> with caption below. Smaller, contextual.</p></div>
+  <div class="nc2"><h5>🍽️ Plate indicator</h5><p><strong>Fills from bottom up</strong> — empty = barely ate, full = all of it. Intuitive without reading the label. Warm coral fill, inner rim keeps it looking like a plate not just a circle.</p></div>
+  <div class="nc2"><h5>🧷 Nappy strip</h5><p>4px mint colour strip on the left — <strong>matches the log card pattern on the home screen.</strong> Consistent visual language throughout the app, nanny and parent views alike.</p></div>
+  <div class="nc2"><h5>🔢 Tappable chips</h5><p>Tap a chip to <strong>filter the scroll</strong> to that category only. Tap again to clear. Works independently per phone. Chapter dividers and meta cards (narrative, handover) always visible regardless of filter.</p></div>
+</div>
+
+<script>
+// Filter logic for each phone independently
+document.querySelectorAll('.g-stat[data-filter]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const filter = chip.dataset.filter;
+    const scrollId = chip.dataset.scroll;
+    const scroll = document.getElementById(scrollId);
+    const chipContainer = chip.closest('.g-stats');
+    const hint = document.getElementById(chipContainer.id.replace('chips','hint'));
+
+    const isActive = chip.classList.contains('active');
+
+    // Clear all active chips in this phone
+    chipContainer.querySelectorAll('.g-stat').forEach(c => c.classList.remove('active'));
+
+    if (isActive) {
+      // Deactivate — show all
+      scroll.querySelectorAll('.entry-group').forEach(el => el.classList.remove('hidden'));
+      if (hint) hint.classList.remove('visible');
+    } else {
+      // Activate this filter
+      chip.classList.add('active');
+      if (hint) hint.classList.add('visible');
+      scroll.querySelectorAll('.entry-group').forEach(el => {
+        const type = el.dataset.type;
+        // Always show meta (narrative, handover, chapter dividers, progress)
+        if (type === 'meta') {
+          el.classList.remove('hidden');
+        } else if (type === filter) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

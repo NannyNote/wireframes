@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NannyNote — Sleep Retrospective</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest:#2D5A3D; --sage:#8AAB8E; --sage-light:#C8DECA;
+    --cream:#F7F3EC; --cream-dark:#EDE7DC; --cream-bg:#F0EDE5;
+    --gold:#C9A84C; --sky:#6AABCF;
+    --sky-light:rgba(106,171,207,0.12); --sky-mid:rgba(106,171,207,0.25);
+    --txt:#1a1a1a; --mid:#555; --light:#aaa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#dedad2;font-family:'DM Sans',sans-serif;min-height:100vh;padding:52px 24px 80px}
+
+  .page-header{text-align:center;margin-bottom:16px}
+  .page-header h1{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:500;color:var(--forest)}
+  .page-header p{color:#888;font-size:0.78rem;margin-top:8px;font-weight:300}
+
+  .lrow{display:flex;justify-content:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+  .lbl{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;padding:5px 14px;border-radius:20px}
+  .l1{background:rgba(106,171,207,0.12);color:#3a7fa8;border:1px solid rgba(106,171,207,0.28)}
+  .l2{background:rgba(45,90,61,0.08);color:var(--forest);border:1px solid rgba(45,90,61,0.2)}
+  .l3{background:rgba(201,168,76,0.12);color:#8a6a10;border:1px solid rgba(201,168,76,0.28)}
+
+  .phones{display:flex;justify-content:center;gap:24px;align-items:flex-start;flex-wrap:wrap}
+  .pw{display:flex;flex-direction:column;align-items:center}
+
+  /* PHONE */
+  .phone{width:308px;background:#0e0e0e;border-radius:50px;padding:11px;box-shadow:0 0 0 1px #1c1c1c,0 0 0 2px #0a0a0a,0 50px 100px rgba(0,0,0,0.38),0 20px 40px rgba(0,0,0,0.2);position:relative;flex-shrink:0}
+  .phone::before{content:'';position:absolute;left:-3px;top:98px;width:3px;height:26px;background:#181818;border-radius:2px 0 0 2px;box-shadow:0 38px 0 #181818,0 74px 0 #181818}
+  .phone::after{content:'';position:absolute;right:-3px;top:132px;width:3px;height:56px;background:#181818;border-radius:0 2px 2px 0}
+  .ps{background:var(--cream-bg);border-radius:40px;overflow:hidden;height:700px;display:flex;flex-direction:column;position:relative}
+  .di{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:88px;height:26px;background:#0e0e0e;border-radius:14px;z-index:20}
+
+  /* STATUS */
+  .status{height:44px;background:var(--forest);display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;flex-shrink:0;position:relative;z-index:10}
+  .st-time{font-size:0.68rem;font-weight:600;color:var(--cream)}
+  .st-icons{display:flex;align-items:center;gap:4px}
+  .sig{display:flex;gap:1.5px;align-items:flex-end}
+  .sig span{display:block;width:2.5px;background:var(--cream);border-radius:1px}
+  .sig span:nth-child(1){height:3px}.sig span:nth-child(2){height:5px}.sig span:nth-child(3){height:7px}.sig span:nth-child(4){height:9px;opacity:.3}
+  .batt{width:16px;height:8px;border:1.5px solid rgba(255,255,255,0.45);border-radius:2.5px;padding:1.5px;position:relative}
+  .batt::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:2px;height:5px;background:rgba(255,255,255,0.35);border-radius:0 1px 1px 0}
+  .bf{width:60%;height:100%;background:var(--cream);border-radius:1px}
+
+  /* HEADER */
+  .ah{background:var(--forest);padding:2px 18px 14px;flex-shrink:0}
+  .ah-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .app-name{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:600;color:var(--cream);line-height:1}
+  .nanny-av{width:28px;height:28px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:0.54rem;font-weight:700;color:var(--forest);border:2px solid rgba(255,255,255,0.2)}
+  .ctabs{display:flex;gap:6px;margin-bottom:10px}
+  .ctab{padding:3px 12px;border-radius:20px;font-size:0.64rem;font-weight:500}
+  .ctab.on{background:var(--cream);color:var(--forest)}
+  .ctab.off{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.14)}
+  .date-nav{display:flex;align-items:center}
+  .dn-arr{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.65);font-size:0.8rem;flex-shrink:0}
+  .dn-mid{flex:1;padding:0 10px}
+  .dn-lbl{font-size:0.5rem;color:var(--sage-light);text-transform:uppercase;letter-spacing:0.1em;font-weight:500;margin-bottom:2px}
+  .dn-date{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:500;color:var(--cream);line-height:1.1}
+
+  /* BODY */
+  .screen-body{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--cream-bg);position:relative}
+  .behind{flex:1;padding:10px 14px 0;opacity:0.16;pointer-events:none;display:flex;flex-direction:column;gap:6px}
+  .bg-lbl{font-size:0.47rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--light);margin-bottom:5px}
+  .bg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .bg-btn{background:white;border-radius:12px;border:1px solid var(--cream-dark);height:52px}
+  .bg-card{background:white;border-radius:10px;border:1px solid var(--cream-dark);height:36px;margin-bottom:5px}
+  .dim{position:absolute;inset:0;background:rgba(20,38,27,0.42);border-radius:0 0 40px 40px;z-index:10}
+
+  /* SHEET */
+  .sheet{position:absolute;bottom:0;left:0;right:0;background:white;border-radius:20px 20px 0 0;z-index:20;box-shadow:0 -4px 24px rgba(0,0,0,0.12);display:flex;flex-direction:column}
+  .hdl{width:36px;height:4px;background:var(--cream-dark);border-radius:2px;margin:12px auto 0;flex-shrink:0}
+
+  /* ===== SHEET HEADER — tappable time pill ===== */
+  .shd{padding:11px 18px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--cream-dark);flex-shrink:0}
+  .shdr{display:flex;align-items:center;gap:8px}
+  .shdot{width:9px;height:9px;border-radius:50%;background:var(--sky);flex-shrink:0}
+  .shtitle{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--txt);line-height:1}
+
+  /* Default time pill */
+  .time-pill{display:flex;align-items:center;gap:4px;background:var(--cream);border:1.5px solid var(--cream-dark);border-radius:20px;padding:3px 9px;cursor:pointer}
+  .time-pill-val{font-size:0.58rem;color:var(--txt);font-weight:500}
+  .time-pill-ico{font-size:0.5rem;color:var(--light)}
+
+  /* Active time pill — sky blue when tapped */
+  .time-pill-active{display:flex;align-items:center;gap:4px;background:rgba(106,171,207,0.1);border:1.5px solid var(--sky);border-radius:20px;padding:3px 9px}
+  .time-pill-active .time-pill-val{color:var(--sky);font-weight:600}
+  .time-pill-active .time-pill-ico{color:var(--sky)}
+
+  /* ===== TIME PICKER — drops below header ===== */
+  .time-picker{background:var(--cream);border-bottom:1px solid var(--cream-dark);padding:11px 18px;flex-shrink:0}
+  .tp-lbl{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--light);margin-bottom:7px}
+  .tp-row{display:flex;align-items:center;gap:7px}
+  .tp-scroll{flex:1;background:white;border:1.5px solid var(--sky);border-radius:10px;padding:7px 10px;display:flex;align-items:center;justify-content:space-between}
+  .tp-val{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--sky)}
+  .tp-arrows{display:flex;flex-direction:column;gap:1px}
+  .tp-arr{font-size:0.52rem;color:var(--light);line-height:1}
+  .tp-sep{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--txt);flex-shrink:0}
+  .tp-done{padding:7px 14px;background:var(--sky);color:white;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.66rem;font-weight:700;cursor:pointer;flex-shrink:0}
+  .tp-hint{font-size:0.5rem;color:var(--light);font-weight:300;text-align:center;margin-top:6px}
+
+  /* FIELDS */
+  .sfields{padding:12px 18px;display:flex;flex-direction:column;gap:12px;flex:1}
+  .fl{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--light);margin-bottom:7px}
+
+  /* SLEEP TYPE */
+  .strow{display:flex;gap:6px}
+  .stc{flex:1;padding:8px 6px;border-radius:10px;font-size:0.64rem;font-weight:500;background:var(--cream);border:1.5px solid var(--cream-dark);color:var(--mid);text-align:center}
+  .stc.sel{background:var(--sky);border-color:var(--sky);color:white;font-weight:700}
+
+  /* ===== TIMER BLOCK — idle ===== */
+  .t-idle{background:var(--sky-light);border:1.5px solid var(--sky-mid);border-radius:14px;padding:16px 14px;display:flex;flex-direction:column;align-items:center;gap:10px}
+  .t-disp{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:500;color:#b8d4e8;line-height:1;letter-spacing:0.04em}
+  .t-start{width:100%;padding:11px;background:var(--sky);color:white;border:none;border-radius:11px;font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+
+  /* ===== HOW TIME EDITING WORKS — info strip ===== */
+  .retro-info{display:flex;align-items:center;gap:7px;margin-top:4px;padding:6px 10px;background:rgba(106,171,207,0.07);border-radius:9px}
+  .ri-ico{font-size:0.75rem;flex-shrink:0}
+  .ri-txt{font-size:0.57rem;color:#3a7fa8;font-weight:400;line-height:1.4}
+
+  /* ===== MANUAL TIME ENTRY — shown after time pill tapped ===== */
+  .t-manual{background:var(--sky-light);border:1.5px solid var(--sky);border-radius:14px;padding:12px 14px}
+  .tm-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .tm-lbl{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--sky)}
+  .tm-back{font-size:0.57rem;color:var(--light);text-decoration:underline;text-underline-offset:2px;text-decoration-color:rgba(0,0,0,0.15);cursor:pointer}
+  .tm-row{display:flex;gap:8px;align-items:center}
+  .tbox{flex:1;background:white;border:1.5px solid var(--sky-mid);border-radius:10px;padding:9px 10px;text-align:center;cursor:pointer}
+  .tbox.active{border-color:var(--sky);box-shadow:0 0 0 3px rgba(106,171,207,0.14)}
+  .tb-lbl{font-size:0.46rem;color:var(--light);text-transform:uppercase;letter-spacing:0.08em;font-weight:500;margin-bottom:3px}
+  .tb-val{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--txt);line-height:1}
+  .tb-val.ph{color:#ccc}
+  .t-arr{font-size:0.85rem;color:var(--light);flex-shrink:0}
+  .dur-row{display:flex;justify-content:center;margin-top:9px}
+  .dur-pill{background:var(--sky);color:white;padding:4px 14px;border-radius:20px;font-size:0.68rem;font-weight:700;font-family:'Cormorant Garamond',serif;letter-spacing:0.04em}
+  .dur-pill.empty{background:var(--cream-dark);color:var(--light);font-family:'DM Sans',sans-serif;font-size:0.57rem;font-weight:400;letter-spacing:0}
+
+  /* WHERE CHIPS */
+  .crow{display:flex;gap:5px;flex-wrap:wrap}
+  .chip{padding:7px 10px;border-radius:10px;font-size:0.62rem;font-weight:500;background:var(--cream);border:1.5px solid var(--cream-dark);color:var(--mid)}
+  .chip.sf{background:var(--forest);border-color:var(--forest);color:white;font-weight:700}
+
+  /* WAKE WINDOW */
+  .ww{background:linear-gradient(135deg,rgba(201,168,76,0.1),rgba(201,168,76,0.05));border:1.5px solid rgba(201,168,76,0.3);border-radius:10px;padding:9px 12px;display:flex;align-items:center;gap:9px}
+  .ww-ico{font-size:0.95rem;flex-shrink:0}
+  .ww-lbl{font-size:0.47rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:#8a6a10;margin-bottom:1px}
+  .ww-txt{font-size:0.67rem;color:var(--txt);font-weight:500}
+  .ww-sub{font-size:0.56rem;color:var(--light);font-weight:300;margin-top:1px}
+
+  /* SAVE */
+  .sftr{padding:10px 18px 18px;background:white;flex-shrink:0}
+  .sbtn{width:100%;padding:11px;background:var(--forest);color:var(--cream);border:none;border-radius:11px;font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+  .sbtn.off{background:var(--cream-dark);color:var(--light)}
+
+  /* CAPTION */
+  .cap{margin-top:22px;width:308px;text-align:center}
+  .cap h4{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--sky);margin-bottom:8px}
+  .cap ul{list-style:none;text-align:left}
+  .cap li{font-size:0.62rem;color:#777;font-weight:300;line-height:1.5;display:flex;align-items:flex-start;gap:6px;margin-bottom:4px}
+  .cap li::before{content:'·';color:#bbb;flex-shrink:0}
+
+  /* NOTES */
+  .notes{max-width:1000px;margin:44px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .nc{background:white;border-radius:12px;padding:16px 18px;border:1px solid var(--cream-dark);box-shadow:0 1px 6px rgba(0,0,0,0.05)}
+  .nc h5{font-size:0.66rem;font-weight:700;color:var(--forest);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px}
+  .nc p{font-size:0.68rem;color:var(--mid);line-height:1.65;font-weight:300}
+  .nc p strong{color:var(--txt);font-weight:600}
+
+  @media(max-width:760px){.phones{gap:24px}}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>😴 Sleep Log — Editing Start Time</h1>
+  <p>Tappable ✎ time pill · consistent with all other log sheets · no separate retro link</p>
+</div>
+
+<div class="lrow">
+  <span class="lbl l1">1 — Default timer, ✎ pill in header</span>
+  <span class="lbl l2">2 — Time picker open, editing start time</span>
+  <span class="lbl l3">3 — Both times set, ready to save</span>
+</div>
+
+<div class="phones">
+
+
+<!-- ═══ STATE 1 — Default timer with ✎ time pill ═══ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">13:28</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div>
+        <div class="date-nav"><div class="dn-arr">‹</div>
+      </div>
+    </div><div class="dn-arr">›</div></div>
+    </div>
+    <div class="screen-body">
+      <div class="behind"><div class="bg-lbl">Quick Log</div><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div><div style="margin-top:6px"><div class="bg-lbl">Recent</div><div class="bg-card"></div><div class="bg-card"></div></div></div>
+      <div class="dim"></div>
+      <div class="sheet">
+        <div class="hdl"></div>
+        <!-- Header with tappable ✎ time pill -->
+        <div class="shd">
+          <div class="shdr"><div class="shdot"></div><div class="shtitle">Log sleep</div></div>
+          <div class="time-pill">
+            <span class="time-pill-val">13:28</span>
+            <span class="time-pill-ico">✎</span>
+          </div>
+        </div>
+        <div class="sfields">
+          <div>
+            <div class="fl">Sleep type</div>
+            <div class="strow"><div class="stc sel">Nap</div><div class="stc">Night sleep</div></div>
+          </div>
+          <div>
+            <div class="fl">Duration</div>
+            <div class="t-idle">
+              <div class="t-disp">00:00</div>
+              <button class="t-start">😴 Olivia is going down — start</button>
+            </div>
+            <!-- Info strip explaining the time pill -->
+            <div class="retro-info">
+              <span class="ri-ico">💡</span>
+              <span class="ri-txt">Already put down? Tap the time above to set when the nap started — the timer will count from there.</span>
+            </div>
+          </div>
+          <div class="ww">
+            <span class="ww-ico">⏰</span>
+            <div><div class="ww-lbl">Wake window</div><div class="ww-txt">Next nap: 2:45 – 3:15 pm</div><div class="ww-sub">Based on last wake 11:05 am</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Default timer</h4><ul>
+    <li>Time pill with ✎ — consistent with meal, nappy and all other sheets</li>
+    <li>Small info strip below the timer: "Already put down? Tap the time above to set when the nap started"</li>
+    <li>Tap the time pill to retrospectively set the start time — the timer then counts from that point</li>
+    <li>No separate "Log a past sleep" link — the time pill is the one entry point for both live and retrospective</li>
+  </ul></div>
+</div>
+
+
+<!-- ═══ STATE 2 — Time picker open, setting start time ═══ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">13:28</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div>
+        <div class="date-nav"><div class="dn-arr">‹</div>
+      </div>
+    </div><div class="dn-arr">›</div></div>
+    </div>
+    <div class="screen-body">
+      <div class="behind" style="opacity:0.1"><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div></div>
+      <div class="dim"></div>
+      <div class="sheet">
+        <div class="hdl"></div>
+        <!-- Header — time pill active, sky blue -->
+        <div class="shd">
+          <div class="shdr"><div class="shdot"></div><div class="shtitle">Log sleep</div></div>
+          <div class="time-pill-active">
+            <span class="time-pill-val">13:10</span>
+            <span class="time-pill-ico">✎</span>
+          </div>
+        </div>
+        <!-- Time picker drops in below header -->
+        <div class="time-picker">
+          <div class="tp-lbl">When did Olivia go down?</div>
+          <div class="tp-row">
+            <div class="tp-scroll"><span class="tp-val">13</span><div class="tp-arrows"><span class="tp-arr">▲</span><span class="tp-arr">▼</span></div></div>
+            <span class="tp-sep">:</span>
+            <div class="tp-scroll"><span class="tp-val">10</span><div class="tp-arrows"><span class="tp-arr">▲</span><span class="tp-arr">▼</span></div></div>
+            <button class="tp-done">Done</button>
+          </div>
+          <div class="tp-hint">Tap Done · timer will start from 13:10</div>
+        </div>
+        <div class="sfields">
+          <div>
+            <div class="fl">Sleep type</div>
+            <div class="strow"><div class="stc sel">Nap</div><div class="stc">Night sleep</div></div>
+          </div>
+          <div>
+            <div class="fl">Duration</div>
+            <div class="t-idle">
+              <div class="t-disp">00:00</div>
+              <button class="t-start">😴 Olivia is going down — start</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Time picker open</h4><ul>
+    <li>Pill turns sky blue, picker drops below header — identical behaviour to all other sheets</li>
+    <li>Hint reads "Tap Done · timer will start from 13:10" — makes the mechanic crystal clear</li>
+    <li>After tapping Done: timer starts counting from the corrected start time, not from now</li>
+    <li>When Olivia wakes up the nanny taps Stop — duration is calculated from corrected start to actual stop</li>
+  </ul></div>
+</div>
+
+
+<!-- ═══ STATE 3 — Timer stopped, both times known, ready to save ═══ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="status"><span class="st-time">15:01</span><div class="st-icons"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><span class="app-name">NannyNote</span><div class="nanny-av">JN</div></div>
+      <div class="ah-cream">
+        <div class="ctabs"><div class="ctab on">Olivia</div>
+        <div class="date-nav"><div class="dn-arr">‹</div>
+      </div>
+    </div><div class="dn-arr">›</div></div>
+    </div>
+    <div class="screen-body">
+      <div class="behind"><div class="bg-grid"><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div><div class="bg-btn"></div></div></div>
+      <div class="dim"></div>
+      <div class="sheet">
+        <div class="hdl"></div>
+        <div class="shd">
+          <div class="shdr"><div class="shdot"></div><div class="shtitle">Log sleep</div></div>
+          <div class="time-pill">
+            <span class="time-pill-val">13:10 – 15:01</span>
+            <span class="time-pill-ico">✎</span>
+          </div>
+        </div>
+        <div class="sfields">
+          <!-- Duration summary card -->
+          <div style="background:var(--sky-light);border:1.5px solid var(--sky-mid);border-radius:13px;padding:11px 14px">
+            <div style="font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--sky);margin-bottom:5px">Nap complete</div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="display:flex;gap:12px">
+                <div><div style="font-size:0.46rem;color:var(--light);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px">Went down</div><div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--txt)">13:10</div></div>
+                <div style="font-size:0.8rem;color:var(--light);padding-top:12px">→</div>
+                <div><div style="font-size:0.46rem;color:var(--light);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px">Woke up</div><div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--txt)">15:01</div></div>
+              </div>
+              <div style="background:var(--sky);color:white;padding:5px 12px;border-radius:20px;font-size:0.68rem;font-weight:700;font-family:'Cormorant Garamond',serif;letter-spacing:0.04em">1h 51m</div>
+            </div>
+          </div>
+          <div>
+            <div class="fl">Where</div>
+            <div class="crow">
+              <div class="chip sf">Cot</div>
+              <div class="chip">Pram</div>
+              <div class="chip">Contact nap</div>
+              <div class="chip">Car</div>
+            </div>
+          </div>
+        </div>
+        <div class="sftr"><button class="sbtn">Save entry →</button></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Sleep ended, ready to save</h4><ul>
+    <li>Header pill now shows the full range: "13:10 – 15:01" — tappable to correct either time</li>
+    <li>Duration card shows corrected start, actual stop and 1h 51m total</li>
+    <li>Saves identically to a live-logged nap — no flag, no difference in diary</li>
+    <li>Where chips appear as usual, Cot pre-selected</li>
+  </ul></div>
+</div>
+
+
+</div><!-- /phones -->
+
+<div class="notes">
+  <div class="nc"><h5>🔄 Consistent pattern</h5><p>The ✎ time pill is the single entry point for both real-time and retrospective logging — <strong>no separate link needed.</strong> The nanny learns this interaction once on the meal sheet and recognises it everywhere.</p></div>
+  <div class="nc"><h5>💡 Info strip</h5><p>A small sky blue hint below the timer reads <strong>"Already put down? Tap the time above to set when the nap started."</strong> Surfaced only on the sleep sheet — the only log where a timer is involved. Guides without cluttering.</p></div>
+  <div class="nc"><h5>⏱ How the timer works retrospectively</h5><p>Nanny taps ✎ pill → sets start time to 13:10 → taps Done → timer counts forward from 13:10 → when Olivia wakes the nanny taps Stop → <strong>duration calculated from corrected start to actual stop.</strong></p></div>
+  <div class="nc"><h5>💾 Saved identically</h5><p>Whether logged live or retrospectively, the saved data is the same: <strong>{ start: "13:10", end: "15:01", duration_mins: 111 }</strong>. No flag. No difference visible in the diary or parent view.</p></div>
+</div>
+
+</body>
+</html>

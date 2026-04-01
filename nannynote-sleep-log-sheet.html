@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NannyNote — Sleep Log Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #2D5A3D;
+    --sage: #8AAB8E;
+    --sage-light: #C8DECA;
+    --cream: #F7F3EC;
+    --cream-dark: #EDE7DC;
+    --gold: #C9A84C;
+    --sky: #6AABCF;
+    --sky-light: rgba(106,171,207,0.12);
+    --sky-mid: rgba(106,171,207,0.25);
+    --text-dark: #1a1a1a;
+    --text-mid: #555;
+    --text-light: #999;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #e0ddd6;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 48px 20px 80px;
+  }
+
+  .page-header { text-align: center; margin-bottom: 14px; }
+  .page-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 500; color: var(--forest); }
+  .page-header p { color: #888; font-size: 0.78rem; margin-top: 6px; font-weight: 300; }
+
+  .label-row { display: flex; justify-content: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
+  .state-label { font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; padding: 5px 14px; border-radius: 20px; text-align: center; }
+  .lbl-1 { background: rgba(106,171,207,0.12); color: #3a7fa8; border: 1px solid rgba(106,171,207,0.3); }
+  .lbl-2 { background: rgba(45,90,61,0.08); color: var(--forest); border: 1px solid rgba(45,90,61,0.2); }
+  .lbl-3 { background: rgba(201,168,76,0.12); color: #8a6a10; border: 1px solid rgba(201,168,76,0.3); }
+  .lbl-4 { background: rgba(93,184,154,0.12); color: #2a7a5a; border: 1px solid rgba(93,184,154,0.3); }
+
+  /* PHONES */
+  .phones { display: flex; justify-content: center; gap: 28px; align-items: flex-start; flex-wrap: wrap; }
+  .phone-wrapper { display: flex; flex-direction: column; align-items: center; }
+
+  .phone {
+    width: 295px;
+    background: #111;
+    border-radius: 46px;
+    padding: 10px;
+    box-shadow: 0 0 0 1px #222, 0 40px 80px rgba(0,0,0,0.28);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .phone::before { content:''; position:absolute; left:-3px; top:95px; width:3px; height:24px; background:#1a1a1a; border-radius:2px 0 0 2px; box-shadow:0 36px 0 #1a1a1a, 0 70px 0 #1a1a1a; }
+  .phone::after { content:''; position:absolute; right:-3px; top:128px; width:3px; height:52px; background:#1a1a1a; border-radius:0 2px 2px 0; }
+
+  .phone-screen {
+    background: var(--cream);
+    border-radius: 37px;
+    overflow: hidden;
+    height: 700px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .dynamic-island { position:absolute; top:8px; left:50%; transform:translateX(-50%); width:84px; height:24px; background:#111; border-radius:13px; z-index:20; }
+
+  /* STATUS BAR */
+  .status-bar { height:40px; background:var(--forest); display:flex; align-items:flex-end; justify-content:space-between; padding:0 18px 7px; flex-shrink:0; z-index:10; position:relative; }
+  .st { font-size:0.65rem; font-weight:600; color:var(--cream); }
+  .sr { display:flex; align-items:center; gap:3px; }
+  .sig { display:flex; gap:1.5px; align-items:flex-end; }
+  .sig span { display:block; width:2.5px; background:var(--cream); border-radius:1px; }
+  .sig span:nth-child(1){height:3px}.sig span:nth-child(2){height:5px}.sig span:nth-child(3){height:7px}.sig span:nth-child(4){height:9px;opacity:.35}
+  .bt { width:15px; height:7px; border:1.5px solid rgba(255,255,255,0.5); border-radius:2px; padding:1px; position:relative; }
+  .bt::after { content:''; position:absolute; right:-3px; top:50%; transform:translateY(-50%); width:2px; height:4px; background:rgba(255,255,255,0.4); border-radius:0 1px 1px 0; }
+  .bt-f { width:55%; height:100%; background:var(--cream); border-radius:1px; }
+
+  /* APP HEADER */
+  .ah { background:var(--forest); padding:3px 14px 11px; flex-shrink:0; }
+  .ah-r1 { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .app-title { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:600; color:var(--cream); line-height:1; }
+  .nanny-av { width:26px; height:26px; border-radius:50%; background:var(--sage); display:flex; align-items:center; justify-content:center; font-size:0.52rem; font-weight:700; color:var(--forest); border:2px solid rgba(255,255,255,0.18); }
+  .child-tabs { display:flex; gap:5px; margin-bottom:7px; }
+  .ct { padding:3px 10px; border-radius:20px; font-size:0.62rem; font-weight:500; }
+  .ct.on { background:var(--cream); color:var(--forest); }
+  .ct.off { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.14); }
+  .dn { display:flex; align-items:center; }
+  .arr { width:22px; height:22px; border-radius:50%; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.14); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.7); font-size:0.75rem; flex-shrink:0; }
+  .dc { flex:1; padding:0 8px; }
+  .dl { font-size:0.5rem; color:var(--sage-light); text-transform:uppercase; letter-spacing:0.1em; font-weight:500; margin-bottom:1px; }
+  .dt { font-family:'Cormorant Garamond',serif; font-size:1rem; font-weight:500; color:var(--cream); line-height:1.1; }
+
+  /* SCREEN BODY */
+  .sb { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--cream); position:relative; }
+
+  /* DIMMED HOME */
+  .home-behind { flex:1; padding:9px 11px 0; opacity:0.18; pointer-events:none; display:flex; flex-direction:column; gap:6px; }
+  .behind-label { font-size:0.48rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-light); margin-bottom:5px; }
+  .behind-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
+  .behind-btn { background:white; border-radius:9px; border:1.5px solid var(--cream-dark); height:50px; }
+  .behind-card { background:white; border-radius:9px; border:1px solid var(--cream-dark); height:32px; margin-bottom:5px; }
+
+  /* OVERLAY */
+  .overlay-dim { position:absolute; inset:0; background:rgba(20,38,27,0.42); border-radius:0 0 37px 37px; z-index:10; }
+
+  /* ===== LOG SHEET ===== */
+  .log-sheet { position:absolute; bottom:0; left:0; right:0; background:white; border-radius:18px 18px 0 0; z-index:20; box-shadow:0 -4px 24px rgba(0,0,0,0.12); }
+  .sheet-handle { width:32px; height:4px; background:var(--cream-dark); border-radius:2px; margin:11px auto 0; }
+
+  .sheet-header { padding:10px 15px 9px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--cream-dark); }
+  .sheet-title-row { display:flex; align-items:center; gap:7px; }
+  .sheet-cat-dot { width:9px; height:9px; border-radius:50%; background:var(--sky); flex-shrink:0; }
+  .sheet-title { font-family:'Cormorant Garamond',serif; font-size:1.12rem; font-weight:600; color:var(--text-dark); line-height:1; }
+  .sheet-time { font-size:0.58rem; color:var(--text-light); font-weight:300; background:var(--cream); padding:3px 8px; border-radius:20px; border:1px solid var(--cream-dark); }
+
+  .sheet-fields { padding:12px 15px; display:flex; flex-direction:column; gap:12px; }
+  .field-label { font-size:0.52rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-light); margin-bottom:7px; }
+
+  /* ===== SLEEP TYPE CHIPS ===== */
+  .sleep-type-row { display:flex; gap:6px; }
+  .stype-chip { flex:1; padding:8px 6px; border-radius:10px; font-size:0.64rem; font-weight:500; background:var(--cream); border:1.5px solid var(--cream-dark); color:var(--text-mid); text-align:center; }
+  .stype-chip.sel { background:var(--sky); border-color:var(--sky); color:white; font-weight:600; }
+
+  /* ===== TIMER BLOCK — State 1 (not started) ===== */
+  .timer-block-idle {
+    background: var(--sky-light);
+    border: 1.5px solid var(--sky-mid);
+    border-radius: 14px;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .timer-label-row { display:flex; align-items:center; gap:6px; }
+  .timer-label { font-size:0.52rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:#3a7fa8; }
+
+  .timer-display-idle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    font-weight: 500;
+    color: #b8d4e8;
+    line-height: 1;
+    letter-spacing: 0.04em;
+  }
+
+  .timer-start-btn {
+    width: 100%;
+    padding: 11px;
+    background: var(--sky);
+    color: white;
+    border: none;
+    border-radius: 11px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ===== TIMER BLOCK — State 2 (running) ===== */
+  .timer-block-running {
+    background: linear-gradient(135deg, rgba(106,171,207,0.15) 0%, rgba(106,171,207,0.06) 100%);
+    border: 2px solid var(--sky);
+    border-radius: 14px;
+    padding: 14px 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .timer-status-row { display:flex; align-items:center; gap:6px; }
+  .live-dot { width:7px; height:7px; border-radius:50%; background:var(--sky); animation:pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+  .live-label { font-size:0.52rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--sky); }
+
+  .timer-display-running {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.2rem;
+    font-weight: 500;
+    color: #3a7fa8;
+    line-height: 1;
+    letter-spacing: 0.06em;
+  }
+
+  .timer-started-at { font-size:0.58rem; color:var(--text-light); font-weight:300; }
+
+  .timer-stop-btn {
+    width: 100%;
+    padding: 11px;
+    background: var(--sky);
+    color: white;
+    border: none;
+    border-radius: 11px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 12px rgba(106,171,207,0.4);
+  }
+
+  /* ===== TIMER BLOCK — State 3 (ended, summary) ===== */
+  .timer-block-done {
+    background: var(--sky-light);
+    border: 1.5px solid var(--sky-mid);
+    border-radius: 14px;
+    padding: 12px 14px;
+  }
+
+  .timer-done-row { display:flex; align-items:center; justify-content:space-between; }
+  .timer-done-label { font-size:0.52rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:#3a7fa8; margin-bottom:4px; }
+
+  .timer-done-times { display:flex; gap:14px; margin-top:2px; }
+  .time-item { display:flex; flex-direction:column; }
+  .time-item-label { font-size:0.48rem; color:var(--text-light); font-weight:300; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:1px; }
+  .time-item-val { font-family:'Cormorant Garamond',serif; font-size:1rem; font-weight:600; color:var(--text-dark); line-height:1; }
+
+  .timer-duration-pill {
+    background: var(--sky);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    font-family: 'Cormorant Garamond', serif;
+    letter-spacing: 0.04em;
+  }
+
+  /* ===== CHIPS SHARED ===== */
+  .chip-row { display:flex; gap:5px; flex-wrap:wrap; }
+  .chip { padding:7px 10px; border-radius:10px; font-size:0.62rem; font-weight:500; background:var(--cream); border:1.5px solid var(--cream-dark); color:var(--text-mid); cursor:pointer; text-align:center; }
+  .chip.sel-sky { background:var(--sky); border-color:var(--sky); color:white; font-weight:600; }
+  .chip.sel-forest { background:var(--forest); border-color:var(--forest); color:white; font-weight:600; }
+
+  /* ===== WAKE WINDOW BANNER ===== */
+  .wake-window {
+    background: linear-gradient(135deg, rgba(201,168,76,0.1) 0%, rgba(201,168,76,0.05) 100%);
+    border: 1.5px solid rgba(201,168,76,0.3);
+    border-radius: 10px;
+    padding: 9px 12px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .ww-icon { font-size:1rem; flex-shrink:0; }
+  .ww-body {}
+  .ww-label { font-size:0.5rem; font-weight:600; text-transform:uppercase; letter-spacing:0.09em; color:#8a6a10; margin-bottom:1px; }
+  .ww-text { font-size:0.68rem; color:var(--text-dark); font-weight:500; }
+  .ww-sub { font-size:0.58rem; color:var(--text-light); font-weight:300; margin-top:1px; }
+
+  /* SAVE */
+  .sheet-footer { padding:0 15px 16px; }
+  .save-btn { width:100%; padding:11px; background:var(--forest); color:var(--cream); border:none; border-radius:11px; font-family:'DM Sans',sans-serif; font-size:0.7rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px; letter-spacing:0.02em; }
+  .save-btn.inactive { background:var(--cream-dark); color:var(--text-light); }
+
+  /* ===== TODDLER STATE — simpler ===== */
+  .manual-time-row { display:flex; gap:8px; }
+  .time-input-box { flex:1; background:var(--cream); border:1.5px solid var(--cream-dark); border-radius:10px; padding:9px 10px; text-align:center; }
+  .time-input-label { font-size:0.48rem; color:var(--text-light); text-transform:uppercase; letter-spacing:0.08em; font-weight:500; margin-bottom:3px; }
+  .time-input-val { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:600; color:var(--text-dark); }
+  .time-input-val.active { color:var(--sky); border-bottom:2px solid var(--sky); }
+
+  /* CAPTIONS */
+  .phone-caption { margin-top:20px; width:295px; text-align:center; }
+  .phone-caption h3 { font-family:'Cormorant Garamond',serif; font-size:1rem; font-weight:600; margin-bottom:7px; }
+  .cap-1 h3 { color:#3a7fa8; }
+  .cap-2 h3 { color:var(--forest); }
+  .cap-3 h3 { color:#8a6a10; }
+  .cap-4 h3 { color:#2a7a5a; }
+  .note-pills { display:flex; flex-direction:column; gap:4px; }
+  .np { font-size:0.63rem; color:#777; font-weight:300; display:flex; align-items:flex-start; gap:5px; line-height:1.4; text-align:left; }
+  .np::before { content:'·'; color:#bbb; flex-shrink:0; }
+
+  /* DESIGN NOTES */
+  .design-notes { max-width:1220px; margin:40px auto 0; display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .note-card { background:white; border-radius:11px; padding:14px 16px; border:1px solid var(--cream-dark); box-shadow:0 1px 5px rgba(0,0,0,0.04); }
+  .note-card h4 { font-size:0.68rem; font-weight:600; color:var(--forest); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:7px; }
+  .note-card p { font-size:0.68rem; color:var(--text-mid); line-height:1.65; font-weight:300; }
+  .note-card p strong { color:var(--text-dark); font-weight:600; }
+
+  /* NEXT ROW */
+  .next-row { max-width:1220px; margin:12px auto 0; background:var(--forest); border-radius:11px; padding:16px 20px; display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+  .next-row h4 { font-family:'Cormorant Garamond',serif; font-size:0.95rem; font-weight:600; color:var(--cream); flex-shrink:0; }
+  .next-chips { display:flex; gap:6px; flex-wrap:wrap; }
+  .next-chip { padding:4px 11px; border-radius:20px; font-size:0.62rem; font-weight:500; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.75); border:1px solid rgba(255,255,255,0.16); }
+  .next-chip.done { background:rgba(255,255,255,0.2); color:white; }
+  .next-chip.current { background:var(--gold); color:var(--forest); font-weight:700; border-color:var(--gold); }
+
+  @media(max-width:1220px){.design-notes{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:680px){.phones{gap:16px}.design-notes{grid-template-columns:1fr}}
+
+  /* ── TAPPABLE TIME PILL ── */
+  .shtime-tap{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:20px;padding:3px 9px;cursor:pointer}
+  .shtime-val{font-size:0.58rem;color:var(--cream);font-weight:500}
+  .shtime-edit{font-size:0.5rem;color:rgba(255,255,255,0.5)}
+  .shtime-active{display:flex;align-items:center;gap:4px;background:rgba(106,171,207,0.2);border:1.5px solid var(--sky);border-radius:20px;padding:3px 9px}
+  .shtime-active .shtime-val{color:var(--sky);font-weight:600}
+  .shtime-active .shtime-edit{color:var(--sky)}
+  .time-picker{background:var(--cream);border-bottom:1px solid var(--cream-dark);padding:10px 15px;flex-shrink:0}
+  .tp-lbl{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--light);margin-bottom:6px}
+  .tp-row{display:flex;align-items:center;gap:6px}
+  .tp-scroll{flex:1;background:white;border:1.5px solid var(--sky);border-radius:9px;padding:6px 10px;display:flex;align-items:center;justify-content:space-between}
+  .tp-val{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--sky)}
+  .tp-arrows{display:flex;flex-direction:column;gap:1px}
+  .tp-arr{font-size:0.5rem;color:var(--light);line-height:1}
+  .tp-sep{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--txt);flex-shrink:0}
+  .tp-done{padding:6px 14px;background:var(--sky);color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.65rem;font-weight:600;cursor:pointer;flex-shrink:0}
+  .tp-hint{font-size:0.5rem;color:var(--light);font-weight:300;text-align:center;margin-top:5px}
+
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>😴 NannyNote — Sleep Log Sheet</h1>
+  <p>Both states in one sheet · live timer · babies + toddlers</p>
+</div>
+
+<div class="label-row">
+  <span class="state-label lbl-1">1 — Baby · timer not started</span>
+  <span class="state-label lbl-2">2 — Baby · timer running</span>
+  <span class="state-label lbl-3">3 — Baby · sleep ended, details</span>
+  <span class="state-label lbl-4">4 — Toddler · manual times</span>
+</div>
+
+<div class="phones">
+
+  <!-- ===== STATE 1 — Baby, timer idle ===== -->
+  <div class="phone-wrapper">
+    <div class="phone">
+      <div class="dynamic-island"></div>
+      <div class="phone-screen">
+        <div class="status-bar"><span class="st">13:28</span><div class="sr"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="bt"><div class="bt-f"></div></div></div></div>
+        <div class="ah">
+          <div class="ah-r1"><div class="app-title">NannyNote</div><div class="nanny-av">JN</div></div>
+          <div class="child-tabs"><div class="ct on">Olivia</div><div class="ct off">Theo</div></div>
+          <div class="dn"><div class="arr">‹</div><div class="dc"><div class="dl">Today</div><div class="dt">Tuesday, 1 April</div></div><div class="arr">›</div></div>
+        </div>
+        <div class="sb">
+          <div class="home-behind">
+            <div class="behind-label">Quick Log</div>
+            <div class="behind-grid"><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div></div>
+            <div style="margin-top:6px"><div class="behind-label">Recent</div><div class="behind-card"></div><div class="behind-card"></div></div>
+          </div>
+          <div class="overlay-dim"></div>
+          <div class="log-sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-header">
+              <div class="sheet-title-row"><div class="sheet-cat-dot"></div><div class="sheet-title">Log sleep</div></div>
+              <div class="shtime-tap"><span class="shtime-val">13:28</span><span class="shtime-edit">✎</span></div>
+            </div>
+            <div class="sheet-fields">
+
+              <!-- Sleep type -->
+              <div>
+                <div class="field-label">Sleep type</div>
+                <div class="sleep-type-row">
+                  <div class="stype-chip sel">Nap</div>
+                  <div class="stype-chip">Night sleep</div>
+                </div>
+              </div>
+
+              <!-- Timer — idle -->
+              <div>
+                <div class="field-label">Duration</div>
+                <div class="timer-block-idle">
+                  <div class="timer-label-row">
+                    <div class="timer-label">Timer ready</div>
+                  </div>
+                  <div class="timer-display-idle">00:00</div>
+                  <button class="timer-start-btn">😴 Olivia is going down — start timer</button>
+                </div>
+              </div>
+
+              <!-- Wake window -->
+              <div class="wake-window">
+                <div class="ww-icon">⏰</div>
+                <div class="ww-body">
+                  <div class="ww-label">Wake window</div>
+                  <div class="ww-text">Next nap window: 2:45 – 3:15 pm</div>
+                  <div class="ww-sub">Based on last wake at 11:05 am · 2–2.5 hr window</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-caption cap-1">
+      <h3>Timer ready</h3>
+      <div class="note-pills">
+        <div class="np">Timer shows 00:00 — clearly not started yet</div>
+        <div class="np">Tap the ✎ time pill to edit the start time before starting — e.g. nap began at 13:10 but sheet opened at 13:28</div>
+        <div class="np">One tap to start after setting the time — nanny puts phone down immediately</div>
+        <div class="np">Wake window banner auto-calculated from last logged wake</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== STATE 2 — Baby, timer running ===== -->
+  <div class="phone-wrapper">
+    <div class="phone">
+      <div class="dynamic-island"></div>
+      <div class="phone-screen">
+        <div class="status-bar"><span class="st">14:52</span><div class="sr"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="bt"><div class="bt-f"></div></div></div></div>
+        <div class="ah">
+          <div class="ah-r1"><div class="app-title">NannyNote</div><div class="nanny-av">JN</div></div>
+          <div class="child-tabs"><div class="ct on">Olivia</div><div class="ct off">Theo</div></div>
+          <div class="dn"><div class="arr">‹</div><div class="dc"><div class="dl">Today</div><div class="dt">Tuesday, 1 April</div></div><div class="arr">›</div></div>
+        </div>
+        <div class="sb">
+          <div class="home-behind" style="opacity:0.1"><div class="behind-grid"><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div></div></div>
+          <div class="overlay-dim"></div>
+          <div class="log-sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-header">
+              <div class="sheet-title-row"><div class="sheet-cat-dot"></div><div class="sheet-title">Log sleep</div></div>
+              <div class="shtime-tap"><span class="shtime-val">13:28 →</span><span class="shtime-edit">✎</span></div>
+            </div>
+            <div class="sheet-fields">
+
+              <div>
+                <div class="field-label">Sleep type</div>
+                <div class="sleep-type-row">
+                  <div class="stype-chip sel">Nap</div>
+                  <div class="stype-chip">Night sleep</div>
+                </div>
+              </div>
+
+              <!-- Timer — RUNNING -->
+              <div>
+                <div class="field-label">Duration</div>
+                <div class="timer-block-running">
+                  <div class="timer-status-row">
+                    <div class="live-dot"></div>
+                    <div class="live-label">Sleeping now</div>
+                  </div>
+                  <div class="timer-display-running">1:24:07</div>
+                  <div class="timer-started-at">Started at 13:28</div>
+                  <button class="timer-stop-btn">☀️ Olivia is awake — stop timer</button>
+                </div>
+              </div>
+
+              <!-- Wake window nudge -->
+              <div class="wake-window" style="border-color:rgba(232,115,90,0.3);background:rgba(232,115,90,0.06)">
+                <div class="ww-icon">⚠️</div>
+                <div class="ww-body">
+                  <div class="ww-label" style="color:#b03a20">Nap running long</div>
+                  <div class="ww-text">1h 24m — typical nap is 45–90 min</div>
+                  <div class="ww-sub">Consider waking to protect bedtime</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-caption cap-2">
+      <h3>Timer running</h3>
+      <div class="note-pills">
+        <div class="np">Live counter ticking — pulsing blue dot confirms it's running</div>
+        <div class="np">Sheet is accessible from the home screen while timer runs — nanny can log other things in between</div>
+        <div class="np">Warning banner appears if nap exceeds typical duration — gentle nudge, not an alarm</div>
+        <div class="np">Timer persists if the app is closed — runs in background</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== STATE 3 — Baby, sleep ended, add details ===== -->
+  <div class="phone-wrapper">
+    <div class="phone">
+      <div class="dynamic-island"></div>
+      <div class="phone-screen">
+        <div class="status-bar"><span class="st">15:01</span><div class="sr"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="bt"><div class="bt-f"></div></div></div></div>
+        <div class="ah">
+          <div class="ah-r1"><div class="app-title">NannyNote</div><div class="nanny-av">JN</div></div>
+          <div class="child-tabs"><div class="ct on">Olivia</div><div class="ct off">Theo</div></div>
+          <div class="dn"><div class="arr">‹</div><div class="dc"><div class="dl">Today</div><div class="dt">Tuesday, 1 April</div></div><div class="arr">›</div></div>
+        </div>
+        <div class="sb">
+          <div class="home-behind"><div class="behind-grid"><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div></div></div>
+          <div class="overlay-dim"></div>
+          <div class="log-sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-header">
+              <div class="sheet-title-row"><div class="sheet-cat-dot"></div><div class="sheet-title">Log sleep</div></div>
+              <div class="shtime-tap"><span class="shtime-val">13:28 – 15:01</span><span class="shtime-edit">✎</span></div>
+            </div>
+            <div class="sheet-fields">
+
+              <!-- Duration summary — done -->
+              <div class="timer-block-done">
+                <div class="timer-done-label">Nap complete</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+                  <div class="timer-done-times">
+                    <div class="time-item">
+                      <div class="time-item-label">Went down</div>
+                      <div class="time-item-val">13:28</div>
+                    </div>
+                    <div style="font-size:0.8rem;color:var(--text-light);padding-top:14px">→</div>
+                    <div class="time-item">
+                      <div class="time-item-label">Woke up</div>
+                      <div class="time-item-val">15:01</div>
+                    </div>
+                  </div>
+                  <div class="timer-duration-pill">1h 33m</div>
+                </div>
+              </div>
+
+              <!-- Location -->
+              <div>
+                <div class="field-label">Where</div>
+                <div class="chip-row">
+                  <div class="chip sel-forest">Cot</div>
+                  <div class="chip">Pram</div>
+                  <div class="chip">Contact nap</div>
+                  <div class="chip">Car</div>
+                </div>
+              </div>
+
+            </div>
+                          <!-- Photo attachment -->
+              <div style="display:flex;align-items:center;gap:8px;padding:8px 0 2px">
+                <div style="width:34px;height:34px;border-radius:9px;background:var(--cream);border:1.5px dashed var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;flex-shrink:0">📷</div>
+                <div style="font-size:0.58rem;color:var(--light);font-weight:300;line-height:1.4">Add a photo <span style="color:var(--text-light);font-style:italic">· optional</span></div>
+              </div>
+            <div class="sheet-footer">
+              <button class="save-btn">Save entry →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-caption cap-3">
+      <h3>Sleep ended — add details</h3>
+      <div class="note-pills">
+        <div class="np">Duration card shows start, end and total — clean summary, editable if times need correcting</div>
+        <div class="np">How settled and Where chips appear only after timer stops</div>
+        <div class="np">Cot pre-selected as default location</div>
+        <div class="np">One tap saves — total interaction after waking is under 10 seconds</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== STATE 4 — Toddler, manual times ===== -->
+  <div class="phone-wrapper">
+    <div class="phone">
+      <div class="dynamic-island"></div>
+      <div class="phone-screen">
+        <div class="status-bar"><span class="st">12:55</span><div class="sr"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="bt"><div class="bt-f"></div></div></div></div>
+        <div class="ah">
+          <div class="ah-r1"><div class="app-title">NannyNote</div><div class="nanny-av">JN</div></div>
+          <div class="child-tabs"><div class="ct off">Olivia</div><div class="ct on">Theo</div></div>
+          <div class="dn"><div class="arr">‹</div><div class="dc"><div class="dl">Today</div><div class="dt">Tuesday, 1 April</div></div><div class="arr">›</div></div>
+        </div>
+        <div class="sb">
+          <div class="home-behind"><div class="behind-grid"><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div><div class="behind-btn"></div></div></div>
+          <div class="overlay-dim"></div>
+          <div class="log-sheet">
+            <div class="sheet-handle"></div>
+            <div class="sheet-header">
+              <div class="sheet-title-row"><div class="sheet-cat-dot"></div><div class="sheet-title">Log sleep</div></div>
+              <div class="shtime-tap"><span class="shtime-val">12:55</span><span class="shtime-edit">✎</span></div>
+            </div>
+            <div class="sheet-fields">
+
+              <!-- Nap yes/no for toddler -->
+              <div>
+                <div class="field-label">Nap today?</div>
+                <div class="chip-row">
+                  <div class="chip sel-sky" style="padding:8px 18px">Yes</div>
+                  <div class="chip" style="padding:8px 18px">No</div>
+                </div>
+              </div>
+
+              <!-- Manual time entry for toddler -->
+              <div>
+                <div class="field-label">Times</div>
+                <div class="manual-time-row">
+                  <div class="time-input-box">
+                    <div class="time-input-label">Went down</div>
+                    <div class="time-input-val active">12:55</div>
+                  </div>
+                  <div style="display:flex;align-items:center;padding-top:10px;color:var(--text-light);font-size:0.8rem">→</div>
+                  <div class="time-input-box">
+                    <div class="time-input-label">Woke up</div>
+                    <div class="time-input-val" style="color:var(--text-light)">— : —</div>
+                  </div>
+                </div>
+                <div style="font-size:0.56rem;color:var(--text-light);font-weight:300;margin-top:5px;text-align:center">Tap either time to adjust · duration calculates automatically</div>
+              </div>
+
+              <!-- Dropped nap flag -->
+              <div style="display:flex;align-items:center;gap:8px;padding:9px 10px;background:rgba(201,168,76,0.08);border:1.5px solid rgba(201,168,76,0.2);border-radius:10px">
+                <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid var(--cream-dark);background:white;flex-shrink:0"></div>
+                <div style="font-size:0.63rem;color:var(--text-mid);font-weight:400">Mark as dropped nap milestone</div>
+              </div>
+
+            </div>
+                          <!-- Photo attachment -->
+              <div style="display:flex;align-items:center;gap:8px;padding:8px 0 2px">
+                <div style="width:34px;height:34px;border-radius:9px;background:var(--cream);border:1.5px dashed var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;flex-shrink:0">📷</div>
+                <div style="font-size:0.58rem;color:var(--light);font-weight:300;line-height:1.4">Add a photo <span style="color:var(--text-light);font-style:italic">· optional</span></div>
+              </div>
+            <div class="sheet-footer">
+              <button class="save-btn inactive">Save entry</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-caption cap-4">
+      <h3>Toddler — manual times</h3>
+      <div class="note-pills">
+        <div class="np">Toddler sheet is simpler — no wake window, yes/no nap question first</div>
+        <div class="np">Manual time entry instead of live timer — toddler naps are easier to log retrospectively</div>
+
+        <div class="np">Dropped nap milestone checkbox — flags the significant moment when a toddler stops napping</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Design notes -->
+<div class="design-notes">
+  <div class="note-card">
+    <h4>⏱️ Timer background persistence</h4>
+    <p>When the nanny starts the timer and closes the sheet or navigates away, <strong>the timer keeps running in the background.</strong> A small sky blue indicator appears in the home screen header showing "Olivia sleeping · 1h 12m". Tapping it re-opens the sleep sheet with the running timer.</p>
+  </div>
+  <div class="note-card">
+    <h4>🧒 Age-based sheet version</h4>
+    <p>The sheet shown (baby vs toddler) is determined by the child's age in their profile. <strong>Under 18 months: baby sheet with live timer and wake windows. 18 months – 3 years: toddler sheet with manual times and dropped nap flag.</strong> Can be overridden in child settings.</p>
+  </div>
+  <div class="note-card">
+    <h4>⏰ Wake window calculation</h4>
+    <p>The wake window banner is auto-calculated from the last logged wake time and the child's age. <strong>0–3 months: 45–60 min. 3–6 months: 1.5–2 hrs. 6–12 months: 2–2.5 hrs.</strong> Shown as a gentle reference — not a notification or alarm. Turns amber if the nap is running unusually long.</p>
+  </div>
+  <div class="note-card">
+    <h4>💾 What gets saved</h4>
+    <p>Baby: <strong>{ category: "sleep", type: "nap", start: "13:28", end: "15:01", duration_mins: 93, settled: "self", location: "cot" }</strong><br><br>Toddler: <strong>{ category: "sleep", type: "nap", start: "12:55", end: null, settled: "easily", nap_dropped_milestone: false }</strong></p>
+  </div>
+</div>
+
+<!-- Progress -->
+<div class="next-row">
+  <h4>Screen progress</h4>
+  <div class="next-chips">
+    <div class="next-chip done">✓ Home screen</div>
+    <div class="next-chip done">✓ Meal log sheet</div>
+    <div class="next-chip current">✓ Sleep log sheet</div>
+    <div class="next-chip">Activity log sheet</div>
+    <div class="next-chip">Nappy log sheet</div>
+    <div class="next-chip">Medication log sheet</div>
+    <div class="next-chip">End of day summary</div>
+    <div class="next-chip">Diary view</div>
+    <div class="next-chip">Parent view</div>
+    <div class="next-chip">Weekly plan</div>
+  </div>
+</div>
+
+</body>
+</html>
