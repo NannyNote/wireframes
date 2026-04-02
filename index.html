@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NannyNote — Wireframe Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --forest: #2D5A3D;
+      --sage: #4A7C59;
+      --cream: #F9F5EF;
+      --gold: #C8A96E;
+      --gold-pale: rgba(200,169,110,0.12);
+      --text: #1c2b22;
+      --text-mid: #4a5c50;
+      --text-soft: #8a9e90;
+      --border: rgba(45,90,61,0.12);
+    }
+
+    body {
+      background: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--forest);
+      padding: 28px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--cream);
+      letter-spacing: 1px;
+    }
+    .header-badge {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(200,169,110,0.15);
+      border: 1px solid rgba(200,169,110,0.3);
+      border-radius: 50px;
+      padding: 6px 16px;
+    }
+
+    /* HERO */
+    .hero {
+      padding: 56px 48px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--sage);
+      margin-bottom: 14px;
+    }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 600;
+      color: var(--forest);
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 15px;
+      color: var(--text-mid);
+      font-weight: 300;
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    /* GRID */
+    .grid-wrap {
+      padding: 48px 48px 80px;
+      max-width: 1200px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--sage);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .card:hover {
+      border-color: rgba(74,124,89,0.3);
+      box-shadow: 0 8px 32px rgba(45,90,61,0.08);
+      transform: translateY(-2px);
+    }
+    .card:hover::before { opacity: 1; }
+
+    .card.gold::before { background: var(--gold); }
+    .card.gold:hover { border-color: rgba(200,169,110,0.3); box-shadow: 0 8px 32px rgba(200,169,110,0.1); }
+
+    .card-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--forest);
+      line-height: 1.2;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-soft);
+      font-weight: 300;
+      line-height: 1.55;
+    }
+    .card-arrow {
+      margin-top: auto;
+      padding-top: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--sage);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card.gold .card-arrow { color: var(--gold); }
+
+    .phase-tag {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      background: var(--gold-pale);
+      color: var(--gold);
+      border-radius: 4px;
+      padding: 3px 8px;
+      margin-bottom: 4px;
+    }
+
+    footer {
+      background: var(--forest);
+      padding: 28px 48px;
+      font-size: 12px;
+      color: rgba(249,245,239,0.4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer span { color: rgba(249,245,239,0.25); }
+
+    @media (max-width: 640px) {
+      header, .hero, .grid-wrap, footer { padding-left: 20px; padding-right: 20px; }
+      .hero { padding-top: 40px; }
+      .card-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">NannyNote</div>
+  <div class="header-badge">Wireframe Hub</div>
+</header>
+
+<div class="hero">
+  <div class="hero-label">Design Reference</div>
+  <h1>Screen Wireframes</h1>
+  <p>All NannyNote screens in one place. These are live HTML wireframes — tap any card to open the screen.</p>
+</div>
+
+<div class="grid-wrap">
+
+  <!-- CORE SCREENS -->
+  <div class="section-label">Core Screens — Phase 1 MVP</div>
+  <div class="card-grid">
+
+    <a class="card" href="nannynote-home-screen.html">
+      <div class="card-icon">🏠</div>
+      <div class="card-title">Home Dashboard</div>
+      <div class="card-desc">Main screen with quick log tiles, today's summary, and collapsible week banner.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+    <a class="card" href="nannynote-meal-log-sheet.html">
+      <div class="card-icon">🍽️</div>
+      <div class="card-title">Meal Log</div>
+      <div class="card-desc">Log meals and snacks with appetite rating, foods eaten, and notes.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+    <a class="card" href="nannynote-sleep-log-sheet.html">
+      <div class="card-icon">😴</div>
+      <div class="card-title">Sleep Log</div>
+      <div class="card-desc">Record sleep and nap sessions with start/end times and quality notes.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+    <a class="card" href="nannynote-activity-log-sheet.html">
+      <div class="card-icon">🎨</div>
+      <div class="card-title">Activity Log</div>
+      <div class="card-desc">Log activities, outdoor play, outings, and learning moments.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+    <a class="card" href="nannynote-nappy-log-sheet.html">
+      <div class="card-icon">🧷</div>
+      <div class="card-title">Nappy Log</div>
+      <div class="card-desc">Quick nappy change logging with type and any notes to flag.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+    <a class="card" href="nannynote-medication-log-sheet.html">
+      <div class="card-icon">💊</div>
+      <div class="card-title">Medication Log</div>
+      <div class="card-desc">Legal medication record with dosage, time, and sign-off confirmation.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+  </div>
+
+  <!-- END OF DAY -->
+  <div class="section-label">End of Day Summary — Iterations</div>
+  <div class="card-grid">
+
+    <a class="card gold" href="nannynote-end-of-day.html">
+      <div class="card-icon">✍️</div>
+      <div class="card-title">End of Day — v1</div>
+      <div class="card-desc">Original end of day summary screen concept.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+    <a class="card gold" href="nannynote-end-of-day_1.html">
+      <div class="card-icon">✍️</div>
+      <div class="card-title">End of Day — v2</div>
+      <div class="card-desc">Second iteration with refined timeline and narrative sections.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+    <a class="card gold" href="nannynote-end-of-day_2.html">
+      <div class="card-icon">✍️</div>
+      <div class="card-title">End of Day — v3</div>
+      <div class="card-desc">Third iteration exploring AI assist bar and concern flagging.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+    <a class="card gold" href="nannynote-end-of-day_3.html">
+      <div class="card-icon">✍️</div>
+      <div class="card-title">End of Day — v4 ✓</div>
+      <div class="card-desc">Final confirmed design: timeline → narrative → AI assist → flag → send.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+    <a class="card gold" href="nannynote-sleep-retrospective.html">
+      <div class="card-icon">🌙</div>
+      <div class="card-title">Sleep Retrospective</div>
+      <div class="card-desc">End-of-day sleep overview and pattern summary.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+  </div>
+
+  <!-- PARENT & PROFILE -->
+  <div class="section-label">Parent View & Child Profile</div>
+  <div class="card-grid">
+
+    <a class="card" href="nannynote-parent-view-b.html">
+      <div class="card-icon">👨‍👩‍👧</div>
+      <div class="card-title">Parent View — Option B</div>
+      <div class="card-desc">Read-only scrapbook view that parents see when the nanny shares the day.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+    <a class="card" href="nannynote-child-profile.html +medical vault">
+      <div class="card-icon">👶</div>
+      <div class="card-title">Child Profile + Medical Vault</div>
+      <div class="card-desc">Child's profile, emergency contacts, allergies, and medical records.</div>
+      <div class="card-arrow">Open screen →</div>
+    </a>
+
+  </div>
+
+</div>
+
+<footer>
+  <div>NannyNote · Built by a Norland-trained nanny</div>
+  <span>Internal design reference — not for distribution</span>
+</footer>
+
+</body>
+</html>
