@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NannyNote — Milk Log Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --forest:#2D5A3D;--sage:#8AAB8E;--sage-light:#C8DECA;
+    --cream:#F7F3EC;--cream-dark:#EDE7DC;--cream-bg:#F0EDE5;
+    --gold:#C9A84C;--coral:#E8735A;--sky:#6AABCF;
+    --sunshine:#F5C842;--lavender:#9B8EC4;--mint:#5DB89A;--tan:#C4A882;
+    --milk:#C8907A;--milk-l:rgba(200,144,122,0.11);--milk-b:rgba(200,144,122,0.22);
+    --txt:#1a1a1a;--mid:#555;--light:#aaa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#dedad2;font-family:'DM Sans',sans-serif;min-height:100vh;padding:52px 16px 80px}
+
+  .page-header{text-align:center;margin-bottom:16px}
+  .page-header h1{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:500;color:var(--forest)}
+  .page-header p{color:#888;font-size:0.78rem;margin-top:8px;font-weight:300}
+
+  .lrow{display:flex;justify-content:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+  .lbl{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;padding:5px 14px;border-radius:20px}
+  .l1{background:rgba(45,90,61,0.08);color:var(--forest);border:1px solid rgba(45,90,61,0.2)}
+  .l2{background:var(--milk-l);color:#8a4a38;border:1px solid rgba(200,144,122,0.28)}
+  .l3{background:rgba(106,171,207,0.12);color:#3a7fa8;border:1px solid rgba(106,171,207,0.28)}
+  .l4{background:rgba(201,168,76,0.12);color:#8a6a10;border:1px solid rgba(201,168,76,0.28)}
+
+  .phones{display:flex;justify-content:center;gap:24px;align-items:flex-start;flex-wrap:wrap}
+  .pw{display:flex;flex-direction:column;align-items:center}
+
+  /* PHONE SHELL */
+  .phone{width:308px;background:#0e0e0e;border-radius:50px;padding:11px;box-shadow:0 0 0 1px #1c1c1c,0 0 0 2px #0a0a0a,0 50px 100px rgba(0,0,0,0.38),0 20px 40px rgba(0,0,0,0.2);position:relative;flex-shrink:0}
+  .phone::before{content:'';position:absolute;left:-3px;top:98px;width:3px;height:26px;background:#181818;border-radius:2px 0 0 2px;box-shadow:0 38px 0 #181818,0 74px 0 #181818}
+  .phone::after{content:'';position:absolute;right:-3px;top:132px;width:3px;height:56px;background:#181818;border-radius:0 2px 2px 0}
+  .ps{background:var(--cream-bg);border-radius:40px;overflow:hidden;height:700px;display:flex;flex-direction:column;position:relative}
+  .di{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:88px;height:26px;background:#0e0e0e;border-radius:14px;z-index:20;pointer-events:none}
+
+  /* STATUS BAR */
+  .sb{height:44px;background:var(--forest);display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 8px;flex-shrink:0;z-index:10}
+  .sbt{font-size:0.68rem;font-weight:600;color:var(--cream)}
+  .sbr{display:flex;align-items:center;gap:4px}
+  .sig{display:flex;gap:1.5px;align-items:flex-end}
+  .sig span{display:block;width:2.5px;background:var(--cream);border-radius:1px}
+  .sig span:nth-child(1){height:3px}.sig span:nth-child(2){height:5px}.sig span:nth-child(3){height:7px}.sig span:nth-child(4){height:9px;opacity:.3}
+  .batt{width:16px;height:8px;border:1.5px solid rgba(255,255,255,0.45);border-radius:2.5px;padding:1.5px;position:relative}
+  .batt::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:2px;height:5px;background:rgba(255,255,255,0.35);border-radius:0 1px 1px 0}
+  .bf{width:60%;height:100%;background:var(--cream);border-radius:1px}
+
+  /* APP HEADER */
+  .ah{flex-shrink:0}
+  .ah-bar{background:var(--forest);padding:6px 18px 7px;display:flex;align-items:center;justify-content:space-between}
+  .at{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--cream);line-height:1}
+  .av{width:26px;height:26px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:0.52rem;font-weight:700;color:var(--forest)}
+  .ah-cream{background:var(--cream);padding:10px 18px 12px;border-bottom:1px solid var(--cream-dark)}
+  .tabs{display:flex;gap:6px;margin-bottom:10px}
+  .tab{padding:3px 12px;border-radius:20px;font-size:0.64rem;font-weight:500}
+  .tab.on{background:var(--forest);color:var(--cream)}
+  .tab.off{background:rgba(45,90,61,0.07);color:var(--forest);border:1px solid rgba(45,90,61,0.18)}
+  .dn{display:flex;align-items:center}
+  .darr{width:24px;height:24px;border-radius:50%;background:rgba(45,90,61,0.08);border:1px solid rgba(45,90,61,0.14);display:flex;align-items:center;justify-content:center;color:var(--forest);font-size:0.8rem;flex-shrink:0}
+  .dc{flex:1;padding:0 10px}
+  .dl{font-size:0.5rem;color:var(--light);text-transform:uppercase;letter-spacing:0.1em;font-weight:500;margin-bottom:2px}
+  .dd{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:500;color:var(--txt);line-height:1.1}
+
+  /* HOME SCREEN CONTENT — dimmed behind sheet */
+  .home-bg{flex:1;overflow:hidden;position:relative}
+  .home-bg-inner{padding:12px 12px 0;opacity:1}
+  .plan-card{background:white;border-radius:14px;padding:11px 13px;display:flex;align-items:center;gap:11px;box-shadow:0 2px 8px rgba(0,0,0,0.07);margin-bottom:10px}
+  .pc-ico{width:40px;height:40px;border-radius:10px;background:#EEEAE3;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+  .pc-title{font-size:0.7rem;font-weight:700;color:var(--forest)}
+  .pc-sub{font-size:0.56rem;color:var(--light);margin-top:2px}
+  .ql-lbl{font-size:0.49rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--light);padding:0 2px 6px}
+  .ql-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .ql-btn{background:white;border-radius:12px;padding:9px 4px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.05)}
+  .ql-ico{font-size:1.1rem;margin-bottom:3px}
+  .ql-name{font-size:0.52rem;font-weight:500;color:var(--mid)}
+  .ql-dot{width:5px;height:5px;border-radius:50%;margin:3px auto 0}
+
+  /* DIM OVERLAY */
+  .dim{position:absolute;inset:0;background:rgba(0,0,0,0.38);z-index:10;border-radius:inherit}
+
+  /* BOTTOM SHEET */
+  .sheet{
+    position:absolute;bottom:0;left:0;right:0;
+    background:white;
+    border-radius:17px 17px 0 0;
+    z-index:20;
+    box-shadow:0 -4px 20px rgba(0,0,0,0.12);
+    display:flex;
+    flex-direction:column;
+  }
+  .hdl{width:30px;height:4px;background:var(--cream-dark);border-radius:2px;margin:10px auto 0;flex-shrink:0}
+
+  /* SHEET HEADER */
+  .shd{padding:9px 14px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--cream-dark);flex-shrink:0}
+  .shdr{display:flex;align-items:center;gap:6px}
+  .shdot{width:8px;height:8px;border-radius:50%;background:var(--milk);flex-shrink:0}
+  .shtitle{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;color:var(--txt);line-height:1}
+  .shtime{display:flex;align-items:center;gap:4px;background:var(--cream-bg);border:1px solid var(--cream-dark);border-radius:20px;padding:3px 9px;cursor:pointer}
+  .shtime.active{background:var(--milk-b);border-color:var(--milk)}
+  .shtime-val{font-size:0.65rem;font-weight:600;color:var(--txt)}
+  .shtime-edit{font-size:0.6rem;color:var(--light)}
+  .shtime.active .shtime-edit{color:var(--milk)}
+
+  /* SHEET FIELDS */
+  .sfields{padding:10px 14px;display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto;scrollbar-width:none}
+  .sfields::-webkit-scrollbar{display:none}
+  .fl{font-size:0.5rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--light);margin-bottom:6px}
+
+  /* FEED TYPE — two big buttons */
+  .feed-type-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .ft-btn{background:var(--cream-bg);border-radius:12px;padding:11px 8px;text-align:center;border:2px solid var(--cream-dark);cursor:pointer}
+  .ft-btn.ab{border-color:var(--milk);background:var(--milk-l)}
+  .ft-btn.abb{border-color:var(--sky);background:rgba(106,171,207,0.09)}
+  .ft-ico{font-size:1.4rem;margin-bottom:4px}
+  .ft-lbl{font-size:0.66rem;font-weight:700;color:var(--mid)}
+  .ft-lbl.brs{color:#8a4a38}
+  .ft-lbl.bot{color:#3a7fa8}
+  .ft-sub{font-size:0.49rem;color:var(--light);margin-top:2px}
+
+  /* SIDE CHIPS — centred, larger */
+  .side-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .side-chip{
+    padding:10px 6px;border-radius:11px;
+    font-size:0.72rem;font-weight:600;
+    background:var(--cream-bg);
+    border:2px solid var(--cream-dark);
+    color:var(--mid);
+    text-align:center;
+    cursor:pointer;
+  }
+  .side-chip.sel{background:var(--milk);border-color:var(--milk);color:white}
+  .side-hint{font-size:0.48rem;color:var(--light);font-style:italic;text-align:center;margin-top:4px}
+
+  /* DURATION STEPPER */
+  .dur-row{display:flex;align-items:center;background:var(--cream-bg);border-radius:10px;border:1px solid var(--cream-dark);overflow:hidden}
+  .dur-btn{width:44px;height:42px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--forest);font-weight:600;background:white;cursor:pointer;flex-shrink:0}
+  .dur-val{flex:1;text-align:center;font-size:1.1rem;font-weight:600;color:var(--txt)}
+  .dur-unit{font-size:0.54rem;color:var(--light);font-weight:400;margin-left:3px}
+
+  /* AMOUNT */
+  .amount-row{display:flex;align-items:center;gap:8px}
+  .amount-disp{flex:1;background:var(--cream-bg);border-radius:10px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--cream-dark)}
+  .amount-val{font-size:1.1rem;font-weight:600;color:var(--txt)}
+  .amount-steps{display:flex;flex-direction:column;gap:3px}
+  .ast{width:28px;height:19px;background:white;border-radius:5px;border:1px solid var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:var(--forest);font-weight:700;cursor:pointer}
+  .unit-tog{display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--cream-dark);flex-shrink:0}
+  .ut{padding:5px 11px;font-size:0.62rem;font-weight:600;color:var(--light);background:white;cursor:pointer}
+  .ut.on{background:var(--forest);color:white}
+
+  /* MILK TYPE */
+  .milk-type-wrap{background:rgba(106,171,207,0.06);border-radius:11px;border:1.5px solid rgba(106,171,207,0.22);overflow:hidden}
+  .mt-hd{padding:7px 12px;border-bottom:1px solid rgba(106,171,207,0.16);display:flex;align-items:center;gap:5px}
+  .mt-lbl{font-size:0.5rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#3a7fa8}
+  .mt-chips{padding:9px 12px;display:flex;gap:6px}
+  .mt-chip{flex:1;padding:8px 6px;border-radius:9px;font-size:0.62rem;font-weight:600;background:white;border:1.5px solid var(--cream-dark);color:var(--mid);text-align:center;cursor:pointer}
+  .mt-chip.sel{background:rgba(45,90,61,0.1);border-color:rgba(45,90,61,0.3);color:var(--forest)}
+
+  /* SAVE BTN */
+  .savebtn{
+    margin:2px 14px 14px;
+    padding:12px;
+    border:none;border-radius:12px;
+    font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:700;
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    cursor:pointer;flex-shrink:0;
+    background:var(--milk);color:white;
+    box-shadow:0 3px 12px rgba(200,144,122,0.38);
+  }
+  .savebtn.off{background:var(--cream-dark);color:var(--light);box-shadow:none}
+  .savebtn.bot{background:var(--sky);box-shadow:0 3px 12px rgba(106,171,207,0.38)}
+
+  /* NP note */
+  .np{font-size:0.48rem;color:var(--light);font-style:italic;margin-top:4px;font-weight:300}
+
+  /* TIME PICKER */
+  .tpicker{background:var(--cream-bg);border-radius:11px;padding:10px;border:1px solid var(--cream-dark)}
+  .tpicker-row{display:flex;align-items:center;gap:6px;justify-content:center}
+  .tpcol{display:flex;flex-direction:column;align-items:center;gap:3px}
+  .tparr{font-size:0.8rem;color:var(--forest);cursor:pointer;height:16px;display:flex;align-items:center;justify-content:center}
+  .tpval{width:44px;height:36px;background:white;border-radius:8px;border:1.5px solid var(--milk);display:flex;align-items:center;justify-content:center;font-size:0.95rem;font-weight:600;color:var(--txt)}
+  .tpsep{font-size:1.1rem;font-weight:600;color:var(--mid);padding-bottom:2px}
+  .tpdone{padding:7px 16px;background:var(--forest);color:white;border-radius:8px;font-size:0.66rem;font-weight:700;cursor:pointer}
+  .tp-hint{font-size:0.48rem;color:var(--light);text-align:center;margin-top:5px;font-style:italic}
+
+  /* BOTTOM NAV */
+  .bnav{background:white;border-top:1px solid var(--cream-dark);display:flex;padding:5px 4px 12px;flex-shrink:0}
+  .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px}
+  .nio{font-size:0.9rem;line-height:1}
+  .nil{font-size:0.4rem;font-weight:500;text-transform:uppercase;letter-spacing:0.07em;color:var(--light)}
+  .ni.on .nil{color:var(--forest);font-weight:700}
+
+  /* CAPTIONS */
+  .cap{margin-top:20px;width:308px}
+  .cap h4{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--forest);margin-bottom:7px}
+  .cap ul{list-style:none}
+  .cap li{font-size:0.61rem;color:#777;font-weight:300;line-height:1.45;display:flex;align-items:flex-start;gap:5px;margin-bottom:3px}
+  .cap li::before{content:'·';color:#bbb;flex-shrink:0}
+
+  /* NOTES */
+  .pg-notes{max-width:1280px;margin:40px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+  .nc{background:white;border-radius:12px;padding:14px 16px;border:1px solid var(--cream-dark);box-shadow:0 1px 6px rgba(0,0,0,0.05)}
+  .nc h5{font-size:0.64rem;font-weight:700;color:var(--forest);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+  .nc p{font-size:0.67rem;color:var(--mid);line-height:1.6;font-weight:300}
+  .nc p strong{color:var(--txt);font-weight:600}
+
+  @media(max-width:800px){.phones{gap:18px}}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>🍼 Log Feed</h1>
+  <p>Bottom sheet · breast and bottle · conditional fields · side pre-selection logic</p>
+</div>
+
+<div class="lrow">
+  <span class="lbl l1">1 — Sheet opens, no type selected</span>
+  <span class="lbl l2">2 — Breast selected</span>
+  <span class="lbl l3">3 — Bottle selected</span>
+  <span class="lbl l4">4 — Time picker open</span>
+</div>
+
+<div class="phones">
+
+<!-- HOME BG MACRO — reused across all states -->
+
+<!-- ════ STATE 1 — SHEET OPENS ════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="sb"><span class="sbt">9:30</span><div class="sbr"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><div class="at">NannyNote</div><div class="av">JN</div></div>
+      <div class="ah-cream">
+        <div class="tabs"><div class="tab on">Olivia</div><div class="tab off">Theo</div></div>
+        <div class="dn"><div class="darr">‹</div><div class="dc"><div class="dl">Today</div><div class="dd">Tuesday, 1 April</div></div><div class="darr">›</div></div>
+      </div>
+    </div>
+
+    <!-- Home content behind sheet -->
+    <div class="home-bg">
+      <div class="home-bg-inner">
+        <div class="plan-card"><div class="pc-ico">📋</div><div><div class="pc-title">Today's plan</div><div class="pc-sub">Up next · Afternoon nap · 1:30 pm</div></div></div>
+        <div class="ql-lbl">Quick log</div>
+        <div class="ql-grid">
+          <div class="ql-btn"><div class="ql-ico">🍽️</div><div class="ql-name">Meal</div><div class="ql-dot" style="background:#E8735A"></div></div>
+          <div class="ql-btn"><div class="ql-ico">😴</div><div class="ql-name">Sleep</div><div class="ql-dot" style="background:#6AABCF"></div></div>
+          <div class="ql-btn"><div class="ql-ico">🍼</div><div class="ql-name">Feed</div><div class="ql-dot" style="background:#C8907A"></div></div>
+          <div class="ql-btn"><div class="ql-ico">🧷</div><div class="ql-name">Nappy</div><div class="ql-dot" style="background:#5DB89A"></div></div>
+          <div class="ql-btn"><div class="ql-ico">📸</div><div class="ql-name">Photo</div><div class="ql-dot" style="background:#C9A84C"></div></div>
+          <div class="ql-btn"><div class="ql-ico">📝</div><div class="ql-name">Note</div><div class="ql-dot" style="background:#C4A882"></div></div>
+        </div>
+      </div>
+      <!-- Dim overlay -->
+      <div class="dim"></div>
+    </div>
+
+    <!-- BOTTOM SHEET -->
+    <div class="sheet">
+      <div class="hdl"></div>
+      <div class="shd">
+        <div class="shdr"><div class="shdot"></div><div class="shtitle">Log feed</div></div>
+        <div class="shtime"><span class="shtime-val">9:30</span><span class="shtime-edit">✎</span></div>
+      </div>
+      <div class="sfields">
+        <div>
+          <div class="fl">Feed type</div>
+          <div class="feed-type-row">
+            <div class="ft-btn">
+              <div class="ft-ico">🤱</div>
+              <div class="ft-lbl">Breast</div>
+              <div class="ft-sub">Side + duration</div>
+            </div>
+            <div class="ft-btn">
+              <div class="ft-ico">🍼</div>
+              <div class="ft-lbl">Bottle</div>
+              <div class="ft-sub">Amount + type</div>
+            </div>
+          </div>
+          <div class="np" style="text-align:center;margin-top:8px">Select breast or bottle to continue</div>
+        </div>
+      </div>
+      <button class="savebtn off">Save entry</button>
+    </div>
+
+    <div class="bnav">
+      <div class="ni on"><div class="nio">☀️</div><div class="nil" style="color:var(--forest)">Today</div></div>
+      <div class="ni"><div class="nio">📓</div><div class="nil">Diary</div></div>
+      <div class="ni"><div class="nio">📅</div><div class="nil">Plan</div></div>
+      <div class="ni"><div class="nio">🏡</div><div class="nil">Family</div></div>
+      <div class="ni"><div class="nio">⚙️</div><div class="nil">More</div></div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Sheet opens</h4><ul>
+    <li>Slides up over the home screen — same pattern as meal and nappy</li>
+    <li>Drag handle at top, home screen dimmed behind</li>
+    <li>Title: "Log feed" with milk dot accent</li>
+    <li>Tappable ✎ time pill top right</li>
+    <li>Two equal feed type buttons — no fields shown until one is tapped</li>
+    <li>Save button greyed until type selected</li>
+  </ul></div>
+</div>
+
+
+<!-- ════ STATE 2 — BREAST SELECTED ════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="sb"><span class="sbt">9:31</span><div class="sbr"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><div class="at">NannyNote</div><div class="av">JN</div></div>
+      <div class="ah-cream">
+        <div class="tabs"><div class="tab on">Olivia</div><div class="tab off">Theo</div></div>
+        <div class="dn"><div class="darr">‹</div><div class="dc"><div class="dl">Today</div><div class="dd">Tuesday, 1 April</div></div><div class="darr">›</div></div>
+      </div>
+    </div>
+    <div class="home-bg">
+      <div class="home-bg-inner">
+        <div class="plan-card"><div class="pc-ico">📋</div><div><div class="pc-title">Today's plan</div><div class="pc-sub">Up next · Afternoon nap · 1:30 pm</div></div></div>
+        <div class="ql-lbl">Quick log</div>
+        <div class="ql-grid">
+          <div class="ql-btn"><div class="ql-ico">🍽️</div><div class="ql-name">Meal</div><div class="ql-dot" style="background:#E8735A"></div></div>
+          <div class="ql-btn"><div class="ql-ico">😴</div><div class="ql-name">Sleep</div><div class="ql-dot" style="background:#6AABCF"></div></div>
+          <div class="ql-btn"><div class="ql-ico">🍼</div><div class="ql-name">Feed</div><div class="ql-dot" style="background:#C8907A"></div></div>
+          <div class="ql-btn"><div class="ql-ico">🧷</div><div class="ql-name">Nappy</div><div class="ql-dot" style="background:#5DB89A"></div></div>
+          <div class="ql-btn"><div class="ql-ico">📸</div><div class="ql-name">Photo</div><div class="ql-dot" style="background:#C9A84C"></div></div>
+          <div class="ql-btn"><div class="ql-ico">📝</div><div class="ql-name">Note</div><div class="ql-dot" style="background:#C4A882"></div></div>
+        </div>
+      </div>
+      <div class="dim"></div>
+    </div>
+
+    <div class="sheet">
+      <div class="hdl"></div>
+      <div class="shd">
+        <div class="shdr"><div class="shdot"></div><div class="shtitle">Log feed</div></div>
+        <div class="shtime"><span class="shtime-val">9:31</span><span class="shtime-edit">✎</span></div>
+      </div>
+      <div class="sfields">
+        <!-- Feed type — breast active -->
+        <div>
+          <div class="fl">Feed type</div>
+          <div class="feed-type-row">
+            <div class="ft-btn ab">
+              <div class="ft-ico">🤱</div>
+              <div class="ft-lbl brs">Breast</div>
+              <div class="ft-sub">Side + duration</div>
+            </div>
+            <div class="ft-btn">
+              <div class="ft-ico">🍼</div>
+              <div class="ft-lbl">Bottle</div>
+              <div class="ft-sub">Amount + type</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Side — centred, larger, Right pre-selected (opposite of last feed = Left) -->
+        <div>
+          <div class="fl">Side</div>
+          <div class="side-row">
+            <div class="side-chip">Left</div>
+            <div class="side-chip sel">Right</div>
+            <div class="side-chip">Both</div>
+          </div>
+          <div class="side-hint">Right pre-selected — opposite side to last feed</div>
+        </div>
+
+        <!-- Duration -->
+        <div>
+          <div class="fl">Duration</div>
+          <div class="dur-row">
+            <div class="dur-btn">−</div>
+            <div class="dur-val">12<span class="dur-unit">min</span></div>
+            <div class="dur-btn">+</div>
+          </div>
+          <div class="np">Tap − / + to adjust in 1-minute steps</div>
+        </div>
+
+      </div>
+      <button class="savebtn">🤱 Save entry</button>
+    </div>
+
+    <div class="bnav">
+      <div class="ni on"><div class="nio">☀️</div><div class="nil" style="color:var(--forest)">Today</div></div>
+      <div class="ni"><div class="nio">📓</div><div class="nil">Diary</div></div>
+      <div class="ni"><div class="nio">📅</div><div class="nil">Plan</div></div>
+      <div class="ni"><div class="nio">🏡</div><div class="nil">Family</div></div>
+      <div class="ni"><div class="nio">⚙️</div><div class="nil">More</div></div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Breast selected</h4><ul>
+    <li>Breast button shows active state — milk border and fill</li>
+    <li>Side chips: Left / Right / Both — larger, centred, full width of the row</li>
+    <li>Right pre-selected — always the opposite of the last recorded feed</li>
+    <li>Duration stepper in 1-minute steps</li>
+    <li>Amount and milk type completely absent — not greyed, not shown</li>
+    <li>Save button active — milk accent</li>
+  </ul></div>
+</div>
+
+
+<!-- ════ STATE 3 — BOTTLE SELECTED ════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="sb"><span class="sbt">9:32</span><div class="sbr"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><div class="at">NannyNote</div><div class="av">JN</div></div>
+      <div class="ah-cream">
+        <div class="tabs"><div class="tab on">Olivia</div><div class="tab off">Theo</div></div>
+        <div class="dn"><div class="darr">‹</div><div class="dc"><div class="dl">Today</div><div class="dd">Tuesday, 1 April</div></div><div class="darr">›</div></div>
+      </div>
+    </div>
+    <div class="home-bg">
+      <div class="home-bg-inner">
+        <div class="plan-card"><div class="pc-ico">📋</div><div><div class="pc-title">Today's plan</div><div class="pc-sub">Up next · Afternoon nap · 1:30 pm</div></div></div>
+        <div class="ql-lbl">Quick log</div>
+        <div class="ql-grid">
+          <div class="ql-btn"><div class="ql-ico">🍽️</div><div class="ql-name">Meal</div><div class="ql-dot" style="background:#E8735A"></div></div>
+          <div class="ql-btn"><div class="ql-ico">😴</div><div class="ql-name">Sleep</div><div class="ql-dot" style="background:#6AABCF"></div></div>
+          <div class="ql-btn"><div class="ql-ico">🍼</div><div class="ql-name">Feed</div><div class="ql-dot" style="background:#C8907A"></div></div>
+          <div class="ql-btn"><div class="ql-ico">🧷</div><div class="ql-name">Nappy</div><div class="ql-dot" style="background:#5DB89A"></div></div>
+          <div class="ql-btn"><div class="ql-ico">📸</div><div class="ql-name">Photo</div><div class="ql-dot" style="background:#C9A84C"></div></div>
+          <div class="ql-btn"><div class="ql-ico">📝</div><div class="ql-name">Note</div><div class="ql-dot" style="background:#C4A882"></div></div>
+        </div>
+      </div>
+      <div class="dim"></div>
+    </div>
+
+    <div class="sheet">
+      <div class="hdl"></div>
+      <div class="shd">
+        <div class="shdr"><div class="shdot"></div><div class="shtitle">Log feed</div></div>
+        <div class="shtime"><span class="shtime-val">9:32</span><span class="shtime-edit">✎</span></div>
+      </div>
+      <div class="sfields">
+        <!-- Feed type — bottle active -->
+        <div>
+          <div class="fl">Feed type</div>
+          <div class="feed-type-row">
+            <div class="ft-btn">
+              <div class="ft-ico">🤱</div>
+              <div class="ft-lbl">Breast</div>
+              <div class="ft-sub">Side + duration</div>
+            </div>
+            <div class="ft-btn abb">
+              <div class="ft-ico">🍼</div>
+              <div class="ft-lbl bot">Bottle</div>
+              <div class="ft-sub">Amount + type</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amount -->
+        <div>
+          <div class="fl">Amount</div>
+          <div class="amount-row">
+            <div class="amount-disp">
+              <div class="amount-val">120 <span style="font-size:0.6rem;color:var(--light);font-weight:400">ml</span></div>
+              <div class="amount-steps">
+                <div class="ast">▴</div>
+                <div class="ast">▾</div>
+              </div>
+            </div>
+            <div class="unit-tog">
+              <div class="ut on">ml</div>
+              <div class="ut">oz</div>
+            </div>
+          </div>
+          <div class="np">Adjusts in 10ml steps · tap to toggle ml / oz</div>
+        </div>
+
+        <!-- Milk type -->
+        <div>
+          <div class="fl">What's in the bottle?</div>
+          <div class="milk-type-wrap">
+            <div class="mt-hd"><span style="font-size:0.82rem">🥛</span><div class="mt-lbl">Milk type</div></div>
+            <div class="mt-chips">
+              <div class="mt-chip sel">Breast milk</div>
+              <div class="mt-chip">Formula</div>
+              <div class="mt-chip">Cow's milk</div>
+            </div>
+          </div>
+          <div class="np">Breast milk pre-selected · tap to change</div>
+        </div>
+
+      </div>
+      <button class="savebtn bot">🍼 Save entry</button>
+    </div>
+
+    <div class="bnav">
+      <div class="ni on"><div class="nio">☀️</div><div class="nil" style="color:var(--forest)">Today</div></div>
+      <div class="ni"><div class="nio">📓</div><div class="nil">Diary</div></div>
+      <div class="ni"><div class="nio">📅</div><div class="nil">Plan</div></div>
+      <div class="ni"><div class="nio">🏡</div><div class="nil">Family</div></div>
+      <div class="ni"><div class="nio">⚙️</div><div class="nil">More</div></div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Bottle selected</h4><ul>
+    <li>Bottle button shows sky blue active state — distinct from breast</li>
+    <li>Amount field: numeric + ▴▾ stepper in 10ml steps + ml/oz toggle</li>
+    <li>Milk type sub-selector: Breast milk / Formula / Cow's milk — breast pre-selected</li>
+    <li>Side and Duration completely absent</li>
+    <li>Save button uses sky blue — signals bottle context</li>
+  </ul></div>
+</div>
+
+
+<!-- ════ STATE 4 — TIME PICKER OPEN ════ -->
+<div class="pw">
+  <div class="phone"><div class="di"></div><div class="ps">
+    <div class="sb"><span class="sbt">9:31</span><div class="sbr"><div class="sig"><span></span><span></span><span></span><span></span></div><div class="batt"><div class="bf"></div></div></div></div>
+    <div class="ah">
+      <div class="ah-bar"><div class="at">NannyNote</div><div class="av">JN</div></div>
+      <div class="ah-cream">
+        <div class="tabs"><div class="tab on">Olivia</div><div class="tab off">Theo</div></div>
+        <div class="dn"><div class="darr">‹</div><div class="dc"><div class="dl">Today</div><div class="dd">Tuesday, 1 April</div></div><div class="darr">›</div></div>
+      </div>
+    </div>
+    <div class="home-bg">
+      <div class="home-bg-inner" style="opacity:0.3"></div>
+      <div class="dim"></div>
+    </div>
+
+    <div class="sheet">
+      <div class="hdl"></div>
+      <div class="shd">
+        <div class="shdr"><div class="shdot"></div><div class="shtitle">Log feed</div></div>
+        <div class="shtime active"><span class="shtime-val" style="color:var(--milk)">9:45</span><span class="shtime-edit" style="color:var(--milk)">✎</span></div>
+      </div>
+      <div class="sfields">
+        <!-- Time picker dropped in -->
+        <div>
+          <div class="fl">When did the feed start?</div>
+          <div class="tpicker">
+            <div class="tpicker-row">
+              <div class="tpcol">
+                <div class="tparr">▴</div>
+                <div class="tpval">9</div>
+                <div class="tparr">▾</div>
+              </div>
+              <div class="tpsep">:</div>
+              <div class="tpcol">
+                <div class="tparr">▴</div>
+                <div class="tpval">45</div>
+                <div class="tparr">▾</div>
+              </div>
+              <div class="tpdone">Done</div>
+            </div>
+            <div class="tp-hint">Tap Done to confirm · time logged at 9:31</div>
+          </div>
+        </div>
+
+        <!-- Feed type still visible -->
+        <div>
+          <div class="fl">Feed type</div>
+          <div class="feed-type-row">
+            <div class="ft-btn ab">
+              <div class="ft-ico">🤱</div>
+              <div class="ft-lbl brs">Breast</div>
+              <div class="ft-sub">Side + duration</div>
+            </div>
+            <div class="ft-btn">
+              <div class="ft-ico">🍼</div>
+              <div class="ft-lbl">Bottle</div>
+              <div class="ft-sub">Amount + type</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="fl">Side</div>
+          <div class="side-row">
+            <div class="side-chip">Left</div>
+            <div class="side-chip sel">Right</div>
+            <div class="side-chip">Both</div>
+          </div>
+        </div>
+
+      </div>
+      <button class="savebtn">🤱 Save entry</button>
+    </div>
+
+    <div class="bnav">
+      <div class="ni on"><div class="nio">☀️</div><div class="nil" style="color:var(--forest)">Today</div></div>
+      <div class="ni"><div class="nio">📓</div><div class="nil">Diary</div></div>
+      <div class="ni"><div class="nio">📅</div><div class="nil">Plan</div></div>
+      <div class="ni"><div class="nio">🏡</div><div class="nil">Family</div></div>
+      <div class="ni"><div class="nio">⚙️</div><div class="nil">More</div></div>
+    </div>
+  </div></div>
+  <div class="cap"><h4>Time picker open</h4><ul>
+    <li>Tapping ✎ time pill turns it milk colour and drops the picker in below the header</li>
+    <li>Hour and minute scroll columns — same pattern as meal and nappy sheets</li>
+    <li>Hint: "Tap Done to confirm · time logged at 9:31" — preserves original tap timestamp</li>
+    <li>Tap Done to close and update the time pill</li>
+    <li>Consistent with all other log sheet time pickers</li>
+  </ul></div>
+</div>
+
+
+</div><!-- /phones -->
+
+<div class="pg-notes">
+  <div class="nc"><h5>📋 Bottom sheet</h5><p>Slides up over the home screen exactly like the meal and nappy log. <strong>Drag handle at top, home screen dimmed behind.</strong> Consistent with all other quick log sheets.</p></div>
+  <div class="nc"><h5>🔀 Conditional logic</h5><p><strong>Breast → Side + Duration. Bottle → Amount + Milk type.</strong> Fields appear and disappear completely — no greyed-out states, no hidden rows.</p></div>
+  <div class="nc"><h5>🤱 Side pre-selection</h5><p>Always pre-selects <strong>the opposite side to the last recorded breast feed.</strong> Last was Left → Right pre-selected. Last was Right → Left pre-selected. Last was Both → Both pre-selected. Nanny can override.</p></div>
+  <div class="nc"><h5>⏱️ Duration</h5><p>Manual stepper only for Phase 1 — nanny logs retrospectively after the feed. <strong>No live timer in Phase 1.</strong> Live breast feed timer (background-persistent, like sleep) is a Phase 2 feature.</p></div>
+  <div class="nc"><h5>💾 Data</h5><p>Breast: <code>{ type:"breast", side:"right", duration_mins:12 }</code>. Bottle: <code>{ type:"bottle", amount_ml:120, unit:"ml", milk_type:"breast_milk" }</code>.</p></div>
+</div>
+
+</body>
+</html>
